@@ -120,9 +120,19 @@ static int speex_packet(AVFormatContext *s, int idx)
     return 0;
 }
 
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_speex_codec = {
     .magic = "Speex   ",
     .magicsize = 8,
     .header = speex_header,
     .packet = speex_packet
 };
+#else
+const struct ogg_codec ff_speex_codec = {
+    "Speex   ",
+	8,
+	0,
+    speex_header,
+    speex_packet
+};
+#endif

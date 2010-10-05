@@ -491,9 +491,15 @@ static int aac_encode_frame(AVCodecContext *avctx,
     int16_t *samples = s->samples, *samples2, *la;
     ChannelElement *cpe;
     int i, j, chans, tag, start_ch;
-    const uint8_t *chan_map = aac_chan_configs[avctx->channels-1];
-    int chan_el_counter[4];
+	const uint8_t *chan_map = aac_chan_configs[avctx->channels-1];
+	int chan_el_counter[4];
+
+ #ifndef _MSC_VER
     FFPsyWindowInfo windows[avctx->channels];
+#else
+    FFPsyWindowInfo windows[MAX_AUDIO_CHANNELS];
+	assert(avctx->channels <= MAX_AUDIO_CHANNELS);
+#endif
 
     if (s->last_frame)
         return 0;
@@ -637,7 +643,10 @@ static av_cold int aac_encode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat aac_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec aac_encoder = {
+#ifndef MSC_STRUCTS
     "aac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_AAC,
@@ -648,4 +657,23 @@ AVCodec aac_encoder = {
     .capabilities = CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY | CODEC_CAP_EXPERIMENTAL,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Advanced Audio Coding"),
+#else
+    /* name = */ "aac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_AAC,
+    /* priv_data_size = */ sizeof(AACEncContext),
+    /* init = */ aac_encode_init,
+    /* encode = */ aac_encode_frame,
+    /* close = */ aac_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY | CODEC_CAP_EXPERIMENTAL,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Advanced Audio Coding"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ aac_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };

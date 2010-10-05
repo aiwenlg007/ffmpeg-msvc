@@ -509,14 +509,26 @@ static inline int encode_line(FFV1Context *s, int w, int_fast16_t *sample[2], in
 static void encode_plane(FFV1Context *s, uint8_t *src, int w, int h, int stride, int plane_index){
     int x,y,i;
     const int ring_size= s->avctx->context_model ? 3 : 2;
-    int_fast16_t sample_buffer[ring_size][w+6], *sample[ring_size];
-    s->run_index=0;
 
-    memset(sample_buffer, 0, sizeof(sample_buffer));
+#ifndef _MSC_VER
+	int_fast16_t sample_buffer[ring_size][w+6], *sample[ring_size];
+	s->run_index=0;
+
+	memset(sample_buffer, 0, sizeof(sample_buffer));
+#else
+	int_fast16_t *sample_buffer = av_malloc_items(3*(w+6), int_fast16_t), *sample[3];
+	s->run_index=0;
+
+	memset(sample_buffer, 0, 3*(w+6)*sizeof(int_fast16_t));
+#endif
 
     for(y=0; y<h; y++){
         for(i=0; i<ring_size; i++)
+#ifndef _MSC_VER
             sample[i]= sample_buffer[(h+i-y)%ring_size]+3;
+#else
+            sample[i]= sample_buffer + (w+6)*((h+i-y)%ring_size) + 3;
+#endif
 
         sample[0][-1]= sample[1][0  ];
         sample[1][ w]= sample[1][w-1];
@@ -534,20 +546,34 @@ static void encode_plane(FFV1Context *s, uint8_t *src, int w, int h, int stride,
         }
 //STOP_TIMER("encode line")}
     }
+
+#ifdef _MSC_VER
+	av_free(sample_buffer);
+#endif
 }
 
 static void encode_rgb_frame(FFV1Context *s, uint32_t *src, int w, int h, int stride){
     int x, y, p, i;
     const int ring_size= s->avctx->context_model ? 3 : 2;
+#ifndef _MSC_VER
     int_fast16_t sample_buffer[3][ring_size][w+6], *sample[3][ring_size];
     s->run_index=0;
 
     memset(sample_buffer, 0, sizeof(sample_buffer));
+#else
+    int_fast16_t *sample_buffer = av_malloc_items(3*3*(w+6), int_fast16_t), *sample[3][3];
+    s->run_index=0;
+    memset(sample_buffer, 0, 3*3*(w+6)*sizeof(int_fast16_t));
+#endif
 
     for(y=0; y<h; y++){
         for(i=0; i<ring_size; i++)
             for(p=0; p<3; p++)
+#ifndef _MSC_VER
                 sample[p][i]= sample_buffer[p][(h+i-y)%ring_size]+3;
+#else
+                sample[p][i]= sample_buffer + p*ring_size*(w+6) + ((h+i-y)%ring_size)*(w+6) + 3;
+#endif
 
         for(x=0; x<w; x++){
             int v= src[x + stride*y];
@@ -573,6 +599,10 @@ static void encode_rgb_frame(FFV1Context *s, uint32_t *src, int w, int h, int st
             encode_line(s, w, sample[p], FFMIN(p, 1), 9);
         }
     }
+
+#ifdef _MSC_VER
+	av_free(sample_buffer);
+#endif
 }
 
 static void write_quant_table(RangeCoder *c, int16_t *quant_table){
@@ -885,6 +915,7 @@ static av_always_inline void decode_line(FFV1Context *s, int w, int_fast16_t *sa
 
 static void decode_plane(FFV1Context *s, uint8_t *src, int w, int h, int stride, int plane_index){
     int x, y;
+#ifndef _MSC_VER
     int_fast16_t sample_buffer[2][w+6];
     int_fast16_t *sample[2];
     sample[0]=sample_buffer[0]+3;
@@ -893,6 +924,17 @@ static void decode_plane(FFV1Context *s, uint8_t *src, int w, int h, int stride,
     s->run_index=0;
 
     memset(sample_buffer, 0, sizeof(sample_buffer));
+#else
+    int_fast16_t *sample_buffer= av_malloc_items((w+6)*2, int_fast16_t);
+    int_fast16_t *sample[2];
+
+    sample[0]=sample_buffer+3;
+    sample[1]=sample_buffer + (w+6) +3;
+
+    s->run_index=0;
+
+    memset(sample_buffer, 0, (w+6)*2*sizeof(int_fast16_t));
+#endif
 
     for(y=0; y<h; y++){
         int_fast16_t *temp= sample[0]; //FIXME try a normal buffer
@@ -916,11 +958,16 @@ static void decode_plane(FFV1Context *s, uint8_t *src, int w, int h, int stride,
             }
         }
 //STOP_TIMER("decode-line")}
-    }
+	}
+
+#ifdef _MSC_VER
+	av_free(sample_buffer);
+#endif
 }
 
 static void decode_rgb_frame(FFV1Context *s, uint32_t *src, int w, int h, int stride){
     int x, y, p;
+#ifndef _MSC_VER
     int_fast16_t sample_buffer[3][2][w+6];
     int_fast16_t *sample[3][2];
     for(x=0; x<3; x++){
@@ -931,6 +978,18 @@ static void decode_rgb_frame(FFV1Context *s, uint32_t *src, int w, int h, int st
     s->run_index=0;
 
     memset(sample_buffer, 0, sizeof(sample_buffer));
+#else
+	int_fast16_t *sample_buffer= av_malloc_items((w+6)*6, int_fast16_t);
+    int_fast16_t *sample[3][2];
+    for(x=0; x<3; x++){
+		sample[x][0] = sample_buffer +  x*2   *(w+6) + 3;
+		sample[x][1] = sample_buffer + (x*2+1)*(w+6) + 3;
+    }
+
+    s->run_index=0;
+
+    memset(sample_buffer, 0, 6*(w+6)*sizeof(int_fast16_t));
+#endif
 
     for(y=0; y<h; y++){
         for(p=0; p<3; p++){
@@ -960,6 +1019,10 @@ static void decode_rgb_frame(FFV1Context *s, uint32_t *src, int w, int h, int st
             src[x + stride*y]= b + (g<<8) + (r<<16);
         }
     }
+
+#ifdef _MSC_VER
+	av_free(sample_buffer);
+#endif
 }
 
 static int read_quant_table(RangeCoder *c, int16_t *quant_table, int scale){
@@ -1169,6 +1232,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
 }
 
 AVCodec ffv1_decoder = {
+#ifndef MSC_STRUCTS
     "ffv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FFV1,
@@ -1180,10 +1244,32 @@ AVCodec ffv1_decoder = {
     CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
     NULL,
     .long_name= NULL_IF_CONFIG_SMALL("FFmpeg video codec #1"),
+#else
+    /* name = */ "ffv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FFV1,
+    /* priv_data_size = */ sizeof(FFV1Context),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ common_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("FFmpeg video codec #1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_FFV1_ENCODER
+const enum PixelFormat ffv1_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV444P, PIX_FMT_YUV422P, PIX_FMT_YUV411P, PIX_FMT_YUV410P, PIX_FMT_RGB32, PIX_FMT_YUV420P16, PIX_FMT_YUV422P16, PIX_FMT_YUV444P16, PIX_FMT_NONE};
+
 AVCodec ffv1_encoder = {
+#ifndef MSC_STRUCTS
     "ffv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FFV1,
@@ -1193,5 +1279,24 @@ AVCodec ffv1_encoder = {
     common_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV444P, PIX_FMT_YUV422P, PIX_FMT_YUV411P, PIX_FMT_YUV410P, PIX_FMT_RGB32, PIX_FMT_YUV420P16, PIX_FMT_YUV422P16, PIX_FMT_YUV444P16, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("FFmpeg video codec #1"),
+#else
+    /* name = */ "ffv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FFV1,
+    /* priv_data_size = */ sizeof(FFV1Context),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ common_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ffv1_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("FFmpeg video codec #1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

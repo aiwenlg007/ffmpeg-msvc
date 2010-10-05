@@ -174,7 +174,11 @@ static void vp56_decode_4mv(VP56Context *s, int row, int col)
     for (b=0; b<4; b++) {
         switch (type[b]) {
             case VP56_MB_INTER_NOVEC_PF:
+#ifndef _MSC_VER
                 s->mv[b] = (VP56mv) {0,0};
+#else
+				s->mv[b].x = s->mv[b].y = 0;
+#endif
                 break;
             case VP56_MB_INTER_DELTA_PF:
                 s->parse_vector_adjustment(s, &s->mv[b]);
@@ -198,7 +202,12 @@ static void vp56_decode_4mv(VP56Context *s, int row, int col)
         s->mv[4].x = s->mv[5].x = RSHIFT(mv.x,2);
         s->mv[4].y = s->mv[5].y = RSHIFT(mv.y,2);
     } else {
+#ifndef _MSC_VER
         s->mv[4] = s->mv[5] = (VP56mv) {mv.x/4, mv.y/4};
+#else
+        s->mv[4].x = s->mv[5].x = mv.x/4;
+		s->mv[4].y = s->mv[5].y = mv.y/4;
+#endif
     }
 }
 

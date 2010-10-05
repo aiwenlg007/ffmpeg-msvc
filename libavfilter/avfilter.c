@@ -182,6 +182,10 @@ static void dprintf_picref(void *ctx, AVFilterPicRef *picref, int end)
 
 static void dprintf_link(void *ctx, AVFilterLink *link, int end)
 {
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     dprintf(ctx,
             "link[%p s:%dx%d fmt:%-16s %-16s->%-16s]%s",
             link, link->w, link->h,
@@ -296,6 +300,10 @@ void avfilter_draw_slice(AVFilterLink *link, int y, int h, int slice_dir)
     uint8_t *src[4], *dst[4];
     int i, j, vsub;
     void (*draw_slice)(AVFilterLink *, int, int, int);
+
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
 
     DPRINTF_START(NULL, draw_slice); dprintf_link(NULL, link, 0); dprintf(NULL, " y:%d h:%d dir:%d\n", y, h, slice_dir);
 

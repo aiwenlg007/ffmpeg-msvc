@@ -19,7 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifndef _MSC_VER
 #include <strings.h>
+#else
+#include "os_support.h"
+#endif
+
 #include "libavutil/avstring.h"
 #include "libavutil/intreadwrite.h"
 #include "avformat.h"
@@ -125,8 +130,12 @@ static int mp3_parse_vbr_tags(AVFormatContext *s, AVStream *st, int64_t base)
     url_fseek(s->pb, base + vbrtag_size, SEEK_SET);
 
     spf = c.lsf ? 576 : 1152; /* Samples per frame, layer 3 */
+#ifndef _MSC_VER
     st->duration = av_rescale_q(frames, (AVRational){spf, c.sample_rate},
                                 st->time_base);
+#else
+	st->duration = av_rescale_q(frames, av_create_rational(spf, c.sample_rate), st->time_base);
+#endif
     return 0;
 }
 
@@ -183,6 +192,7 @@ static int mp3_read_packet(AVFormatContext *s, AVPacket *pkt)
 }
 
 AVInputFormat mp3_demuxer = {
+#ifndef MSC_STRUCTS
     "mp3",
     NULL_IF_CONFIG_SMALL("MPEG audio layer 2/3"),
     0,
@@ -193,6 +203,27 @@ AVInputFormat mp3_demuxer = {
     .extensions = "mp2,mp3,m2a", /* XXX: use probe */
     .metadata_conv = ff_id3v2_metadata_conv,
 };
+#else
+	"mp3",
+	NULL_IF_CONFIG_SMALL("MPEG audio layer 2/3"),
+	0,
+	mp3_read_probe,
+	mp3_read_header,
+	mp3_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "mp2,mp3,m2a",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ ff_id3v2_metadata_conv,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MP2_MUXER || CONFIG_MP3_MUXER
@@ -350,6 +381,7 @@ static int mp3_write_header(struct AVFormatContext *s)
 }
 
 AVOutputFormat mp3_muxer = {
+#ifndef MSC_STRUCTS
     "mp3",
     NULL_IF_CONFIG_SMALL("MPEG audio layer 3"),
     "audio/x-mpeg",
@@ -363,4 +395,24 @@ AVOutputFormat mp3_muxer = {
     AVFMT_NOTIMESTAMPS,
     .metadata_conv = ff_id3v2_metadata_conv,
 };
+#else
+	"mp3",
+	NULL_IF_CONFIG_SMALL("MPEG audio layer 3"),
+	"audio/x-mpeg",
+	"mp3",
+	0,
+	CODEC_ID_MP3,
+	CODEC_ID_NONE,
+	mp3_write_header,
+	mp3_write_packet,
+	mp3_write_trailer,
+	AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_id3v2_metadata_conv,
+	/*next = */ 0
+};
+#endif
 #endif

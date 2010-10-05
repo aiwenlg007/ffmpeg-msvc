@@ -344,6 +344,7 @@ static int cinaudio_decode_frame(AVCodecContext *avctx,
 
 
 AVCodec dsicinvideo_decoder = {
+#ifndef MSC_STRUCTS
     "dsicinvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DSICINVIDEO,
@@ -354,9 +355,29 @@ AVCodec dsicinvideo_decoder = {
     cinvideo_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Delphine Software International CIN video"),
+#else
+    /* name = */ "dsicinvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DSICINVIDEO,
+    /* priv_data_size = */ sizeof(CinVideoContext),
+    /* init = */ cinvideo_decode_init,
+    /* encode = */ NULL,
+    /* close = */ cinvideo_decode_end,
+    /* decode = */ cinvideo_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Delphine Software International CIN video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec dsicinaudio_decoder = {
+#ifndef MSC_STRUCTS
     "dsicinaudio",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_DSICINAUDIO,
@@ -366,4 +387,23 @@ AVCodec dsicinaudio_decoder = {
     NULL,
     cinaudio_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Delphine Software International CIN audio"),
+#else
+    /* name = */ "dsicinaudio",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_DSICINAUDIO,
+    /* priv_data_size = */ sizeof(CinAudioContext),
+    /* init = */ cinaudio_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ cinaudio_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Delphine Software International CIN audio"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

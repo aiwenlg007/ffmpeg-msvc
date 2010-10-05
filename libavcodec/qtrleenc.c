@@ -320,7 +320,10 @@ static av_cold int qtrle_encode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat qtrle_encoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_RGB555BE, PIX_FMT_ARGB, PIX_FMT_NONE};
+
 AVCodec qtrle_encoder = {
+#ifndef MSC_STRUCTS
     "qtrle",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_QTRLE,
@@ -330,4 +333,23 @@ AVCodec qtrle_encoder = {
     qtrle_encode_end,
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB555BE, PIX_FMT_ARGB, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("QuickTime Animation (RLE) video"),
+#else
+    /* name = */ "qtrle",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_QTRLE,
+    /* priv_data_size = */ sizeof(QtrleEncContext),
+    /* init = */ qtrle_encode_init,
+    /* encode = */ qtrle_encode_frame,
+    /* close = */ qtrle_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ qtrle_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("QuickTime Animation (RLE) video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

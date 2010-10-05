@@ -22,6 +22,11 @@
 #ifndef AVFILTER_AVFILTER_H
 #define AVFILTER_AVFILTER_H
 
+#ifdef _MSC_VER
+#include "libavutil/internal.h"
+#define MSC_STRUCTS
+#endif
+
 #include "libavutil/avutil.h"
 
 #define LIBAVFILTER_VERSION_MAJOR  1

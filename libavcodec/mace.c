@@ -280,6 +280,7 @@ static int mace_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec mace3_decoder = {
+#ifndef MSC_STRUCTS
     "mace3",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MACE3,
@@ -289,9 +290,29 @@ AVCodec mace3_decoder = {
     NULL,
     mace_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("MACE (Macintosh Audio Compression/Expansion) 3:1"),
+#else
+    /* name = */ "mace3",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MACE3,
+    /* priv_data_size = */ sizeof(MACEContext),
+    /* init = */ mace_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ mace_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MACE (Macintosh Audio Compression/Expansion) 3:1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec mace6_decoder = {
+#ifndef MSC_STRUCTS
     "mace6",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MACE6,
@@ -301,5 +322,24 @@ AVCodec mace6_decoder = {
     NULL,
     mace_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("MACE (Macintosh Audio Compression/Expansion) 6:1"),
+#else
+    /* name = */ "mace6",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MACE6,
+    /* priv_data_size = */ sizeof(MACEContext),
+    /* init = */ mace_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ mace_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MACE (Macintosh Audio Compression/Expansion) 6:1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_VORBIS_DECODER
+
 #undef V_DEBUG
 //#define V_DEBUG
 //#define AV_DEBUG(...) av_log(NULL, AV_LOG_INFO, __VA_ARGS__)
@@ -1644,6 +1646,7 @@ static av_cold int vorbis_decode_close(AVCodecContext *avccontext)
 }
 
 AVCodec vorbis_decoder = {
+#ifndef MSC_STRUCTS
     "vorbis",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_VORBIS,
@@ -1654,5 +1657,26 @@ AVCodec vorbis_decoder = {
     vorbis_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Vorbis"),
     .channel_layouts = ff_vorbis_channel_layouts,
+#else
+    /* name = */ "vorbis",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_VORBIS,
+    /* priv_data_size = */ sizeof(vorbis_context),
+    /* init = */ vorbis_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vorbis_decode_close,
+    /* decode = */ vorbis_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Vorbis"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ ff_vorbis_channel_layouts,
+#endif
 };
 
+
+#endif

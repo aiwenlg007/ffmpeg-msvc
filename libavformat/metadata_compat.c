@@ -18,7 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifndef _MSC_VER
 #include <strings.h>
+#else
+#include "os_support.h"
+#endif
 #include "avformat.h"
 #include "metadata.h"
 #include "libavutil/avstring.h"

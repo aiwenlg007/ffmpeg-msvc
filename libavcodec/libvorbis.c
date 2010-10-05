@@ -24,6 +24,8 @@
  * @author Mark Hills <mark@pogo.org.uk>
  */
 
+#if CONFIG_LIBVORBIS
+
 #include <vorbis/vorbisenc.h>
 
 #include "avcodec.h"
@@ -214,8 +216,10 @@ static av_cold int oggvorbis_encode_close(AVCodecContext *avccontext) {
     return 0 ;
 }
 
+const enum SampleFormat libvorbis_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
 
 AVCodec libvorbis_encoder = {
+#ifndef MSC_STRUCTS
     "libvorbis",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_VORBIS,
@@ -226,4 +230,25 @@ AVCodec libvorbis_encoder = {
     .capabilities= CODEC_CAP_DELAY,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("libvorbis Vorbis"),
+#else
+    /* name = */ "libvorbis",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_VORBIS,
+    /* priv_data_size = */ sizeof(OggVorbisContext),
+    /* init = */ oggvorbis_encode_init,
+    /* encode = */ oggvorbis_encode_frame,
+    /* close = */ oggvorbis_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libvorbis Vorbis"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ libvorbis_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 } ;
+
+#endif

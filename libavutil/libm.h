@@ -21,6 +21,10 @@
  * Replacements for frequently missing libm functions
  */
 
+#ifdef _MSC_VER
+#include <float.h>
+#endif
+
 #ifndef AVUTIL_LIBM_H
 #define AVUTIL_LIBM_H
 
@@ -37,6 +41,19 @@
 #undef exp2f
 #define exp2f(x) ((float)exp2(x))
 #endif /* HAVE_EXP2F */
+
+#ifdef _MSC_VER
+static double rint(double x)
+{
+	return floor(x+.5);
+}
+
+static int isinf(double d)
+{
+	int fpc = _fpclass(d);
+	return fpc == _FPCLASS_NINF || fpc == _FPCLASS_PINF;
+}
+#endif
 
 #if !HAVE_LLRINT
 #undef llrint

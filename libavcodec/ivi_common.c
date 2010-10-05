@@ -46,7 +46,9 @@ VLC ff_ivi_blk_vlc_tabs[8];
 static uint16_t inv_bits(uint16_t val, int nbits)
 {
     uint16_t res;
-
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     if (nbits <= 8) {
         res = av_reverse[val] >> (8-nbits);
     } else

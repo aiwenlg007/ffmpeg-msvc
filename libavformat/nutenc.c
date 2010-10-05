@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_LIBNUT
+
 #include "libavutil/intreadwrite.h"
 #include "libavutil/tree.h"
 #include "libavcodec/mpegaudiodata.h"
@@ -826,3 +828,5 @@ AVOutputFormat nut_muxer = {
     .codec_tag= (const AVCodecTag* const []){ff_codec_bmp_tags, ff_codec_wav_tags, ff_nut_subtitle_tags, 0},
     .metadata_conv = ff_nut_metadata_conv,
 };
+
+#endif

@@ -125,10 +125,16 @@ static int simple_lbg(int dim,
 {
     int i, idx;
     int numpoints[2] = {0,0};
-    int newcentroid[2][dim];
-    cell *tempcell;
-
-    memset(newcentroid, 0, sizeof(newcentroid));
+#ifndef _MSC_VER
+	int newcentroid[2][dim];
+	cell *tempcell;
+	memset(newcentroid, 0, sizeof(newcentroid));
+#else
+	int *newcentroid_buf = av_malloc_items(dim * 2, int);
+	int *newcentroid[2] = { newcentroid_buf, newcentroid_buf + dim };
+	cell *tempcell;
+	memset(newcentroid, 0, sizeof(int) * dim * 2);
+#endif
 
     newutility[0] =
     newutility[1] = 0;
@@ -151,6 +157,10 @@ static int simple_lbg(int dim,
         newutility[idx] += dist[idx];
     }
 
+#ifdef _MSC_VER
+	av_free(newcentroid_buf);
+#endif
+
     return newutility[0] + newutility[1];
 }
 
@@ -158,8 +168,13 @@ static void get_new_centroids(elbg_data *elbg, int huc, int *newcentroid_i,
                               int *newcentroid_p)
 {
     cell *tempcell;
+#ifndef _MSC_VER
     int min[elbg->dim];
     int max[elbg->dim];
+#else
+    int *min = av_malloc_items(elbg->dim, int);
+    int *max = av_malloc_items(elbg->dim, int);
+#endif
     int i;
 
     for (i=0; i< elbg->dim; i++) {
@@ -177,6 +192,12 @@ static void get_new_centroids(elbg_data *elbg, int huc, int *newcentroid_i,
         newcentroid_i[i] = min[i] + (max[i] - min[i])/3;
         newcentroid_p[i] = min[i] + (2*(max[i] - min[i]))/3;
     }
+
+#ifdef _MSC_VER
+	av_free(min);
+	av_free(max);
+#endif
+
 }
 
 /**
@@ -248,6 +269,8 @@ static void try_shift_candidate(elbg_data *elbg, int idx[3])
 {
     int j, k, olderror=0, newerror, cont=0;
     int newutility[3];
+
+#ifndef _MSC_VER
     int newcentroid[3][elbg->dim];
     int *newcentroid_ptrs[3];
     cell *tempcell;
@@ -255,6 +278,16 @@ static void try_shift_candidate(elbg_data *elbg, int idx[3])
     newcentroid_ptrs[0] = newcentroid[0];
     newcentroid_ptrs[1] = newcentroid[1];
     newcentroid_ptrs[2] = newcentroid[2];
+#else
+	int *newcentroid_buf = av_malloc_items(elbg->dim * 3, int);
+	int *newcentroid[3] = { newcentroid_buf, newcentroid_buf + elbg->dim, newcentroid_buf + elbg->dim * 2 };
+    int *newcentroid_ptrs[3];
+    cell *tempcell;
+
+    newcentroid_ptrs[0] = newcentroid[0];
+    newcentroid_ptrs[1] = newcentroid[1];
+    newcentroid_ptrs[2] = newcentroid[2];
+#endif
 
     for (j=0; j<3; j++)
         olderror += elbg->utility[idx[j]];
@@ -290,6 +323,10 @@ static void try_shift_candidate(elbg_data *elbg, int idx[3])
 
         evaluate_utility_inc(elbg);
     }
+
+#ifdef _MSC_VER
+		av_free(newcentroid_buf);
+#endif
  }
 
 /**

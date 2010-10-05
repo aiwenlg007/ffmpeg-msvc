@@ -88,7 +88,11 @@ static int yop_read_header(AVFormatContext *s, AVFormatParameters *ap)
     video_dec->width        = get_le16(pb);
     video_dec->height       = get_le16(pb);
 
+#ifndef _MSC_VER
     video_stream->sample_aspect_ratio = (AVRational){1, 2};
+#else
+	video_stream->sample_aspect_ratio = av_create_rational(1, 2);
+#endif
 
     ret = get_buffer(pb, video_dec->extradata, 8);
     if (ret < 8)
@@ -203,6 +207,7 @@ static int yop_read_seek(AVFormatContext *s, int stream_index,
 }
 
 AVInputFormat yop_demuxer = {
+#ifndef MSC_STRUCTS
     "yop",
     NULL_IF_CONFIG_SMALL("Psygnosis YOP Format"),
     sizeof(YopDecContext),
@@ -214,3 +219,24 @@ AVInputFormat yop_demuxer = {
     .extensions = "yop",
     .flags = AVFMT_GENERIC_INDEX,
 };
+#else
+	"yop",
+	NULL_IF_CONFIG_SMALL("Psygnosis YOP Format"),
+	sizeof(YopDecContext),
+	yop_probe,
+	yop_read_header,
+	yop_read_packet,
+	yop_read_close,
+	yop_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "yop",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

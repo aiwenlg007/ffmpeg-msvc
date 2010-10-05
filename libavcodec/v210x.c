@@ -133,6 +133,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 }
 
 AVCodec v210x_decoder = {
+#ifndef MSC_STRUCTS
     "v210x",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_V210X,
@@ -143,4 +144,23 @@ AVCodec v210x_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Uncompressed 4:2:2 10-bit"),
+#else
+    /* name = */ "v210x",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_V210X,
+    /* priv_data_size = */ 0,
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_close,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Uncompressed 4:2:2 10-bit"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

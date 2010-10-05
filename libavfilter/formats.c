@@ -108,6 +108,9 @@ AVFilterFormats *avfilter_all_colorspaces(void)
     AVFilterFormats *ret = NULL;
     enum PixelFormat pix_fmt;
 
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
     for (pix_fmt = 0; pix_fmt < PIX_FMT_NB; pix_fmt++)
         if (!(av_pix_fmt_descriptors[pix_fmt].flags & PIX_FMT_HWACCEL))
             avfilter_add_colorspace(&ret, pix_fmt);

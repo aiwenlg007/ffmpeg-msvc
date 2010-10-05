@@ -24,6 +24,8 @@
 * JPEG 2000 decoder using libopenjpeg
 */
 
+#if CONFIG_LIBOPENJPEG
+
 #include "avcodec.h"
 #include "libavutil/intreadwrite.h"
 #define  OPJ_STATIC
@@ -184,6 +186,7 @@ static av_cold int libopenjpeg_decode_close(AVCodecContext *avctx)
 
 
 AVCodec libopenjpeg_decoder = {
+#ifndef MSC_STRUCTS
     "libopenjpeg",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_JPEG2000,
@@ -194,4 +197,25 @@ AVCodec libopenjpeg_decoder = {
     libopenjpeg_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("OpenJPEG based JPEG 2000 decoder"),
+#else
+    /* name = */ "libopenjpeg",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_JPEG2000,
+    /* priv_data_size = */ sizeof(LibOpenJPEGContext),
+    /* init = */ libopenjpeg_decode_init,
+    /* encode = */ NULL,
+    /* close = */ libopenjpeg_decode_close,
+    /* decode = */ libopenjpeg_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("OpenJPEG based JPEG 2000 decoder"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 } ;
+
+#endif

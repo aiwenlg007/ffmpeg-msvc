@@ -18,6 +18,7 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
 #include "avcodec.h"
 #include "get_bits.h"
 #include "put_bits.h"
@@ -297,13 +298,22 @@ static void adpcm_compress_trellis(AVCodecContext *avctx, const short *samples,
     const int frontier = 1 << avctx->trellis;
     const int stride = avctx->channels;
     const int version = avctx->codec->id;
-    const int max_paths = frontier*FREEZE_INTERVAL;
-    TrellisPath paths[max_paths], *p;
+	const int max_paths = frontier*FREEZE_INTERVAL;
+#ifndef _MSC_VER
+	TrellisPath paths[max_paths], *p;
     TrellisNode node_buf[2][frontier];
-    TrellisNode *nodep_buf[2][frontier];
-    TrellisNode **nodes = nodep_buf[0]; // nodes[] is always sorted by .ssd
-    TrellisNode **nodes_next = nodep_buf[1];
-    int pathn = 0, froze = -1, i, j, k;
+	TrellisNode *nodep_buf[2][frontier];
+#else
+	TrellisPath *paths = av_malloc_items(max_paths, sizeof(TrellisNode)), *p;
+	TrellisNode *node_buf_buf = av_malloc_items(frontier * 2, sizeof(TrellisNode));
+	TrellisNode **nodep_buf_buf = av_malloc(sizeof(TrellisNode*) * frontier * 2);
+	TrellisNode *node_buf[2] = { node_buf_buf, node_buf_buf + frontier };
+	TrellisNode **nodep_buf[2] = { nodep_buf_buf, nodep_buf_buf + frontier };
+#endif
+
+	TrellisNode **nodes = nodep_buf[0]; // nodes[] is always sorted by .ssd
+	TrellisNode **nodes_next = nodep_buf[1];
+	int pathn = 0, froze = -1, i, j, k;
 
     assert(!(max_paths&(max_paths-1)));
 
@@ -445,6 +455,12 @@ static void adpcm_compress_trellis(AVCodecContext *avctx, const short *samples,
     c->step_index = nodes[0]->step;
     c->step = nodes[0]->step;
     c->idelta = nodes[0]->step;
+
+#ifdef _MSC_VER
+	av_free(paths);
+	av_free(node_buf_buf);
+	av_free(nodep_buf_buf);
+#endif
 }
 
 static int adpcm_encode_frame(AVCodecContext *avctx,
@@ -480,7 +496,12 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
 
             /* stereo: 4 bytes (8 samples) for left, 4 bytes for right, 4 bytes left, ... */
             if(avctx->trellis > 0) {
+#ifndef _MSC_VER
                 uint8_t buf[2][n*8];
+#else
+				uint8_t buf_buf =  av_malloc(n * 8 * 2);
+                uint8_t *buf[2] =  { buf_buf, buf_buf * 8};
+#endif
                 adpcm_compress_trellis(avctx, samples, buf[0], &c->status[0], n*8);
                 if(avctx->channels == 2)
                     adpcm_compress_trellis(avctx, samples+1, buf[1], &c->status[1], n*8);
@@ -496,6 +517,10 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
                         *dst++ = buf[1][8*i+6] | (buf[1][8*i+7] << 4);
                     }
                 }
+
+#ifdef _MSC_VER
+				av_free(buf_buf);
+#endif
             } else
             for (; n>0; n--) {
                 *dst = adpcm_ima_compress_sample(&c->status[0], samples[0]);
@@ -578,7 +603,12 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
         }
 
         if(avctx->trellis > 0) {
-            uint8_t buf[2][n];
+#ifndef _MSC_VER
+			uint8_t buf[2][n];
+#else
+			uint8_t *buf_buf = av_malloc(n * 2);
+			uint8_t *buf[2] =  { buf_buf, buf_buf + n};
+#endif
             adpcm_compress_trellis(avctx, samples+2, buf[0], &c->status[0], n);
             if (avctx->channels == 2)
                 adpcm_compress_trellis(avctx, samples+3, buf[1], &c->status[1], n);
@@ -587,6 +617,10 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
                 if (avctx->channels == 2)
                     put_bits(&pb, 4, buf[1][i]);
             }
+
+#ifdef _MSC_VER
+			av_free(buf_buf);
+#endif
         } else {
             for (i=1; i<avctx->frame_size; i++) {
                 put_bits(&pb, 4, adpcm_ima_compress_sample(&c->status[0], samples[avctx->channels*i]));
@@ -625,7 +659,12 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
 
         if(avctx->trellis > 0) {
             int n = avctx->block_align - 7*avctx->channels;
-            uint8_t buf[2][n];
+#ifndef _MSC_VER
+			uint8_t buf[2][n];
+#else
+			uint8_t *buf_buf = av_malloc(n * 2);
+			uint8_t *buf[2] =  { buf, buf + n };
+#endif
             if(avctx->channels == 1) {
                 n *= 2;
                 adpcm_compress_trellis(avctx, samples, buf[0], &c->status[0], n);
@@ -637,6 +676,10 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
                 for(i=0; i<n; i++)
                     *dst++ = (buf[0][i] << 4) | buf[1][i];
             }
+
+#ifdef _MSC_VER
+			av_free(buf_buf);
+#endif
         } else
         for(i=7*avctx->channels; i<avctx->block_align; i++) {
             int nibble;
@@ -648,7 +691,12 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
     case CODEC_ID_ADPCM_YAMAHA:
         n = avctx->frame_size / 2;
         if(avctx->trellis > 0) {
-            uint8_t buf[2][n*2];
+#ifndef _MSC_VER
+			uint8_t buf[2][n*2];
+#else
+			uint8_t *buf_buf = av_malloc(n * 4);
+			uint8_t *buf[2] =  { buf_buf + n, buf_buf + n * 2 };
+#endif
             n *= 2;
             if(avctx->channels == 1) {
                 adpcm_compress_trellis(avctx, samples, buf[0], &c->status[0], n);
@@ -660,6 +708,10 @@ static int adpcm_encode_frame(AVCodecContext *avctx,
                 for(i=0; i<n; i++)
                     *dst++ = buf[0][i] | (buf[1][i] << 4);
             }
+
+#ifdef _MSC_VER
+			av_free(buf_buf);
+#endif
         } else
             for (n *= avctx->channels; n>0; n--) {
                 int nibble;
@@ -1635,6 +1687,7 @@ static int adpcm_decode_frame(AVCodecContext *avctx,
 
 
 #if CONFIG_ENCODERS
+#ifndef MSC_STRUCTS
 #define ADPCM_ENCODER(id,name,long_name_)       \
 AVCodec name ## _encoder = {                    \
     #name,                                      \
@@ -1649,10 +1702,34 @@ AVCodec name ## _encoder = {                    \
     .long_name = NULL_IF_CONFIG_SMALL(long_name_), \
 };
 #else
+#define ADPCM_ENCODER(id,name,long_name_)       \
+	const enum SampleFormat _formats## name[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};\
+AVCodec name ## _encoder = {                           \
+    /* name = */ #name,                                \
+    /* type = */AVMEDIA_TYPE_AUDIO,                    \
+    /* id = */ id,                                     \
+    /* priv_data_size = */sizeof(ADPCMContext),        \
+    /* init = */ adpcm_encode_init,                    \
+    /* encode = */ adpcm_encode_frame,                 \
+    /* close = */ adpcm_encode_close,                  \
+    /* decode = */ NULL,                               \
+	/* capabilities = */ 0,                            \
+	/* next = */ 0,                                    \
+	/* flush = */ 0,                                   \
+	/* supported_framerates = */ 0,                    \
+	/* pix_fmts = */ 0,                                \
+	/* long_name = */ NULL_IF_CONFIG_SMALL(long_name_),\
+	/* supported_samplerates = */ 0,                   \
+	/* sample_fmts = */ _formats## name,               \
+	/* channel_layouts = */ 0                          \
+};
+#endif
+#else
 #define ADPCM_ENCODER(id,name,long_name_)
 #endif
 
 #if CONFIG_DECODERS
+#ifndef MSC_STRUCTS
 #define ADPCM_DECODER(id,name,long_name_)       \
 AVCodec name ## _decoder = {                    \
     #name,                                      \
@@ -1665,6 +1742,28 @@ AVCodec name ## _decoder = {                    \
     adpcm_decode_frame,                         \
     .long_name = NULL_IF_CONFIG_SMALL(long_name_), \
 };
+#else
+#define ADPCM_DECODER(id,name,long_name_)              \
+	AVCodec name ## _decoder = {                       \
+	/* name = */ #name,                                \
+	/* type = */AVMEDIA_TYPE_AUDIO,                    \
+	/* id = */ id,                                     \
+	/* priv_data_size = */sizeof(ADPCMContext),        \
+	/* init = */ adpcm_decode_init,                    \
+	/* encode = */NULL,                                \
+	/* close = */NULL,                                 \
+	 /* decode = */ adpcm_decode_frame,                \
+	/* capabilities = */ 0,                            \
+	/* next = */ 0,                                    \
+	/* flush = */ 0,                                   \
+	/* supported_framerates = */ 0,                    \
+	/* pix_fmts = */ 0,                                \
+	/* long_name = */ NULL_IF_CONFIG_SMALL(long_name_),\
+	/* supported_samplerates = */ 0,                   \
+	/* sample_fmts = */ 0,                             \
+	/* channel_layouts = */ 0                          \
+};
+#endif
 #else
 #define ADPCM_DECODER(id,name,long_name_)
 #endif

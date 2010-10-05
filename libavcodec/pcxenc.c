@@ -189,7 +189,14 @@ static int pcx_encode_frame(AVCodecContext *avctx,
     return buf - buf_start;
 }
 
+const enum PixelFormat pcx_encoder_formats[] = {
+	PIX_FMT_RGB24,
+	PIX_FMT_RGB8, PIX_FMT_BGR8, PIX_FMT_RGB4_BYTE, PIX_FMT_BGR4_BYTE, PIX_FMT_GRAY8, PIX_FMT_PAL8,
+	PIX_FMT_MONOBLACK,
+	PIX_FMT_NONE};
+
 AVCodec pcx_encoder = {
+#ifndef MSC_STRUCTS
     "pcx",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PCX,
@@ -197,10 +204,29 @@ AVCodec pcx_encoder = {
     pcx_encode_init,
     pcx_encode_frame,
     NULL,
-    .pix_fmts = (const enum PixelFormat[]){
-        PIX_FMT_RGB24,
-        PIX_FMT_RGB8, PIX_FMT_BGR8, PIX_FMT_RGB4_BYTE, PIX_FMT_BGR4_BYTE, PIX_FMT_GRAY8, PIX_FMT_PAL8,
-        PIX_FMT_MONOBLACK,
-        PIX_FMT_NONE},
+	.pix_fmts = (const enum PixelFormat[]){
+		PIX_FMT_RGB24,
+		PIX_FMT_RGB8, PIX_FMT_BGR8, PIX_FMT_RGB4_BYTE, PIX_FMT_BGR4_BYTE, PIX_FMT_GRAY8, PIX_FMT_PAL8,
+		PIX_FMT_MONOBLACK,
+		PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PC Paintbrush PCX image"),
+#else
+    /* name = */ "pcx",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PCX,
+    /* priv_data_size = */ sizeof(PCXContext),
+    /* init = */ pcx_encode_init,
+    /* encode = */ pcx_encode_frame,
+    /* close = */ NULL,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pcx_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PC Paintbrush PCX image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

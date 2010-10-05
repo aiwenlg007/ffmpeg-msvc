@@ -730,7 +730,12 @@ static int svq1_decode_frame(AVCodecContext *avctx,
         current += 16*linesize;
       }
     } else {
+#ifndef _MSC_VER
       svq1_pmv pmv[width/8+3];
+#else
+      svq1_pmv *pmv = av_malloc_items(width/8+3, svq1_pmv);
+#endif
+
       /* delta frame */
       memset (pmv, 0, ((width / 8) + 3) * sizeof(svq1_pmv));
 
@@ -739,7 +744,11 @@ static int svq1_decode_frame(AVCodecContext *avctx,
           result = svq1_decode_delta_block (s, &s->gb, &current[x], previous,
                                             linesize, pmv, x, y);
           if (result != 0)
-          {
+		  {
+#ifdef _MSC_VER
+			  av_free(pmv);
+#endif
+
 #ifdef DEBUG_SVQ1
     av_log(s->avctx, AV_LOG_INFO, "Error in svq1_decode_delta_block %i\n",result);
 #endif
@@ -752,6 +761,10 @@ static int svq1_decode_frame(AVCodecContext *avctx,
 
         current += 16*linesize;
       }
+
+#ifdef _MSC_VER
+	  av_free(pmv);
+#endif
     }
   }
 
@@ -825,8 +838,10 @@ static av_cold int svq1_decode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat svq1_decoder_formats[] = {PIX_FMT_YUV410P, PIX_FMT_NONE};
 
 AVCodec svq1_decoder = {
+#ifndef MSC_STRUCTS
     "svq1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SVQ1,
@@ -839,4 +854,23 @@ AVCodec svq1_decoder = {
     .flush= ff_mpeg_flush,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV410P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1"),
+#else
+    /* name = */ "svq1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SVQ1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ svq1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ svq1_decode_end,
+    /* decode = */ svq1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ ff_mpeg_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ svq1_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

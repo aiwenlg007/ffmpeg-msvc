@@ -128,6 +128,8 @@
 /* math */
 
 #if ARCH_X86
+
+#ifndef _MSC_VER
 #define MASK_ABS(mask, level)\
             __asm__ volatile(\
                 "cltd                   \n\t"\
@@ -135,6 +137,20 @@
                 "subl %1, %0            \n\t"\
                 : "+a" (level), "=&d" (mask)\
             );
+#else
+#define MASK_ABS(mask, level)\
+	__asm \
+	{ \
+		__asm mov eax, level \
+		__asm mov edx, mask \
+		__asm cdq \
+		__asm xor eax, edx \
+		__asm sub eax, edx \
+		__asm mov level, eax \
+		__asm mov mask, edx \
+	}
+#endif
+
 #else
 #define MASK_ABS(mask, level)\
             mask  = level >> 31;\
@@ -148,6 +164,9 @@
 #define free please_use_av_free
 #undef  realloc
 #define realloc please_use_av_realloc
+
+//JRS: fix
+#ifndef _MSC_VER
 #undef  time
 #define time time_is_forbidden_due_to_security_issues
 #undef  rand
@@ -162,6 +181,8 @@
 #define strcat strcat_is_forbidden_due_to_security_issues_use_av_strlcat
 #undef  exit
 #define exit exit_is_forbidden
+#endif
+
 #ifndef LIBAVFORMAT_BUILD
 #undef  printf
 #define printf please_use_av_log_instead_of_printf

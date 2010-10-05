@@ -33,6 +33,9 @@
 #include "mpeg12data.h"
 #include "bytestream.h"
 
+#ifdef _MSC_VER
+extern const AVRational ff_frame_rate_tab[];
+#endif
 
 static const uint8_t inv_non_linear_qscale[13] = {
     0, 2, 4, 6, 8,
@@ -930,7 +933,10 @@ static void mpeg1_encode_block(MpegEncContext *s,
     put_bits(&s->pb, table_vlc[112][1], table_vlc[112][0]);
 }
 
+const enum PixelFormat mpeg1video_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec mpeg1video_encoder = {
+#ifndef MSC_STRUCTS
     "mpeg1video",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MPEG1VIDEO,
@@ -942,9 +948,31 @@ AVCodec mpeg1video_encoder = {
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .capabilities= CODEC_CAP_DELAY,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-1 video"),
+#else
+    /* name = */ "mpeg1video",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MPEG1VIDEO,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ ff_frame_rate_tab+1,
+    /* pix_fmts = */ mpeg1video_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-1 video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
+const enum PixelFormat mpeg2video_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_NONE};
+
 AVCodec mpeg2video_encoder = {
+#ifndef MSC_STRUCTS
     "mpeg2video",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MPEG2VIDEO,
@@ -956,4 +984,23 @@ AVCodec mpeg2video_encoder = {
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_NONE},
     .capabilities= CODEC_CAP_DELAY,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-2 video"),
+#else
+    /* name = */ "mpeg2video",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MPEG2VIDEO,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ ff_frame_rate_tab+1,
+    /* pix_fmts = */ mpeg2video_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-2 video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

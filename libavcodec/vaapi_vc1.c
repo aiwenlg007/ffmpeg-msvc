@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_VC1_VAAPI_HWACCEL || CONFIG_WMV3_VAAPI_HWACCEL
+
 #include "vaapi_internal.h"
 #include "vc1.h"
 #include "vc1data.h"
@@ -350,3 +352,5 @@ AVHWAccel vc1_vaapi_hwaccel = {
     .decode_slice   = vaapi_vc1_decode_slice,
     .priv_data_size = 0,
 };
+
+#endif

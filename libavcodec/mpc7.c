@@ -289,6 +289,7 @@ static void mpc7_decode_flush(AVCodecContext *avctx)
 }
 
 AVCodec mpc7_decoder = {
+#ifndef MSC_STRUCTS
     "mpc7",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MUSEPACK7,
@@ -299,4 +300,23 @@ AVCodec mpc7_decoder = {
     mpc7_decode_frame,
     .flush = mpc7_decode_flush,
     .long_name = NULL_IF_CONFIG_SMALL("Musepack SV7"),
+#else
+    /* name = */ "mpc7",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MUSEPACK7,
+    /* priv_data_size = */ sizeof(MPCContext),
+    /* init = */ mpc7_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ mpc7_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ mpc7_decode_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Musepack SV7"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

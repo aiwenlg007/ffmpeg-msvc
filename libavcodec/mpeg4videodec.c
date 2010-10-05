@@ -2235,6 +2235,7 @@ static av_cold int decode_init(AVCodecContext *avctx)
 }
 
 AVCodec mpeg4_decoder = {
+#ifndef MSC_STRUCTS
     "mpeg4",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MPEG4,
@@ -2247,11 +2248,33 @@ AVCodec mpeg4_decoder = {
     .flush= ff_mpeg_flush,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2"),
     .pix_fmts= ff_hwaccel_pixfmt_list_420,
+#else
+    /* name = */ "mpeg4",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MPEG4,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1 | CODEC_CAP_TRUNCATED | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ ff_mpeg_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_hwaccel_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 
 #if CONFIG_MPEG4_VDPAU_DECODER
+const enum PixelFormat mpeg4_vdpau_decoder_formats[] = {PIX_FMT_VDPAU_MPEG4, PIX_FMT_NONE};
+
 AVCodec mpeg4_vdpau_decoder = {
+#ifndef MSC_STRUCTS
     "mpeg4_vdpau",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MPEG4,
@@ -2263,5 +2286,24 @@ AVCodec mpeg4_vdpau_decoder = {
     CODEC_CAP_DR1 | CODEC_CAP_TRUNCATED | CODEC_CAP_DELAY | CODEC_CAP_HWACCEL_VDPAU,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 (VDPAU)"),
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_VDPAU_MPEG4, PIX_FMT_NONE},
+#else
+    /* name = */ "mpeg4_vdpau",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MPEG4,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_TRUNCATED | CODEC_CAP_DELAY | CODEC_CAP_HWACCEL_VDPAU,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ mpeg4_vdpau_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 (VDPAU)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

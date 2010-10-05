@@ -24,6 +24,8 @@
  * RTMP protocol based on http://rtmpdump.mplayerhq.hu/ librtmp
  */
 
+#if CONFIG_LIBRTMP
+
 #include "avformat.h"
 
 #include <librtmp/rtmp.h>
@@ -224,3 +226,5 @@ URLProtocol rtmps_protocol = {
     rtmp_read_seek,
     rtmp_get_file_handle
 };
+
+#endif

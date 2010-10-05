@@ -188,7 +188,10 @@ static int pnm_decode_frame(AVCodecContext *avctx, void *data,
 
 
 #if CONFIG_PGM_DECODER
+const enum PixelFormat pgm_decoder_formats[] = {PIX_FMT_GRAY8, PIX_FMT_GRAY16BE, PIX_FMT_NONE};
+
 AVCodec pgm_decoder = {
+#ifndef MSC_STRUCTS
     "pgm",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PGM,
@@ -200,11 +203,33 @@ AVCodec pgm_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_GRAY8, PIX_FMT_GRAY16BE, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PGM (Portable GrayMap) image"),
+#else
+    /* name = */ "pgm",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PGM,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ NULL,
+    /* close = */ ff_pnm_end,
+    /* decode = */ pnm_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pgm_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PGM (Portable GrayMap) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_PGMYUV_DECODER
+const enum PixelFormat pgmyuv_decoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec pgmyuv_decoder = {
+#ifndef MSC_STRUCTS
     "pgmyuv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PGMYUV,
@@ -216,11 +241,33 @@ AVCodec pgmyuv_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PGMYUV (Portable GrayMap YUV) image"),
+#else
+    /* name = */ "pgmyuv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PGMYUV,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ NULL,
+    /* close = */ ff_pnm_end,
+    /* decode = */ pnm_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pgmyuv_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PGMYUV (Portable GrayMap YUV) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_PPM_DECODER
+const enum PixelFormat ppm_decoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_RGB48BE, PIX_FMT_NONE};
+
 AVCodec ppm_decoder = {
+#ifndef MSC_STRUCTS
     "ppm",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PPM,
@@ -232,11 +279,33 @@ AVCodec ppm_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB48BE, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PPM (Portable PixelMap) image"),
+#else
+    /* name = */ "ppm",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PPM,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ NULL,
+    /* close = */ ff_pnm_end,
+    /* decode = */ pnm_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ppm_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PPM (Portable PixelMap) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_PBM_DECODER
+const enum PixelFormat pbm_decoder_formats[] = {PIX_FMT_MONOWHITE, PIX_FMT_NONE};
+
 AVCodec pbm_decoder = {
+#ifndef MSC_STRUCTS
     "pbm",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PBM,
@@ -248,11 +317,33 @@ AVCodec pbm_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_MONOWHITE, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PBM (Portable BitMap) image"),
+#else
+    /* name = */ "pbm",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PBM,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ NULL,
+    /* close = */ ff_pnm_end,
+    /* decode = */ pnm_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pbm_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PBM (Portable BitMap) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_PAM_DECODER
+const enum PixelFormat pam_decoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_GRAY8, PIX_FMT_MONOWHITE, PIX_FMT_NONE};
+
 AVCodec pam_decoder = {
+#ifndef MSC_STRUCTS
     "pam",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PAM,
@@ -264,5 +355,24 @@ AVCodec pam_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_GRAY8, PIX_FMT_MONOWHITE, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
+#else
+    /* name = */ "pam",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PAM,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ NULL,
+    /* close = */ ff_pnm_end,
+    /* decode = */ pnm_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pam_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

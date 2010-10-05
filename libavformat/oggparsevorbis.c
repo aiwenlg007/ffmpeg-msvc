@@ -42,7 +42,11 @@ static int ogm_chapter(AVFormatContext *as, uint8_t *key, uint8_t *val)
         if (sscanf(val, "%02d:%02d:%02d.%03d", &h, &m, &s, &ms) < 4)
             return 0;
 
+#ifndef MSC_STRUCTS
         ff_new_chapter(as, cnum, (AVRational){1,1000},
+#else
+		ff_new_chapter(as, cnum, av_create_rational(1,1000),
+#endif
                        ms + 1000*(s + 60*(m + 60*h)),
                        AV_NOPTS_VALUE, NULL);
         av_free(val);
@@ -252,9 +256,17 @@ vorbis_header (AVFormatContext * s, int idx)
 
     return 1;
 }
-
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_vorbis_codec = {
     .magic = "\001vorbis",
     .magicsize = 7,
     .header = vorbis_header
 };
+#else
+const struct ogg_codec ff_vorbis_codec = {
+    "\001vorbis",
+    7,
+	0,
+    vorbis_header
+};
+#endif

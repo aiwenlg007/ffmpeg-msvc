@@ -62,7 +62,30 @@ static int request_frame(AVFilterLink *link)
     return -1;
 }
 
+
+AVFilterPad avfilter_vsrc_nullsrc_inputs[] = {
+	{0}
+};
+
+AVFilterPad avfilter_vsrc_nullsrc_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ request_frame,
+		/*config_props*/ config_props
+	},
+	{0}
+};
+
 AVFilter avfilter_vsrc_nullsrc = {
+#ifndef MSC_STRUCTS
     .name        = "nullsrc",
     .description = "Null video source, never return images.",
 
@@ -81,3 +104,14 @@ AVFilter avfilter_vsrc_nullsrc = {
         { .name = NULL}
     },
 };
+#else
+	/*name*/ "nullsrc",
+	/*priv_size*/ sizeof(NullContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vsrc_nullsrc_inputs,
+	/*outputs*/ avfilter_vsrc_nullsrc_outputs,
+	/*description*/ "Null video source, never return images.",
+};
+#endif

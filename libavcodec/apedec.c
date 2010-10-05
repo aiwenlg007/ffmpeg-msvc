@@ -878,6 +878,7 @@ static int ape_decode_frame(AVCodecContext * avctx,
 }
 
 AVCodec ape_decoder = {
+#ifndef MSC_STRUCTS
     "ape",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_APE,
@@ -888,4 +889,23 @@ AVCodec ape_decoder = {
     ape_decode_frame,
     .capabilities = CODEC_CAP_SUBFRAMES,
     .long_name = NULL_IF_CONFIG_SMALL("Monkey's Audio"),
+#else
+    /* name = */ "ape",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_APE,
+    /* priv_data_size = */ sizeof(APEContext),
+    /* init = */ ape_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ape_decode_close,
+    /* decode = */ ape_decode_frame,
+    /* capabilities = */ CODEC_CAP_SUBFRAMES,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Monkey's Audio"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -18,6 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_SNOW_DECODER || CONFIG_SNOW_ENCODER
+
 #include "libavutil/intmath.h"
 #include "avcodec.h"
 #include "dsputil.h"
@@ -2236,6 +2238,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec snow_decoder = {
+#ifndef MSC_STRUCTS
     "snow",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SNOW,
@@ -2247,6 +2250,25 @@ AVCodec snow_decoder = {
     CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Snow"),
+#else
+    /* name = */ "snow",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SNOW,
+    /* priv_data_size = */ sizeof(SnowContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Snow"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_SNOW_ENCODER
@@ -3987,6 +4009,7 @@ static av_cold int encode_end(AVCodecContext *avctx)
 }
 
 AVCodec snow_encoder = {
+#ifndef MSC_STRUCTS
     "snow",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SNOW,
@@ -3995,6 +4018,25 @@ AVCodec snow_encoder = {
     encode_frame,
     encode_end,
     .long_name = NULL_IF_CONFIG_SMALL("Snow"),
+#else
+    /* name = */ "snow",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SNOW,
+    /* priv_data_size = */ sizeof(SnowContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Snow"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
@@ -4148,3 +4190,5 @@ int main(void){
     return 0;
 }
 #endif /* TEST */
+
+#endif

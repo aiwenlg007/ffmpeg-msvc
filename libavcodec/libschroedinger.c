@@ -23,6 +23,8 @@
 * function definitions common to libschroedingerdec.c and libschroedingerenc.c
 */
 
+#if CONFIG_LIBSCHROEDINGER
+
 #include "libdirac_libschro.h"
 #include "libschroedinger.h"
 
@@ -130,3 +132,5 @@ SchroFrame *ff_create_schro_frame(AVCodecContext *avccontext,
 
     return p_frame;
 }
+
+#endif

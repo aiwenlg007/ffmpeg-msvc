@@ -27,7 +27,14 @@ typedef struct AVTreeNode{
     int state;
 }AVTreeNode;
 
+#ifndef _MSC_VER
 const int av_tree_node_size = sizeof(AVTreeNode);
+#else
+int get_av_tree_node_size()
+{
+	return sizeof(AVTreeNode);
+}
+#endif
 
 void *av_tree_find(const AVTreeNode *t, void *key, int (*cmp)(void *key, const void *b), void *next[2]){
     if(t){

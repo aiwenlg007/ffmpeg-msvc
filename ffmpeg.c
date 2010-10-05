@@ -22,6 +22,10 @@
 /* needed for usleep() */
 #define _XOPEN_SOURCE 600
 
+#ifdef _MSC_VER
+#include "libavformat\os_support.h"
+#endif
+
 #include "config.h"
 #include <ctype.h>
 #include <string.h>
@@ -30,7 +34,14 @@
 #include <errno.h>
 #include <signal.h>
 #include <limits.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#undef lseek
+#include <io.h>
+#define isatty _isatty
+#define STDIN_FILENO 0
+#endif
 #include "libavformat/avformat.h"
 #include "libavdevice/avdevice.h"
 #include "libswscale/swscale.h"
@@ -91,7 +102,7 @@ typedef struct AVMetaDataMap {
     int in_file;
 } AVMetaDataMap;
 
-static const OptionDef options[];
+extern const OptionDef options[];
 
 #define MAX_FILES 100
 
@@ -915,7 +926,11 @@ static void do_subtitle_out(AVFormatContext *s,
     for(i = 0; i < nb; i++) {
         sub->pts = av_rescale_q(pts, ist->st->time_base, AV_TIME_BASE_Q);
         // start_display_time is required to be 0
+#ifndef _MSC_VER
         sub->pts              += av_rescale_q(sub->start_display_time, (AVRational){1, 1000}, AV_TIME_BASE_Q);
+#else
+        sub->pts              += av_rescale_q(sub->start_display_time, av_create_rational(1, 1000), AV_TIME_BASE_Q);
+#endif
         sub->end_display_time -= sub->start_display_time;
         sub->start_display_time = 0;
         subtitle_out_size = avcodec_encode_subtitle(enc, subtitle_out,
@@ -2400,7 +2415,11 @@ static int av_transcode(AVFormatContext **output_files,
 
         /* finish if recording time exhausted */
         if (recording_time != INT64_MAX &&
+#ifndef _MSC_VER
             av_compare_ts(pkt.pts, ist->st->time_base, recording_time + start_time, (AVRational){1, 1000000}) >= 0) {
+#else
+            av_compare_ts(pkt.pts, ist->st->time_base, recording_time + start_time, av_create_rational(1, 1000000)) >= 0) {
+#endif
             ist->is_past_recording_time = 1;
             goto discard_packet;
         }
@@ -3224,7 +3243,11 @@ static void new_video_stream(AVFormatContext *oc)
         const char *p;
         int i;
         AVCodec *codec;
+#ifndef _MSC_VER
         AVRational fps= frame_rate.num ? frame_rate : (AVRational){25,1};
+#else
+        AVRational fps= frame_rate.num ? frame_rate : av_create_rational(25,1);
+#endif
 
         if (video_codec_name) {
             codec_id = find_codec_or_die(video_codec_name, AVMEDIA_TYPE_VIDEO, 1,
@@ -3383,7 +3406,11 @@ static void new_audio_stream(AVFormatContext *oc)
         choose_sample_rate(st, codec);
     }
     nb_ocodecs++;
+#ifndef _MSC_VER
     audio_enc->time_base= (AVRational){1, audio_sample_rate};
+#else
+    audio_enc->time_base= av_create_rational(1, audio_sample_rate);
+#endif
     if (audio_language) {
         av_metadata_set2(&st->metadata, "language", audio_language, 0);
         av_freep(&audio_language);

@@ -1920,6 +1920,7 @@ int ff_msmpeg4_decode_motion(MpegEncContext * s,
 }
 
 AVCodec msmpeg4v1_decoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4v1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V1,
@@ -1931,9 +1932,29 @@ AVCodec msmpeg4v1_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 1"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "msmpeg4v1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_msmpeg4_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec msmpeg4v2_decoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4v2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V2,
@@ -1945,9 +1966,29 @@ AVCodec msmpeg4v2_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 2"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "msmpeg4v2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V2,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_msmpeg4_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec msmpeg4v3_decoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V3,
@@ -1959,9 +2000,29 @@ AVCodec msmpeg4v3_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 3"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "msmpeg4",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V3,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_msmpeg4_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 3"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec wmv1_decoder = {
+#ifndef MSC_STRUCTS
     "wmv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WMV1,
@@ -1973,4 +2034,23 @@ AVCodec wmv1_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("Windows Media Video 7"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "wmv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WMV1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_msmpeg4_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Video 7"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

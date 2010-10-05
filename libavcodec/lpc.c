@@ -59,7 +59,11 @@ void ff_lpc_compute_autocorr(const int32_t *data, int len, int lag,
                              double *autoc)
 {
     int i, j;
+#ifndef _MSC_VER
     double tmp[len + lag + 1];
+#else
+    double *tmp = av_malloc_items((len + lag + 1), double);
+#endif
     double *data1= tmp + lag;
 
     apply_welch_window(data, len, data1);
@@ -86,6 +90,10 @@ void ff_lpc_compute_autocorr(const int32_t *data, int len, int lag,
         }
         autoc[j] = sum;
     }
+
+#ifdef _MSC_VER
+	av_free(tmp);
+#endif
 }
 
 /**

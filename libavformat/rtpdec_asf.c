@@ -266,6 +266,7 @@ static void asfrtp_free_context(PayloadContext *asf)
     av_free(asf);
 }
 
+#ifndef MSC_STRUCTS
 #define RTP_ASF_HANDLER(n, s, t) \
 RTPDynamicProtocolHandler ff_ms_rtp_ ## n ## _handler = { \
     .enc_name         = s, \
@@ -276,6 +277,18 @@ RTPDynamicProtocolHandler ff_ms_rtp_ ## n ## _handler = { \
     .close            = asfrtp_free_context, \
     .parse_packet     = asfrtp_parse_packet,   \
 };
+#else
+#define RTP_ASF_HANDLER(n, s, t) \
+RTPDynamicProtocolHandler ff_ms_rtp_ ## n ## _handler = { \
+    s, \
+    t, \
+    CODEC_ID_NONE, \
+    asfrtp_parse_sdp_line, \
+    asfrtp_new_context, \
+    asfrtp_free_context, \
+    asfrtp_parse_packet,   \
+};
+#endif
 
 RTP_ASF_HANDLER(asf_pfv, "x-asf-pf",  AVMEDIA_TYPE_VIDEO);
 RTP_ASF_HANDLER(asf_pfa, "x-asf-pf",  AVMEDIA_TYPE_AUDIO);

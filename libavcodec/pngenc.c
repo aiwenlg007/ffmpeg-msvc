@@ -436,7 +436,10 @@ static av_cold int png_enc_init(AVCodecContext *avctx){
     return 0;
 }
 
+const enum PixelFormat png_encoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_PAL8, PIX_FMT_GRAY8, PIX_FMT_MONOBLACK, PIX_FMT_NONE};
+
 AVCodec png_encoder = {
+#ifndef MSC_STRUCTS
     "png",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PNG,
@@ -446,4 +449,23 @@ AVCodec png_encoder = {
     NULL, //encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_PAL8, PIX_FMT_GRAY8, PIX_FMT_MONOBLACK, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("PNG image"),
+#else
+    /* name = */ "png",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PNG,
+    /* priv_data_size = */ sizeof(PNGEncContext),
+    /* init = */ png_enc_init,
+    /* encode = */ encode_frame,
+    /* close = */ NULL, //encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ png_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PNG image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

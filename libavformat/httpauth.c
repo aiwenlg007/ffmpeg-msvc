@@ -195,6 +195,10 @@ static char *make_digest_auth(HTTPAuthState *state, const char *username,
     uint8_t hash[16];
     char *authstr;
 
+#ifdef _MSC_VER
+	int av_md5_size = get_av_md5_size();
+#endif
+
     digest->nc++;
     snprintf(nc, sizeof(nc), "%08x", digest->nc);
 

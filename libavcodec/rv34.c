@@ -103,9 +103,16 @@ static void rv34_gen_vlc(const uint8_t *bits, int size, VLC *vlc, const uint8_t 
 {
     int i;
     int counts[17] = {0}, codes[17];
+#ifndef _MSC_VER
     uint16_t cw[size], syms[size];
     uint8_t bits2[size];
     int maxbits = 0, realsize = 0;
+#else
+    uint16_t cw[CBPPAT_VLC_SIZE], syms[CBPPAT_VLC_SIZE];
+    uint8_t bits2[CBPPAT_VLC_SIZE];
+    int maxbits = 0, realsize = 0;
+    assert(size <= CBPPAT_VLC_SIZE);
+#endif
 
     for(i = 0; i < size; i++){
         if(bits[i]){

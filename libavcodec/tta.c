@@ -296,11 +296,20 @@ static int tta_decode_frame(AVCodecContext *avctx,
 
     init_get_bits(&s->gb, buf, buf_size*8);
     {
+#ifndef _MSC_VER
         int32_t predictors[s->channels];
         TTAFilter filters[s->channels];
         TTARice rices[s->channels];
         int cur_chan = 0, framelen = s->frame_length;
         int32_t *p;
+#else
+        int32_t predictors[MAX_AUDIO_CHANNELS];
+        TTAFilter filters[MAX_AUDIO_CHANNELS];
+        TTARice rices[MAX_AUDIO_CHANNELS];
+        int cur_chan = 0, framelen = s->frame_length;
+        int32_t *p;
+        assert(s->channels <= MAX_AUDIO_CHANNELS);
+#endif
 
         if (*data_size < (framelen * s->channels * 2)) {
             av_log(avctx, AV_LOG_ERROR, "Output buffer size is too small.\n");
@@ -448,6 +457,7 @@ static av_cold int tta_decode_close(AVCodecContext *avctx) {
 }
 
 AVCodec tta_decoder = {
+#ifndef MSC_STRUCTS
     "tta",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_TTA,
@@ -457,4 +467,23 @@ AVCodec tta_decoder = {
     tta_decode_close,
     tta_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("True Audio (TTA)"),
+#else
+    /* name = */ "tta",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_TTA,
+    /* priv_data_size = */ sizeof(TTAContext),
+    /* init = */ tta_decode_init,
+    /* encode = */ NULL,
+    /* close = */ tta_decode_close,
+    /* decode = */ tta_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("True Audio (TTA)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

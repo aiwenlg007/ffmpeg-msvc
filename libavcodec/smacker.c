@@ -690,6 +690,7 @@ static int smka_decode_frame(AVCodecContext *avctx, void *data, int *data_size, 
 }
 
 AVCodec smacker_decoder = {
+#ifndef MSC_STRUCTS
     "smackvid",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SMACKVIDEO,
@@ -700,9 +701,29 @@ AVCodec smacker_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Smacker video"),
+#else
+    /* name = */ "smackvid",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SMACKVIDEO,
+    /* priv_data_size = */ sizeof(SmackVContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Smacker video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec smackaud_decoder = {
+#ifndef MSC_STRUCTS
     "smackaud",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SMACKAUDIO,
@@ -712,5 +733,24 @@ AVCodec smackaud_decoder = {
     NULL,
     smka_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Smacker audio"),
+#else
+    /* name = */ "smackaud",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SMACKAUDIO,
+    /* priv_data_size = */ 0,
+    /* init = */ smka_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ smka_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Smacker audio"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

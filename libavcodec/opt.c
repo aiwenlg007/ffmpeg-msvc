@@ -69,8 +69,12 @@ static int av_set_number2(void *obj, const char *name, double num, int den, int6
     case FF_OPT_TYPE_FLOAT: *(float     *)dst= num*intnum/den;         break;
     case FF_OPT_TYPE_DOUBLE:*(double    *)dst= num*intnum/den;         break;
     case FF_OPT_TYPE_RATIONAL:
+#ifndef _MSC_VER
         if((int)num == num) *(AVRational*)dst= (AVRational){num*intnum, den};
-        else                *(AVRational*)dst= av_d2q(num*intnum/den, 1<<24);
+#else
+        if((int)num == num) *(AVRational*)dst= av_create_rational(num*intnum, den);
+#endif
+		else                *(AVRational*)dst= av_d2q(num*intnum/den, 1<<24);
         break;
     default:
         return AVERROR(EINVAL);
@@ -305,7 +309,11 @@ AVRational av_get_q(void *obj, const char *name, const AVOption **o_out){
 
     av_get_number(obj, name, o_out, &num, &den, &intnum);
     if(num == 1.0 && (int)intnum == intnum)
+#ifndef _MSC_VER
         return (AVRational){intnum, den};
+#else
+        return av_create_rational(intnum, den);
+#endif
     else
         return av_d2q(num*intnum/den, 1<<24);
 }

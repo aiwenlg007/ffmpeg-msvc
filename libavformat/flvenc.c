@@ -400,7 +400,10 @@ static int flv_write_packet(AVFormatContext *s, AVPacket *pkt)
     return 0;
 }
 
+AVCodecTag *flv_codec_tags[] = { flv_video_codec_ids, flv_audio_codec_ids, 0 };
+
 AVOutputFormat flv_muxer = {
+#ifndef MSC_STRUCTS
     "flv",
     NULL_IF_CONFIG_SMALL("FLV format"),
     "video/x-flv",
@@ -418,3 +421,27 @@ AVOutputFormat flv_muxer = {
     .codec_tag= (const AVCodecTag* const []){flv_video_codec_ids, flv_audio_codec_ids, 0},
     .flags= AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
 };
+#else
+	"flv",
+	NULL_IF_CONFIG_SMALL("FLV format"),
+	"video/x-flv",
+	"flv",
+	sizeof(FLVContext),
+#if CONFIG_LIBMP3LAME
+	CODEC_ID_MP3,
+#else // CONFIG_LIBMP3LAME
+	CODEC_ID_ADPCM_SWF,
+#endif // CONFIG_LIBMP3LAME
+	CODEC_ID_FLV1,
+	flv_write_header,
+	flv_write_packet,
+	flv_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ flv_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

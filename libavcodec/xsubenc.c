@@ -41,6 +41,10 @@
  */
 static void put_xsub_rle(PutBitContext *pb, int len, int color)
 {
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab  = get_ff_log2_tab();
+#endif
+
     if (len <= 255)
         put_bits(pb, 2 + ((ff_log2_tab[len] >> 1) << 2), len);
     else
@@ -211,6 +215,7 @@ static av_cold int xsub_encoder_init(AVCodecContext *avctx)
 }
 
 AVCodec xsub_encoder = {
+#ifndef MSC_STRUCTS
     "xsub",
     AVMEDIA_TYPE_SUBTITLE,
     CODEC_ID_XSUB,
@@ -219,4 +224,23 @@ AVCodec xsub_encoder = {
     xsub_encode,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("DivX subtitles (XSUB)"),
+#else
+    /* name = */ "xsub",
+    /* type = */ AVMEDIA_TYPE_SUBTITLE,
+    /* id = */ CODEC_ID_XSUB,
+    /* priv_data_size = */ 0,
+    /* init = */ xsub_encoder_init,
+    /* encode = */ xsub_encode,
+    /* close = */ NULL,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DivX subtitles (XSUB)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

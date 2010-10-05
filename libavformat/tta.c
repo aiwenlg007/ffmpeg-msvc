@@ -152,7 +152,8 @@ static int tta_read_seek(AVFormatContext *s, int stream_index, int64_t timestamp
 }
 
 AVInputFormat tta_demuxer = {
-    "tta",
+ #ifndef MSC_STRUCTS
+   "tta",
     NULL_IF_CONFIG_SMALL("True Audio"),
     sizeof(TTAContext),
     tta_probe,
@@ -162,3 +163,24 @@ AVInputFormat tta_demuxer = {
     tta_read_seek,
     .extensions = "tta",
 };
+#else
+	"tta",
+	NULL_IF_CONFIG_SMALL("True Audio"),
+	sizeof(TTAContext),
+	tta_probe,
+	tta_read_header,
+	tta_read_packet,
+	NULL,
+	tta_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "tta",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

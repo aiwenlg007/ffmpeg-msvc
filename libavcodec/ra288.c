@@ -120,9 +120,15 @@ static void do_hybrid_window(int order, int n, int non_rec, float *out,
                              float *hist, float *out2, const float *window)
 {
     int i;
+#ifndef _MSC_VER
     float buffer1[order + 1];
     float buffer2[order + 1];
     float work[order + n + non_rec];
+#else
+    float *buffer1 = av_malloc_items(order + 1, float);
+    float *buffer2 = av_malloc_items(order + 1, float);
+    float *work = av_malloc_items(order + n + non_rec, float);
+#endif
 
     apply_window(work, window, hist, order + n + non_rec);
 
@@ -136,6 +142,12 @@ static void do_hybrid_window(int order, int n, int non_rec, float *out,
 
     /* Multiply by the white noise correcting factor (WNCF). */
     *out *= 257./256.;
+
+#ifdef _MSC_VER
+	av_free(buffer1);
+	av_free(buffer2);
+	av_free(work);
+#endif
 }
 
 /**
@@ -145,7 +157,11 @@ static void backward_filter(float *hist, float *rec, const float *window,
                             float *lpc, const float *tab,
                             int order, int n, int non_rec, int move_size)
 {
+#ifndef _MSC_VER
     float temp[order+1];
+#else
+	float *temp = av_malloc_items(order + 1, float);
+#endif
 
     do_hybrid_window(order, n, non_rec, temp, hist, rec, window);
 
@@ -153,6 +169,9 @@ static void backward_filter(float *hist, float *rec, const float *window,
         apply_window(lpc, lpc, tab, order);
 
     memmove(hist, hist + n, move_size*sizeof(*hist));
+#ifdef _MSC_VER
+	av_free(temp);
+#endif
 }
 
 static int ra288_decode_frame(AVCodecContext * avctx, void *data,
@@ -200,6 +219,7 @@ static int ra288_decode_frame(AVCodecContext * avctx, void *data,
 }
 
 AVCodec ra_288_decoder =
+#ifndef MSC_STRUCTS
 {
     "real_288",
     AVMEDIA_TYPE_AUDIO,
@@ -210,4 +230,23 @@ AVCodec ra_288_decoder =
     NULL,
     ra288_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("RealAudio 2.0 (28.8K)"),
+#else
+    /* name = */ {
+    /* type = */ "real_288",
+    /* id = */ AVMEDIA_TYPE_AUDIO,
+    /* priv_data_size = */ CODEC_ID_RA_288,
+    /* init = */ sizeof(RA288Context),
+    /* encode = */ ra288_decode_init,
+    /* close = */ NULL,
+    /* decode = */ NULL,
+    /* capabilities = */ ra288_decode_frame,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealAudio 2.0 (28.8K)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

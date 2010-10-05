@@ -654,7 +654,11 @@ void ff_mlp_init_x86(DSPContext* c, AVCodecContext *avctx);
 
 static inline void emms(void)
 {
+#ifndef _MSC_VER
     __asm__ volatile ("emms;":::"memory");
+#else
+	__asm emms;
+#endif
 }
 
 

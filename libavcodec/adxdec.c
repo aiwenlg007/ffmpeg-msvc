@@ -167,6 +167,7 @@ static int adx_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec adpcm_adx_decoder = {
+#ifndef MSC_STRUCTS
     "adpcm_adx",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ADPCM_ADX,
@@ -176,5 +177,24 @@ AVCodec adpcm_adx_decoder = {
     NULL,
     adx_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("SEGA CRI ADX ADPCM"),
+#else
+    /* name = */ "adpcm_adx",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ADPCM_ADX,
+    /* priv_data_size = */ sizeof(ADXContext),
+    /* init = */ adx_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ adx_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("SEGA CRI ADX ADPCM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

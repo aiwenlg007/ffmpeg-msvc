@@ -160,6 +160,11 @@ static void start_frame(AVFilterLink *link, AVFilterPicRef *picref)
 {
     CropContext *crop = link->dst->priv;
     AVFilterPicRef *ref2 = avfilter_ref_pic(picref, ~0);
+
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     int i;
 
     ref2->w        = crop->w;
@@ -204,7 +209,42 @@ static void draw_slice(AVFilterLink *link, int y, int h, int slice_dir)
     avfilter_draw_slice(ctx->outputs[0], y - crop->y, h, slice_dir);
 }
 
+AVFilterPad avfilter_vf_crop_inputs[] = {
+	{
+		/*name*/ "default",
+			/*type*/ AVMEDIA_TYPE_VIDEO,
+			/*min_perms*/ 0,
+			/*rej_perms*/ 0,
+			/*start_frame*/ start_frame,
+			/*get_video_buffer*/ avfilter_null_get_video_buffer,
+			/*end_frame*/ 0,
+			/*draw_slice*/ draw_slice,
+			/*poll_frame*/ 0,
+			/*request_frame*/ 0,
+			/*config_props*/ config_input
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_crop_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ config_output
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_crop = {
+#ifndef MSC_STRUCTS
     .name      = "crop",
     .description = NULL_IF_CONFIG_SMALL("Crop the input video to x:y:width:height."),
 
@@ -225,3 +265,14 @@ AVFilter avfilter_vf_crop = {
                                     .config_props     = config_output, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "crop",
+	/*priv_size*/ sizeof(CropContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ query_formats,
+	/*inputs*/ avfilter_vf_crop_inputs,
+	/*outputs*/ avfilter_vf_crop_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Crop the input video to x:y:width:height."),
+};
+#endif

@@ -936,6 +936,7 @@ static int sonic_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec sonic_decoder = {
+#ifndef MSC_STRUCTS
     "sonic",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SONIC,
@@ -945,11 +946,31 @@ AVCodec sonic_decoder = {
     sonic_decode_close,
     sonic_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Sonic"),
+#else
+    /* name = */ "sonic",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SONIC,
+    /* priv_data_size = */ sizeof(SonicContext),
+    /* init = */ sonic_decode_init,
+    /* encode = */ NULL,
+    /* close = */ sonic_decode_close,
+    /* decode = */ sonic_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sonic"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif /* CONFIG_SONIC_DECODER */
 
 #if CONFIG_SONIC_ENCODER
 AVCodec sonic_encoder = {
+#ifndef MSC_STRUCTS
     "sonic",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SONIC,
@@ -959,11 +980,31 @@ AVCodec sonic_encoder = {
     sonic_encode_close,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Sonic"),
+#else
+    /* name = */ "sonic",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SONIC,
+    /* priv_data_size = */ sizeof(SonicContext),
+    /* init = */ sonic_encode_init,
+    /* encode = */ sonic_encode_frame,
+    /* close = */ sonic_encode_close,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sonic"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_SONIC_LS_ENCODER
 AVCodec sonic_ls_encoder = {
+#ifndef MSC_STRUCTS
     "sonicls",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SONIC_LS,
@@ -973,5 +1014,24 @@ AVCodec sonic_ls_encoder = {
     sonic_encode_close,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Sonic lossless"),
+#else
+    /* name = */ "sonicls",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SONIC_LS,
+    /* priv_data_size = */ sizeof(SonicContext),
+    /* init = */ sonic_encode_init,
+    /* encode = */ sonic_encode_frame,
+    /* close = */ sonic_encode_close,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sonic lossless"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

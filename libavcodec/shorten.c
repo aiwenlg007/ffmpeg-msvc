@@ -253,7 +253,11 @@ static int16_t * interleave_buffer(int16_t *samples, int nchan, int blocksize, i
 static void decode_subframe_lpc(ShortenContext *s, int channel, int residual_size, int pred_order)
 {
     int sum, i, j;
+#ifndef _MSC_VER
     int coeffs[pred_order];
+#else
+    int *coeffs = av_malloc_items(pred_order, int);
+#endif
 
     for (i=0; i<pred_order; i++)
         coeffs[i] = get_sr_golomb_shorten(&s->gb, LPCQUANT);
@@ -264,6 +268,10 @@ static void decode_subframe_lpc(ShortenContext *s, int channel, int residual_siz
             sum += coeffs[j] * s->decoded[channel][i-j-1];
         s->decoded[channel][i] = get_sr_golomb_shorten(&s->gb, residual_size) + (sum >> LPCQUANT);
     }
+
+#ifdef _MSC_VER
+	av_free(coeffs);
+#endif
 }
 
 
@@ -526,6 +534,7 @@ static void shorten_flush(AVCodecContext *avctx){
 }
 
 AVCodec shorten_decoder = {
+#ifndef MSC_STRUCTS
     "shorten",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SHORTEN,
@@ -536,4 +545,23 @@ AVCodec shorten_decoder = {
     shorten_decode_frame,
     .flush= shorten_flush,
     .long_name= NULL_IF_CONFIG_SMALL("Shorten"),
+#else
+    /* name = */ "shorten",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SHORTEN,
+    /* priv_data_size = */ sizeof(ShortenContext),
+    /* init = */ shorten_decode_init,
+    /* encode = */ NULL,
+    /* close = */ shorten_decode_close,
+    /* decode = */ shorten_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ shorten_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Shorten"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -25,6 +25,8 @@
  * @author Oded Shimon <ods15@ods15.dyndns.org>
  */
 
+#if CONFIG_LIBNUT
+
 #include "avformat.h"
 #include "riff.h"
 #include <libnut.h>
@@ -308,3 +310,5 @@ AVInputFormat libnut_demuxer = {
     nut_read_seek,
     .extensions = "nut",
 };
+
+#endif

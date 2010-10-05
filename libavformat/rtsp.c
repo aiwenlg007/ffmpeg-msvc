@@ -24,11 +24,20 @@
 #include "libavutil/intreadwrite.h"
 #include "avformat.h"
 
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#endif
+
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifndef _MSC_VER
 #include <strings.h>
+#else
+#include "os_support.h"
+#endif
+
 #include "internal.h"
 #include "network.h"
 #include "os_support.h"
@@ -1461,11 +1470,14 @@ int ff_rtsp_connect(AVFormatContext *s)
     char *option_list, *option, *filename;
     URLContext *rtsp_hd;
     int port, err, tcp_fd;
-    RTSPMessageHeader reply1 = {}, *reply = &reply1;
+    RTSPMessageHeader reply1 = {0}, *reply = &reply1;
     int lower_transport_mask = 0;
     char real_challenge[64];
     struct sockaddr_storage peer;
     socklen_t peer_len = sizeof(peer);
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab  = get_ff_log2_tab();
+#endif
 
     if (!ff_network_init())
         return AVERROR(EIO);
@@ -1992,6 +2004,7 @@ static int rtsp_read_close(AVFormatContext *s)
 }
 
 AVInputFormat rtsp_demuxer = {
+#ifndef MSC_STRUCTS
     "rtsp",
     NULL_IF_CONFIG_SMALL("RTSP input format"),
     sizeof(RTSPState),
@@ -2004,6 +2017,27 @@ AVInputFormat rtsp_demuxer = {
     .read_play = rtsp_read_play,
     .read_pause = rtsp_read_pause,
 };
+#else
+	"rtsp",
+	NULL_IF_CONFIG_SMALL("RTSP input format"),
+	sizeof(RTSPState),
+	rtsp_probe,
+	rtsp_read_header,
+	rtsp_read_packet,
+	rtsp_read_close,
+	rtsp_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_NOFILE,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ rtsp_read_play,
+	/*read_pause = */ rtsp_read_pause,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 static int sdp_probe(AVProbeData *p1)

@@ -582,14 +582,14 @@ static void calc_input_response(WMAVoiceContext *s, float *lpcs,
                                                           (5.0 / 14.7));
     angle_mul = gain_mul * (8.0 * M_LN10 / M_PI);
     for (n = 0; n <= 64; n++) {
-        float pow;
+        float power;
 
         idx = FFMAX(0, lrint((max - lpcs[n]) * irange) - 1);
-        pow = wmavoice_denoise_power_table[s->denoise_strength][idx];
-        lpcs[n] = angle_mul * pow;
+        power = wmavoice_denoise_power_table[s->denoise_strength][idx];
+        lpcs[n] = angle_mul * power;
 
         /* 70.57 =~ 1/log10(1.0331663) */
-        idx = (pow * gain_mul - 0.0295) * 70.570526123;
+        idx = (power * gain_mul - 0.0295) * 70.570526123;
         if (idx > 127) { // fallback if index falls outside table range
             coeffs[n] = wmavoice_energy_table[127] *
                         powf(1.0331663, idx - 127);
@@ -780,10 +780,20 @@ static void postfilter(WMAVoiceContext *s, const float *synth,
         /* remove ultra-low frequency DC noise / highpass filter;
          * coefficients are identical to those used in SIPR decoding,
          * and very closely resemble those used in AMR-NB decoding. */
+#ifndef _MSC_VER
         ff_acelp_apply_order_2_transfer_function(samples, samples,
             (const float[2]) { -1.99997,      1.0 },
             (const float[2]) { -1.9330735188, 0.93589198496 },
             0.93980580475, s->dcf_mem, size);
+#else
+		const float a1[2] = { -1.99997,      1.0 };
+		const float a2[2] = { -1.9330735188, 0.93589198496 };
+
+        ff_acelp_apply_order_2_transfer_function(samples, samples,
+            a1,
+            a2,
+            0.93980580475, s->dcf_mem, size);
+#endif
     }
 }
 /**
@@ -2016,6 +2026,7 @@ static av_cold void wmavoice_flush(AVCodecContext *ctx)
 }
 
 AVCodec wmavoice_decoder = {
+#ifndef MSC_STRUCTS
     "wmavoice",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_WMAVOICE,
@@ -2027,4 +2038,23 @@ AVCodec wmavoice_decoder = {
     CODEC_CAP_SUBFRAMES,
     .flush     = wmavoice_flush,
     .long_name = NULL_IF_CONFIG_SMALL("Windows Media Audio Voice"),
+#else
+    /* name = */ "wmavoice",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_WMAVOICE,
+    /* priv_data_size = */ sizeof(WMAVoiceContext),
+    /* init = */ wmavoice_decode_init,
+    /* encode = */ NULL,
+    /* close = */ wmavoice_decode_end,
+    /* decode = */ wmavoice_decode_packet,
+    /* capabilities = */ CODEC_CAP_SUBFRAMES,
+    /* next = */ 0,
+    /* flush = */ wmavoice_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Audio Voice"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

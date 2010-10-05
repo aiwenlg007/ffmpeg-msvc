@@ -177,6 +177,7 @@ static av_cold int encode_init(AVCodecContext *avctx){
 #endif
 
 AVCodec vcr1_decoder = {
+#ifndef MSC_STRUCTS
     "vcr1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VCR1,
@@ -187,10 +188,30 @@ AVCodec vcr1_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("ATI VCR1"),
+#else
+    /* name = */ "vcr1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VCR1,
+    /* priv_data_size = */ sizeof(VCR1Context),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ATI VCR1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_VCR1_ENCODER
 AVCodec vcr1_encoder = {
+#ifndef MSC_STRUCTS
     "vcr1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VCR1,
@@ -199,5 +220,24 @@ AVCodec vcr1_encoder = {
     encode_frame,
     //encode_end,
     .long_name = NULL_IF_CONFIG_SMALL("ATI VCR1"),
+#else
+    /* name = */ "vcr1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VCR1,
+    /* priv_data_size = */ sizeof(VCR1Context),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ //encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ATI VCR1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

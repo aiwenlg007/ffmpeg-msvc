@@ -27,6 +27,8 @@
 * (http://dirac.sourceforge.net/specification.html).
 */
 
+#if CONFIG_LIBSCHROEDINGER
+
 #undef NDEBUG
 #include <assert.h>
 
@@ -404,8 +406,10 @@ static int libschroedinger_encode_close(AVCodecContext *avccontext)
     return 0;
 }
 
+const enum PixelFormat libschroedinger_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE};
 
 AVCodec libschroedinger_encoder = {
+#ifndef MSC_STRUCTS
     "libschroedinger",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DIRAC,
@@ -416,4 +420,25 @@ AVCodec libschroedinger_encoder = {
    .capabilities = CODEC_CAP_DELAY,
    .pix_fmts     = (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE},
    .long_name    = NULL_IF_CONFIG_SMALL("libschroedinger Dirac 2.2"),
+#else
+    /* name = */ "libschroedinger",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DIRAC,
+    /* priv_data_size = */ sizeof(FfmpegSchroEncoderParams),
+    /* init = */ libschroedinger_encode_init,
+    /* encode = */ libschroedinger_encode_frame,
+    /* close = */ libschroedinger_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libschroedinger_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libschroedinger Dirac 2.2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

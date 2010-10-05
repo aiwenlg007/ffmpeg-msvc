@@ -37,12 +37,21 @@ typedef struct SampleFmtInfo {
 
 /** this table gives more information about formats */
 static const SampleFmtInfo sample_fmt_info[SAMPLE_FMT_NB] = {
+#ifndef MSC_STRUCTS
     [SAMPLE_FMT_U8]  = { .name = "u8",  .bits = 8 },
     [SAMPLE_FMT_S16] = { .name = "s16", .bits = 16 },
     [SAMPLE_FMT_S32] = { .name = "s32", .bits = 32 },
     [SAMPLE_FMT_FLT] = { .name = "flt", .bits = 32 },
     [SAMPLE_FMT_DBL] = { .name = "dbl", .bits = 64 },
 };
+#else
+    { "u8",  8 },
+    { "s16", 16 },
+    { "s32", 32 },
+    { "flt", 32 },
+    { "dbl", 64 },
+};
+#endif
 
 const char *avcodec_get_sample_fmt_name(int sample_fmt)
 {
@@ -73,12 +82,21 @@ void avcodec_sample_fmt_string (char *buf, int buf_size, int sample_fmt)
 }
 
 static const char* const channel_names[]={
+#ifndef MSC_STRUCTS
     "FL", "FR", "FC", "LFE", "BL",  "BR",  "FLC", "FRC",
     "BC", "SL", "SR", "TC",  "TFL", "TFC", "TFR", "TBL",
     "TBC", "TBR",
     [29] = "DL",
     [30] = "DR",
 };
+#else
+	"FL", "FR", "FC", "LFE", "BL",  "BR",  "FLC", "FRC",
+	"BC", "SL", "SR", "TC",  "TFL", "TFC", "TFR", "TBL",
+	"TBC", "TBR", 0,0,0,0,0,0,0,0,0,0,
+	"DL",
+	"DR",
+};
+#endif
 
 static const char *get_channel_name(int channel_id)
 {

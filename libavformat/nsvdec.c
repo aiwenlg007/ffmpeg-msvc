@@ -18,6 +18,8 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
+
 #include "avformat.h"
 #include "riff.h"
 
@@ -417,8 +419,13 @@ static int nsv_parse_NSVs_header(AVFormatContext *s, AVFormatParameters *ap)
     PRINT(("NSV NSVs framerate code %2x\n", i));
     if(i&0x80) { /* odd way of giving native framerates from docs */
         int t=(i & 0x7F)>>2;
+#ifndef _MSC_VER
         if(t<16) framerate = (AVRational){1, t+1};
         else     framerate = (AVRational){t-15, 1};
+#else
+		if(t<16) framerate = av_create_rational(1, t+1);
+		else     framerate = av_create_rational(t-15, 1);
+#endif
 
         if(i&1){
             framerate.num *= 1000;
@@ -430,7 +437,11 @@ static int nsv_parse_NSVs_header(AVFormatContext *s, AVFormatParameters *ap)
         else              framerate.num *= 30;
     }
     else
+#ifndef _MSC_VER
         framerate= (AVRational){i, 1};
+#else
+		framerate = av_create_rational(i, 1);
+#endif
 
     nsv->avsync = get_le16(pb);
     nsv->framerate = framerate;

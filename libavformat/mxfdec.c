@@ -251,6 +251,9 @@ static int mxf_decrypt_triplet(AVFormatContext *s, AVPacket *pkt, KLVPacket *klv
     uint8_t ivec[16];
     uint8_t tmpbuf[16];
     int index;
+#ifdef _MSC_VER
+	int av_aes_size = get_av_aes_size();
+#endif
 
     if (!mxf->aesc && s->key && s->keylen == 16) {
         mxf->aesc = av_malloc(av_aes_size);

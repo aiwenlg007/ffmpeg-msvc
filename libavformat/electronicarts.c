@@ -264,7 +264,11 @@ static int process_video_header_mdec(AVFormatContext *s)
     url_fskip(pb, 4);
     ea->width  = get_le16(pb);
     ea->height = get_le16(pb);
+#ifndef _MSC_VER
     ea->time_base = (AVRational){1,15};
+#else
+	ea->time_base = av_create_rational(1,15);
+#endif
     ea->video_codec = CODEC_ID_MDEC;
     return 1;
 }
@@ -330,12 +334,20 @@ static int process_ea_header(AVFormatContext *s) {
 
             case MVIh_TAG :
                 ea->video_codec = CODEC_ID_CMV;
+#ifndef _MSC_VER
                 ea->time_base = (AVRational){0,0};
+#else
+				ea->time_base = av_create_rational(0,0);
+#endif
                 break;
 
             case kVGT_TAG:
                 ea->video_codec = CODEC_ID_TGV;
+#ifndef _MSC_VER
                 ea->time_base = (AVRational){0,0};
+#else
+				ea->time_base.num = ea->time_base.den = 0;
+#endif
                 break;
 
             case mTCD_TAG :

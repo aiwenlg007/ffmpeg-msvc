@@ -170,6 +170,7 @@ static int yuv4_write_header(AVFormatContext *s)
 }
 
 AVOutputFormat yuv4mpegpipe_muxer = {
+#ifndef MSC_STRUCTS
     "yuv4mpegpipe",
     NULL_IF_CONFIG_SMALL("YUV4MPEG pipe format"),
     "",
@@ -181,6 +182,26 @@ AVOutputFormat yuv4mpegpipe_muxer = {
     yuv4_write_packet,
     .flags = AVFMT_RAWPICTURE,
 };
+#else
+	"yuv4mpegpipe",
+	NULL_IF_CONFIG_SMALL("YUV4MPEG pipe format"),
+	"",
+	"y4m",
+	sizeof(int),
+	CODEC_ID_NONE,
+	CODEC_ID_RAWVIDEO,
+	yuv4_write_header,
+	yuv4_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_RAWPICTURE,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 /* Header size increased to allow room for optional flags */
@@ -337,7 +358,11 @@ static int yuv4_read_header(AVFormatContext *s, AVFormatParameters *ap)
     st->codec->pix_fmt = pix_fmt;
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
     st->codec->codec_id = CODEC_ID_RAWVIDEO;
+#ifndef _MSC_VER
     st->sample_aspect_ratio= (AVRational){aspectn, aspectd};
+#else
+	st->sample_aspect_ratio = av_create_rational(aspectn, aspectd);
+#endif
     st->codec->chroma_sample_location = chroma_sample_location;
 
     return 0;
@@ -391,6 +416,7 @@ static int yuv4_probe(AVProbeData *pd)
 
 #if CONFIG_YUV4MPEGPIPE_DEMUXER
 AVInputFormat yuv4mpegpipe_demuxer = {
+#ifndef MSC_STRUCTS
     "yuv4mpegpipe",
     NULL_IF_CONFIG_SMALL("YUV4MPEG pipe format"),
     sizeof(struct frame_attributes),
@@ -399,4 +425,25 @@ AVInputFormat yuv4mpegpipe_demuxer = {
     yuv4_read_packet,
     .extensions = "y4m"
 };
+#else
+	"yuv4mpegpipe",
+	NULL_IF_CONFIG_SMALL("YUV4MPEG pipe format"),
+	sizeof(struct frame_attributes),
+	yuv4_probe,
+	yuv4_read_header,
+	yuv4_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "y4m",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif

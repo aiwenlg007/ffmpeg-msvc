@@ -28,7 +28,6 @@
 
 //#define DEBUG
 
-
 #include "avcodec.h"
 #include "get_bits.h"
 #include "unary.h"
@@ -734,8 +733,13 @@ static int read_var_block_data(ALSDecContext *ctx, ALSBlockData *bd)
 
     // read all residuals
     if (sconf->bgmc) {
+#ifndef _MSC_VER
         unsigned int delta[sub_blocks];
         unsigned int k    [sub_blocks];
+#else
+        unsigned int *delta= av_malloc_items(sub_blocks, unsigned int);
+        unsigned int *k    = av_malloc_items(sub_blocks, unsigned int);
+#endif
         unsigned int b = av_clip((av_ceil_log2(bd->block_length) - 3) >> 1, 0, 5);
         unsigned int i = start;
 
@@ -802,6 +806,11 @@ static int read_var_block_data(ALSDecContext *ctx, ALSBlockData *bd)
                 *current_res++ = res;
             }
         }
+#ifdef _MSC_VER
+		av_free(delta);
+		av_free(k);
+#endif
+
     } else {
         current_res = bd->raw_samples + start;
 
@@ -1621,6 +1630,7 @@ static av_cold void flush(AVCodecContext *avctx)
 
 
 AVCodec als_decoder = {
+#ifndef MSC_STRUCTS
     "als",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP4ALS,
@@ -1632,5 +1642,23 @@ AVCodec als_decoder = {
     .flush = flush,
     .capabilities = CODEC_CAP_SUBFRAMES,
     .long_name = NULL_IF_CONFIG_SMALL("MPEG-4 Audio Lossless Coding (ALS)"),
+#else
+    /* name = */ "als",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP4ALS,
+    /* priv_data_size = */ sizeof(ALSDecContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_SUBFRAMES,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 Audio Lossless Coding (ALS)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
-

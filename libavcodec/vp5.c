@@ -267,6 +267,7 @@ static av_cold int vp5_decode_init(AVCodecContext *avctx)
 }
 
 AVCodec vp5_decoder = {
+#ifndef MSC_STRUCTS
     "vp5",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP5,
@@ -277,4 +278,23 @@ AVCodec vp5_decoder = {
     vp56_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("On2 VP5"),
+#else
+    /* name = */ "vp5",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP5,
+    /* priv_data_size = */ sizeof(VP56Context),
+    /* init = */ vp5_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vp56_free,
+    /* decode = */ vp56_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("On2 VP5"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

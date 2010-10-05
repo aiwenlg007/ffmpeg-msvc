@@ -155,6 +155,7 @@ ogm_packet(AVFormatContext *s, int idx)
     return 0;
 }
 
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_ogm_video_codec = {
     .magic = "\001video",
     .magicsize = 6,
@@ -186,3 +187,44 @@ const struct ogg_codec ff_ogm_old_codec = {
     .packet = ogm_packet,
     .granule_is_start = 1,
 };
+#else
+const struct ogg_codec ff_ogm_video_codec = {
+    "\001video",
+    6,
+	0,
+    ogm_header,
+	ogm_packet,
+	0,
+    1,
+};
+
+const struct ogg_codec ff_ogm_audio_codec = {
+    "\001audio",
+	6,
+	0,
+    ogm_header,
+	ogm_packet,
+	0,
+    1,
+};
+
+const struct ogg_codec ff_ogm_text_codec = {
+    "\001text",
+	5,
+	0,
+    ogm_header,
+	ogm_packet,
+	0,
+    1,
+};
+
+const struct ogg_codec ff_ogm_old_codec = {
+    "\001Direct Show Samples embedded in Ogg",
+	35,
+	0,
+    ogm_dshow_header,
+	ogm_packet,
+	0,
+    1,
+};
+#endif

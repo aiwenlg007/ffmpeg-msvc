@@ -1412,6 +1412,7 @@ static int dvbsub_decode(AVCodecContext *avctx,
 
 
 AVCodec dvbsub_decoder = {
+#ifndef MSC_STRUCTS
     "dvbsub",
     AVMEDIA_TYPE_SUBTITLE,
     CODEC_ID_DVB_SUBTITLE,
@@ -1421,4 +1422,23 @@ AVCodec dvbsub_decoder = {
     dvbsub_close_decoder,
     dvbsub_decode,
     .long_name = NULL_IF_CONFIG_SMALL("DVB subtitles"),
+#else
+    /* name = */ "dvbsub",
+    /* type = */ AVMEDIA_TYPE_SUBTITLE,
+    /* id = */ CODEC_ID_DVB_SUBTITLE,
+    /* priv_data_size = */ sizeof(DVBSubContext),
+    /* init = */ dvbsub_init_decoder,
+    /* encode = */ NULL,
+    /* close = */ dvbsub_close_decoder,
+    /* decode = */ dvbsub_decode,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DVB subtitles"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

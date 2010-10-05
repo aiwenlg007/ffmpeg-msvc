@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_LIBX264
+
 #include "avcodec.h"
 #include <x264.h>
 #include <math.h>
@@ -315,7 +317,10 @@ static av_cold int X264_init(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat libx264_encoder_formats[] = { PIX_FMT_YUV420P, PIX_FMT_NONE };
+
 AVCodec libx264_encoder = {
+#ifndef MSC_STRUCTS
     .name           = "libx264",
     .type           = AVMEDIA_TYPE_VIDEO,
     .id             = CODEC_ID_H264,
@@ -326,4 +331,25 @@ AVCodec libx264_encoder = {
     .capabilities   = CODEC_CAP_DELAY,
     .pix_fmts       = (const enum PixelFormat[]) { PIX_FMT_YUV420P, PIX_FMT_NONE },
     .long_name      = NULL_IF_CONFIG_SMALL("libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"),
+#else
+    /* name = */ "libx264",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H264,
+    /* priv_data_size = */ sizeof(X264Context),
+    /* init = */ X264_init,
+    /* encode = */ X264_frame,
+    /* close = */ X264_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libx264_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libx264 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

@@ -43,7 +43,11 @@ int av_reduce(int *dst_num, int *dst_den, int64_t num, int64_t den, int64_t max)
         den = FFABS(den)/gcd;
     }
     if(num<=max && den<=max){
-        a1= (AVRational){num, den};
+#ifndef _MSC_VER
+	    a1= (AVRational){num, den};
+#else
+		a1.num=num; a1.den=den;
+#endif
         den=0;
     }
 
@@ -58,12 +62,21 @@ int av_reduce(int *dst_num, int *dst_den, int64_t num, int64_t den, int64_t max)
             if(a1.den) x= FFMIN(x, (max - a0.den) / a1.den);
 
             if (den*(2*x*a1.den + a0.den) > num*a1.den)
-                a1 = (AVRational){x*a1.num + a0.num, x*a1.den + a0.den};
+#ifndef _MSC_VER
+	            a1 = (AVRational){x*a1.num + a0.num, x*a1.den + a0.den};
+#else
+	            a1 = av_create_rational(x*a1.num + a0.num, x*a1.den + a0.den);
+#endif
             break;
         }
 
         a0= a1;
-        a1= (AVRational){a2n, a2d};
+ #ifndef _MSC_VER
+	   a1= (AVRational){a2n, a2d};
+#else
+	   a1.num=a2n; 
+	   a1.den=a2d;
+#endif
         num= den;
         den= next_den;
     }
@@ -81,7 +94,12 @@ AVRational av_mul_q(AVRational b, AVRational c){
 }
 
 AVRational av_div_q(AVRational b, AVRational c){
+#ifndef _MSC_VER
     return av_mul_q(b, (AVRational){c.den, c.num});
+#else
+	AVRational d = {c.den, c.num};
+	return av_mul_q(b, d);
+#endif
 }
 
 AVRational av_add_q(AVRational b, AVRational c){
@@ -90,7 +108,12 @@ AVRational av_add_q(AVRational b, AVRational c){
 }
 
 AVRational av_sub_q(AVRational b, AVRational c){
+#ifndef _MSC_VER
     return av_add_q(b, (AVRational){-c.num, c.den});
+#else
+	AVRational d = {-c.num, c.den};
+	return av_add_q(b, d);
+#endif
 }
 
 AVRational av_d2q(double d, int max){
@@ -99,7 +122,15 @@ AVRational av_d2q(double d, int max){
     int exponent= FFMAX( (int)(log(fabs(d) + 1e-20)/LOG2), 0);
     int64_t den= 1LL << (61 - exponent);
     if (isnan(d))
-        return (AVRational){0,0};
+	{
+#ifndef _MSC_VER
+		return (AVRational){0,0};	
+#else
+		AVRational r = {0,0};
+		return r;
+#endif
+	}
+
     av_reduce(&a.num, &a.den, (int64_t)(d * den + 0.5), den, max);
 
     return a;

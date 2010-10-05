@@ -21,7 +21,10 @@
 
 /* needed for usleep() */
 #define _XOPEN_SOURCE 600
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
+
 #include "libavutil/avstring.h"
 #include "libavcodec/opt.h"
 #include "os_support.h"

@@ -453,6 +453,7 @@ static int decode(AVCodecContext *avctx, void *data, int *data_size,
 }
 
 AVCodec pgssub_decoder = {
+#ifndef MSC_STRUCTS
     "pgssub",
     AVMEDIA_TYPE_SUBTITLE,
     CODEC_ID_HDMV_PGS_SUBTITLE,
@@ -462,4 +463,23 @@ AVCodec pgssub_decoder = {
     close_decoder,
     decode,
     .long_name = NULL_IF_CONFIG_SMALL("HDMV Presentation Graphic Stream subtitles"),
+#else
+    /* name = */ "pgssub",
+    /* type = */ AVMEDIA_TYPE_SUBTITLE,
+    /* id = */ CODEC_ID_HDMV_PGS_SUBTITLE,
+    /* priv_data_size = */ sizeof(PGSSubContext),
+    /* init = */ init_decoder,
+    /* encode = */ NULL,
+    /* close = */ close_decoder,
+    /* decode = */ decode,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("HDMV Presentation Graphic Stream subtitles"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

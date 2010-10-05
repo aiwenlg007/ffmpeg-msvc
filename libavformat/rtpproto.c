@@ -28,7 +28,11 @@
 #include "avformat.h"
 #include "rtpdec.h"
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
+
 #include <stdarg.h>
 #include "internal.h"
 #include "network.h"
@@ -37,7 +41,10 @@
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#endif
 
 #define RTP_TX_BUF_SIZE  (64 * 1024)
 #define RTP_RX_BUF_SIZE  (128 * 1024)
@@ -374,6 +381,7 @@ static int rtp_get_file_handle(URLContext *h)
 }
 
 URLProtocol rtp_protocol = {
+#ifndef MSC_STRUCTS
     "rtp",
     rtp_open,
     rtp_read,
@@ -382,3 +390,16 @@ URLProtocol rtp_protocol = {
     rtp_close,
     .url_get_file_handle = rtp_get_file_handle,
 };
+#else
+	"rtp",
+	rtp_open,
+	rtp_read,
+	rtp_write,
+	NULL, /* seek */
+	rtp_close,
+	/*next = */ 0,
+	/*url_read_pause = */ 0,
+	/*url_read_seek = */ 0,
+	/*url_get_file_handle = */ rtp_get_file_handle
+};
+#endif

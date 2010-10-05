@@ -24,6 +24,7 @@
 
 #include "libavutil/common.h"
 
+#ifndef _MSC_VER
 #if   ARCH_ARM
 #   include "arm/mathops.h"
 #elif ARCH_AVR32
@@ -36,6 +37,9 @@
 #   include "ppc/mathops.h"
 #elif ARCH_X86
 #   include "x86/mathops.h"
+#endif
+#else
+
 #endif
 
 /* generic implementation */
@@ -118,14 +122,22 @@ static inline av_const int mid_pred(int a, int b, int c)
 #ifndef sign_extend
 static inline av_const int sign_extend(int val, unsigned bits)
 {
-    return (val << (INT_BIT - bits)) >> (INT_BIT - bits);
+#ifndef _MSC_VER
+	return (val << (INT_BIT - bits)) >> (INT_BIT - bits);
+#else
+	return (val << ((8 * sizeof(int)) - bits)) >> ((8 * sizeof(int)) - bits);
+#endif
 }
 #endif
 
 #ifndef zero_extend
 static inline av_const unsigned zero_extend(unsigned val, unsigned bits)
 {
+#ifndef _MSC_VER
     return (val << (INT_BIT - bits)) >> (INT_BIT - bits);
+#else
+    return (val << ((8 * sizeof(int)) - bits)) >> ((8 * sizeof(int)) - bits);
+#endif
 }
 #endif
 

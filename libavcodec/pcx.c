@@ -155,7 +155,11 @@ static int pcx_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
     stride = p->linesize[0];
 
     if (nplanes == 3 && bits_per_pixel == 8) {
-        uint8_t scanline[bytes_per_scanline];
+#ifndef _MSC_VER
+		uint8_t scanline[bytes_per_scanline];
+#else
+		uint8_t *scanline = av_malloc(bytes_per_scanline);
+#endif
 
         for (y=0; y<h; y++) {
             buf = pcx_rle_decode(buf, scanline, bytes_per_scanline, compressed);
@@ -168,9 +172,16 @@ static int pcx_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
 
             ptr += stride;
         }
+#ifdef _MSC_VER
+		av_free(scanline);
+#endif
 
     } else if (nplanes == 1 && bits_per_pixel == 8) {
+#ifndef _MSC_VER
         uint8_t scanline[bytes_per_scanline];
+#else
+        uint8_t *scanline = av_malloc(bytes_per_scanline);
+#endif
         const uint8_t *palstart = bufstart + buf_size - 769;
 
         for (y=0; y<h; y++, ptr+=stride) {
@@ -183,12 +194,23 @@ static int pcx_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
             buf = palstart;
         }
         if (*buf++ != 12) {
-            av_log(avctx, AV_LOG_ERROR, "expected palette after image data\n");
+			av_log(avctx, AV_LOG_ERROR, "expected palette after image data\n");
+#ifdef _MSC_VER
+			av_free(scanline);
+#endif
             return -1;
         }
 
+#ifdef _MSC_VER
+		av_free(scanline);
+#endif
+
     } else if (nplanes == 1) {   /* all packed formats, max. 16 colors */
-        uint8_t scanline[bytes_per_scanline];
+#ifndef _MSC_VER
+		uint8_t scanline[bytes_per_scanline];
+#else
+		uint8_t *scanline = av_malloc(bytes_per_scanline);
+#endif
         GetBitContext s;
 
         for (y=0; y<h; y++) {
@@ -199,10 +221,17 @@ static int pcx_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
             for (x=0; x<w; x++)
                 ptr[x] = get_bits(&s, bits_per_pixel);
             ptr += stride;
-        }
+		}
+#ifdef _MSC_VER
+		av_free(scanline);
+#endif
 
     } else {    /* planar, 4, 8 or 16 colors */
-        uint8_t scanline[bytes_per_scanline];
+#ifndef _MSC_VER
+		uint8_t scanline[bytes_per_scanline];
+#else
+		uint8_t *scanline = av_malloc(bytes_per_scanline);
+#endif
         int i;
 
         for (y=0; y<h; y++) {
@@ -217,7 +246,10 @@ static int pcx_decode_frame(AVCodecContext *avctx, void *data, int *data_size,
                 ptr[x] = v;
             }
             ptr += stride;
-        }
+		}
+#ifdef _MSC_VER
+		av_free(scanline);
+#endif
     }
 
     if (nplanes == 1 && bits_per_pixel == 8) {
@@ -243,6 +275,7 @@ static av_cold int pcx_end(AVCodecContext *avctx) {
 }
 
 AVCodec pcx_decoder = {
+#ifndef MSC_STRUCTS
     "pcx",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PCX,
@@ -254,4 +287,23 @@ AVCodec pcx_decoder = {
     CODEC_CAP_DR1,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("PC Paintbrush PCX image"),
+#else
+    /* name = */ "pcx",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PCX,
+    /* priv_data_size = */ sizeof(PCXContext),
+    /* init = */ pcx_init,
+    /* encode = */ NULL,
+    /* close = */ pcx_end,
+    /* decode = */ pcx_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PC Paintbrush PCX image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -24,6 +24,8 @@
  * @author Oded Shimon <ods15@ods15.dyndns.org>
  */
 
+#if CONFIG_VORBIS_DECODER
+
 #include <float.h>
 #include "avcodec.h"
 #include "dsputil.h"
@@ -1091,7 +1093,10 @@ static av_cold int vorbis_encode_close(AVCodecContext *avccontext)
     return 0 ;
 }
 
+const enum SampleFormat vorbis_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec vorbis_encoder = {
+#ifndef MSC_STRUCTS
     "vorbis",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_VORBIS,
@@ -1102,4 +1107,25 @@ AVCodec vorbis_encoder = {
     .capabilities= CODEC_CAP_DELAY | CODEC_CAP_EXPERIMENTAL,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Vorbis"),
+#else
+    /* name = */ "vorbis",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_VORBIS,
+    /* priv_data_size = */ sizeof(vorbis_enc_context),
+    /* init = */ vorbis_encode_init,
+    /* encode = */ vorbis_encode_frame,
+    /* close = */ vorbis_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY | CODEC_CAP_EXPERIMENTAL,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Vorbis"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ vorbis_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

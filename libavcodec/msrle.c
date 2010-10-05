@@ -144,6 +144,7 @@ static av_cold int msrle_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec msrle_decoder = {
+#ifndef MSC_STRUCTS
     "msrle",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSRLE,
@@ -154,4 +155,23 @@ AVCodec msrle_decoder = {
     msrle_decode_frame,
     CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("Microsoft RLE"),
+#else
+    /* name = */ "msrle",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSRLE,
+    /* priv_data_size = */ sizeof(MsrleContext),
+    /* init = */ msrle_decode_init,
+    /* encode = */ NULL,
+    /* close = */ msrle_decode_end,
+    /* decode = */ msrle_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Microsoft RLE"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

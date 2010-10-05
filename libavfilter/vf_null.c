@@ -23,7 +23,42 @@
 
 #include "avfilter.h"
 
+AVFilterPad avfilter_vf_null_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ avfilter_null_start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+	
+AVFilterPad avfilter_vf_null_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_null = {
+#ifndef MSC_STRUCTS
     .name      = "null",
     .description = NULL_IF_CONFIG_SMALL("Pass the source unchanged to the output."),
 
@@ -40,3 +75,40 @@ AVFilter avfilter_vf_null = {
                                     .type             = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "null",
+	/*priv_size*/ 0,
+	/*init*/ 0,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vf_null_inputs,
+	/*outputs*/ avfilter_vf_null_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Pass the source unchanged to the output."),
+};
+#endif
+
+#if 0
+    /*name*/ 0,
+    /*priv_size*/ 0,
+    /*init*/ 0,
+    /*uninit*/ 0,
+    /*query_formats*/ 0,
+    /*inputs*/ 0,
+    /*outputs*/ 0,
+	/*description*/ 0
+};
+
+{
+    /*name*/ 0,
+    /*type*/ 0,
+    /*min_perms*/ 0,
+    /*rej_perms*/ 0,
+    /*start_frame*/ 0,
+    /*get_video_buffer*/ 0,
+    /*end_frame*/ 0,
+    /*draw_slice*/ 0,
+    /*poll_frame*/ 0,
+    /*request_frame*/ 0,
+    /*config_props*/ 0
+};
+#endif

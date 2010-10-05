@@ -131,7 +131,15 @@ static int bmp_encode_frame(AVCodecContext *avctx, unsigned char *buf, int buf_s
     return n_bytes;
 }
 
+const enum PixelFormat bmp_encoder_pixel_formats[] = {
+	PIX_FMT_BGR24,
+	PIX_FMT_RGB555, PIX_FMT_RGB565,
+	PIX_FMT_RGB8, PIX_FMT_BGR8, PIX_FMT_RGB4_BYTE, PIX_FMT_BGR4_BYTE, PIX_FMT_GRAY8, PIX_FMT_PAL8,
+	PIX_FMT_MONOBLACK,
+	PIX_FMT_NONE};
+
 AVCodec bmp_encoder = {
+#ifndef MSC_STRUCTS
     "bmp",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_BMP,
@@ -147,3 +155,23 @@ AVCodec bmp_encoder = {
         PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("BMP image"),
 };
+#else
+	/* name = */ "bmp",
+	/* type = */ AVMEDIA_TYPE_VIDEO,
+	/* id = */ CODEC_ID_BMP,
+	/* priv_data_size = */ sizeof(BMPContext),
+	/* init = */ bmp_encode_init,
+	/* encode = */ bmp_encode_frame,
+	/* close = */ 0,
+	/* decode = */ 0,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ bmp_encoder_pixel_formats,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("BMP image"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ 0,
+	/* channel_layouts = */ 0
+};
+#endif

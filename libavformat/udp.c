@@ -26,14 +26,20 @@
 
 #define _BSD_SOURCE     /* Needed for using struct ip_mreq with recent glibc */
 #include "avformat.h"
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
 #include "internal.h"
 #include "network.h"
 #include "os_support.h"
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#endif
 
 #ifndef IPV6_ADD_MEMBERSHIP
 #define IPV6_ADD_MEMBERSHIP IPV6_JOIN_GROUP
@@ -488,6 +494,7 @@ static int udp_close(URLContext *h)
 }
 
 URLProtocol udp_protocol = {
+#ifndef MSC_STRUCTS
     "udp",
     udp_open,
     udp_read,
@@ -496,3 +503,16 @@ URLProtocol udp_protocol = {
     udp_close,
     .url_get_file_handle = udp_get_file_handle,
 };
+#else
+	"udp",
+	udp_open,
+	udp_read,
+	udp_write,
+	NULL, /* seek */
+	udp_close,
+	/*next = */ 0,
+	/*url_read_pause = */ 0,
+	/*url_read_seek = */ 0,
+	/*url_get_file_handle = */ udp_get_file_handle
+};
+#endif

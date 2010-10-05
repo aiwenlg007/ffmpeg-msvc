@@ -84,6 +84,7 @@ old_flac_header (AVFormatContext * s, int idx)
     return 0;
 }
 
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_flac_codec = {
     .magic = "\177FLAC",
     .magicsize = 5,
@@ -95,3 +96,18 @@ const struct ogg_codec ff_old_flac_codec = {
     .magicsize = 4,
     .header = old_flac_header
 };
+#else
+const struct ogg_codec ff_flac_codec = {
+    "\177FLAC",
+    5,
+	0,
+    flac_header
+};
+
+const struct ogg_codec ff_old_flac_codec = {
+    "fLaC",
+	4,
+	0,
+    old_flac_header
+};
+#endif

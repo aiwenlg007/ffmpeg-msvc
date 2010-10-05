@@ -607,6 +607,7 @@ static int64_t mpegps_read_dts(AVFormatContext *s, int stream_index,
 }
 
 AVInputFormat mpegps_demuxer = {
+#ifndef MSC_STRUCTS
     "mpeg",
     NULL_IF_CONFIG_SMALL("MPEG-PS format"),
     sizeof(MpegDemuxContext),
@@ -618,3 +619,24 @@ AVInputFormat mpegps_demuxer = {
     mpegps_read_dts,
     .flags = AVFMT_SHOW_IDS|AVFMT_TS_DISCONT,
 };
+#else
+	"mpeg",
+	NULL_IF_CONFIG_SMALL("MPEG-PS format"),
+	sizeof(MpegDemuxContext),
+	mpegps_probe,
+	mpegps_read_header,
+	mpegps_read_packet,
+	NULL,
+	NULL, //mpegps_read_seek,
+	mpegps_read_dts,
+	AVFMT_SHOW_IDS|AVFMT_TS_DISCONT,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

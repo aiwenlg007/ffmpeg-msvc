@@ -400,6 +400,7 @@ static int mpc8_decode_frame(AVCodecContext * avctx,
 }
 
 AVCodec mpc8_decoder = {
+#ifndef MSC_STRUCTS
     "mpc8",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MUSEPACK8,
@@ -409,4 +410,23 @@ AVCodec mpc8_decoder = {
     NULL,
     mpc8_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Musepack SV8"),
+#else
+    /* name = */ "mpc8",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MUSEPACK8,
+    /* priv_data_size = */ sizeof(MPCContext),
+    /* init = */ mpc8_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ mpc8_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Musepack SV8"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

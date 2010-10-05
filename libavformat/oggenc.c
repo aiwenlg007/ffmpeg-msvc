@@ -437,6 +437,7 @@ static int ogg_write_trailer(AVFormatContext *s)
 }
 
 AVOutputFormat ogg_muxer = {
+#ifndef MSC_STRUCTS
     "ogg",
     NULL_IF_CONFIG_SMALL("Ogg"),
     "application/ogg",
@@ -449,3 +450,23 @@ AVOutputFormat ogg_muxer = {
     ogg_write_trailer,
     .metadata_conv = ff_vorbiscomment_metadata_conv,
 };
+#else
+	"ogg",
+	NULL_IF_CONFIG_SMALL("Ogg"),
+	"application/ogg",
+	"ogg,ogv,spx",
+	sizeof(OGGContext),
+	CODEC_ID_FLAC,
+	CODEC_ID_THEORA,
+	ogg_write_header,
+	ogg_write_packet,
+	ogg_write_trailer,
+	/*flags = */ 0,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_vorbiscomment_metadata_conv,
+	/*next = */ 0
+};
+#endif

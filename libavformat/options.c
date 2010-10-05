@@ -20,6 +20,10 @@
 #include "avformat.h"
 #include "libavcodec/opt.h"
 
+#ifdef _MSC_VER
+#include <stddef.h>
+#endif
+
 /**
  * @file
  * Options definition for AVFormatContext.

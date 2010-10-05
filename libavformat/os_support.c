@@ -26,9 +26,11 @@
 
 #include "config.h"
 #include "avformat.h"
+#ifndef _MSC_VER
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#endif
 #include "os_support.h"
 
 #if CONFIG_NETWORK
@@ -44,7 +46,9 @@
 
 #if !HAVE_INET_ATON
 #include <stdlib.h>
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 
 int ff_inet_aton (const char * str, struct in_addr * add)
 {

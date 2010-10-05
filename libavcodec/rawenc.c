@@ -31,6 +31,10 @@
 
 static av_cold int raw_init_encoder(AVCodecContext *avctx)
 {
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     avctx->coded_frame = (AVFrame *)avctx->priv_data;
     avctx->coded_frame->pict_type = FF_I_TYPE;
     avctx->coded_frame->key_frame = 1;
@@ -56,6 +60,7 @@ static int raw_encode(AVCodecContext *avctx,
 }
 
 AVCodec rawvideo_encoder = {
+#ifndef MSC_STRUCTS
     "rawvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RAWVIDEO,
@@ -63,4 +68,23 @@ AVCodec rawvideo_encoder = {
     raw_init_encoder,
     raw_encode,
     .long_name = NULL_IF_CONFIG_SMALL("raw video"),
+#else
+    /* name = */ "rawvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RAWVIDEO,
+    /* priv_data_size = */ sizeof(AVFrame),
+    /* init = */ raw_init_encoder,
+    /* encode = */ raw_encode,
+    /* close = */ 0,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("raw video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

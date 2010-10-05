@@ -249,8 +249,10 @@ static av_cold int flashsv_decode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat flashsv_decoder_formats[] = {PIX_FMT_BGR24, PIX_FMT_NONE};
 
 AVCodec flashsv_decoder = {
+#ifndef MSC_STRUCTS
     "flashsv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FLASHSV,
@@ -262,4 +264,23 @@ AVCodec flashsv_decoder = {
     CODEC_CAP_DR1,
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_BGR24, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Flash Screen Video v1"),
+#else
+    /* name = */ "flashsv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FLASHSV,
+    /* priv_data_size = */ sizeof(FlashSVContext),
+    /* init = */ flashsv_decode_init,
+    /* encode = */ NULL,
+    /* close = */ flashsv_decode_end,
+    /* decode = */ flashsv_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ flashsv_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Flash Screen Video v1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

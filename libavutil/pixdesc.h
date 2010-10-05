@@ -72,7 +72,9 @@ typedef struct AVPixFmtDescriptor{
      * This value only refers to the chroma components.
      */
     uint8_t log2_chroma_h;
-    uint8_t flags;
+#ifndef _MSC_VER
+	    uint8_t flags;
+#endif
 
     /**
      * Parameters that describe how pixels are packed. If the format
@@ -80,6 +82,10 @@ typedef struct AVPixFmtDescriptor{
      * comp[2].
      */
     AVComponentDescriptor comp[4];
+
+#ifdef _MSC_VER
+	uint8_t flags;
+#endif
 }AVPixFmtDescriptor;
 
 #define PIX_FMT_BE        1 ///< Pixel format is big-endian.
@@ -87,10 +93,17 @@ typedef struct AVPixFmtDescriptor{
 #define PIX_FMT_BITSTREAM 4 ///< All values of a component are bit-wise packed end to end.
 #define PIX_FMT_HWACCEL   8 ///< Pixel format is an HW accelerated format.
 
+#include "pixfmt.h"
+
 /**
  * The array of all the pixel format descriptors.
  */
+
+#ifndef _MSC_VER
 extern const AVPixFmtDescriptor av_pix_fmt_descriptors[];
+#else
+extern AVPixFmtDescriptor *get_av_pix_fmt_descriptors();
+#endif
 
 /**
  * Reads a line from an image, and writes the values of the

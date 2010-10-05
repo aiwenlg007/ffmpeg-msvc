@@ -351,6 +351,7 @@ static int ra144_decode_frame(AVCodecContext * avctx, void *vdata,
 }
 
 AVCodec ra_144_decoder =
+#ifndef MSC_STRUCTS
 {
     "real_144",
     AVMEDIA_TYPE_AUDIO,
@@ -361,4 +362,23 @@ AVCodec ra_144_decoder =
     NULL,
     ra144_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("RealAudio 1.0 (14.4K)"),
+#else
+    /* name = */ {
+    /* type = */ "real_144",
+    /* id = */ AVMEDIA_TYPE_AUDIO,
+    /* priv_data_size = */ CODEC_ID_RA_144,
+    /* init = */ sizeof(RA144Context),
+    /* encode = */ ra144_decode_init,
+    /* close = */ NULL,
+    /* decode = */ NULL,
+    /* capabilities = */ ra144_decode_frame,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealAudio 1.0 (14.4K)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

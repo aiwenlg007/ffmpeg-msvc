@@ -51,6 +51,10 @@ static inline int wnv1_get_code(WNV1Context *w, int base_value)
 {
     int v = get_vlc2(&w->gb, code_vlc.table, CODE_VLC_BITS, 1);
 
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
+
     if(v==15)
         return av_reverse[ get_bits(&w->gb, 8 - w->shift) ];
     else
@@ -69,6 +73,10 @@ static int decode_frame(AVCodecContext *avctx,
     int i, j;
     int prev_y = 0, prev_u = 0, prev_v = 0;
     uint8_t *rbuf;
+
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
 
     rbuf = av_malloc(buf_size + FF_INPUT_BUFFER_PADDING_SIZE);
     if(!rbuf){
@@ -155,6 +163,7 @@ static av_cold int decode_end(AVCodecContext *avctx){
 }
 
 AVCodec wnv1_decoder = {
+#ifndef MSC_STRUCTS
     "wnv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WNV1,
@@ -165,4 +174,23 @@ AVCodec wnv1_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Winnov WNV1"),
+#else
+    /* name = */ "wnv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WNV1,
+    /* priv_data_size = */ sizeof(WNV1Context),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Winnov WNV1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

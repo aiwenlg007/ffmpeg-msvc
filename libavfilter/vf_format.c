@@ -92,7 +92,42 @@ static int query_formats_format(AVFilterContext *ctx)
     return 0;
 }
 
+AVFilterPad avfilter_vf_format_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ avfilter_null_start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ avfilter_null_draw_slice,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_format_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_format = {
+#ifndef MSC_STRUCTS
     .name      = "format",
     .description = "Convert the input video to one of the specified pixel formats.",
 
@@ -113,6 +148,17 @@ AVFilter avfilter_vf_format = {
                                     .type            = AVMEDIA_TYPE_VIDEO },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "format",
+	/*priv_size*/ sizeof(FormatContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ query_formats_format,
+	/*inputs*/ avfilter_vf_format_inputs,
+	/*outputs*/ avfilter_vf_format_outputs,
+	/*description*/ "Convert the input video to one of the specified pixel formats."
+};
+#endif
 #endif /* CONFIG_FORMAT_FILTER */
 
 #if CONFIG_NOFORMAT_FILTER
@@ -122,7 +168,43 @@ static int query_formats_noformat(AVFilterContext *ctx)
     return 0;
 }
 
+AVFilterPad avfilter_vf_noformat_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ avfilter_null_start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ avfilter_null_draw_slice,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_noformat_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+
 AVFilter avfilter_vf_noformat = {
+#ifndef MSC_STRUCTS
     .name      = "noformat",
     .description = "Force libavfilter not to use any of the specified pixel formats for the input to the next filter.",
 
@@ -143,5 +225,16 @@ AVFilter avfilter_vf_noformat = {
                                     .type            = AVMEDIA_TYPE_VIDEO },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "noformat",
+	/*priv_size*/ sizeof(FormatContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ query_formats_noformat,
+	/*inputs*/ avfilter_vf_noformat_inputs,
+	/*outputs*/ avfilter_vf_noformat_outputs,
+	/*description*/ "Force libavfilter not to use any of the specified pixel formats for the input to the next filter.",
+};
+#endif
 #endif /* CONFIG_NOFORMAT_FILTER */
 

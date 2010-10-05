@@ -312,8 +312,8 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size,
     return buf_size;
 }
 
-AVCodec g729_decoder =
-{
+AVCodec g729_decoder = {
+#ifndef MSC_STRUCTS
     "g729",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_G729,
@@ -323,4 +323,23 @@ AVCodec g729_decoder =
     NULL,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("G.729"),
+#else
+    /* name = */ {
+    /* type = */ "g729",
+    /* id = */ AVMEDIA_TYPE_AUDIO,
+    /* priv_data_size = */ CODEC_ID_G729,
+    /* init = */ sizeof(G729Context),
+    /* encode = */ decoder_init,
+    /* close = */ NULL,
+    /* decode = */ NULL,
+    /* capabilities = */ decode_frame,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("G.729"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -28,6 +28,8 @@
 * (http://dirac.sourceforge.net/specification.html).
 */
 
+#if CONFIG_LIBDIRAC
+
 #include "libdirac.h"
 
 #undef NDEBUG
@@ -194,6 +196,7 @@ static void libdirac_flush(AVCodecContext *avccontext)
 
 
 AVCodec libdirac_decoder = {
+#ifndef MSC_STRUCTS
     "libdirac",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DIRAC,
@@ -205,4 +208,25 @@ AVCodec libdirac_decoder = {
     CODEC_CAP_DELAY,
     .flush = libdirac_flush,
     .long_name = NULL_IF_CONFIG_SMALL("libdirac Dirac 2.2"),
+#else
+    /* name = */ "libdirac",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DIRAC,
+    /* priv_data_size = */ sizeof(FfmpegDiracDecoderParams),
+    /* init = */ libdirac_decode_init,
+    /* encode = */ NULL,
+    /* close = */ libdirac_decode_close,
+    /* decode = */ libdirac_decode_frame,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ libdirac_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libdirac Dirac 2.2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

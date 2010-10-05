@@ -1287,6 +1287,7 @@ static av_cold int cook_decode_init(AVCodecContext *avctx)
 
 AVCodec cook_decoder =
 {
+#ifndef MSC_STRUCTS
     .name = "cook",
     .type = AVMEDIA_TYPE_AUDIO,
     .id = CODEC_ID_COOK,
@@ -1296,3 +1297,23 @@ AVCodec cook_decoder =
     .decode = cook_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("COOK"),
 };
+#else
+	/* name = */ "cook",
+	/* type = */ AVMEDIA_TYPE_AUDIO,
+	/* id = */ CODEC_ID_COOK,
+	/* priv_data_size = */ sizeof(COOKContext),
+	/* init = */ cook_decode_init,
+	/* encode = */ 0,
+	/* close = */ cook_decode_close,
+	/* decode = */ cook_decode_frame,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("COOK"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ 0,
+	/* channel_layouts = */ 0
+};
+#endif

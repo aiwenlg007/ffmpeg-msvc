@@ -377,6 +377,7 @@ static int xiph_parse_sdp_line(AVFormatContext *s, int st_index,
     return 0;
 }
 
+#ifndef MSC_STRUCTS
 RTPDynamicProtocolHandler ff_theora_dynamic_handler = {
     .enc_name         = "theora",
     .codec_type       = AVMEDIA_TYPE_VIDEO,
@@ -396,3 +397,24 @@ RTPDynamicProtocolHandler ff_vorbis_dynamic_handler = {
     .close            = xiph_free_context,
     .parse_packet     = xiph_handle_packet
 };
+#else
+RTPDynamicProtocolHandler ff_theora_dynamic_handler = {
+    "theora",
+    AVMEDIA_TYPE_VIDEO,
+    CODEC_ID_THEORA,
+    xiph_parse_sdp_line,
+    xiph_new_context,
+    xiph_free_context,
+    xiph_handle_packet
+};
+
+RTPDynamicProtocolHandler ff_vorbis_dynamic_handler = {
+    "vorbis",
+    AVMEDIA_TYPE_AUDIO,
+    CODEC_ID_VORBIS,
+    xiph_parse_sdp_line,
+    xiph_new_context,
+    xiph_free_context,
+    xiph_handle_packet
+};
+#endif

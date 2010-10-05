@@ -121,7 +121,10 @@ static int wav_write_trailer(AVFormatContext *s)
     return 0;
 }
 
+const AVCodecTag* const wav_codec_tags[] = {ff_codec_wav_tags, 0};
+
 AVOutputFormat wav_muxer = {
+#ifndef MSC_STRUCTS
     "wav",
     NULL_IF_CONFIG_SMALL("WAV format"),
     "audio/x-wav",
@@ -134,6 +137,26 @@ AVOutputFormat wav_muxer = {
     wav_write_trailer,
     .codec_tag= (const AVCodecTag* const []){ff_codec_wav_tags, 0},
 };
+#else
+	"wav",
+	NULL_IF_CONFIG_SMALL("WAV format"),
+	"audio/x-wav",
+	"wav",
+	sizeof(WAVContext),
+	CODEC_ID_PCM_S16LE,
+	CODEC_ID_NONE,
+	wav_write_header,
+	wav_write_packet,
+	wav_write_trailer,
+	/*flags = */ 0,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ wav_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif /* CONFIG_WAV_MUXER */
 
 
@@ -315,6 +338,7 @@ static int wav_read_seek(AVFormatContext *s,
 }
 
 AVInputFormat wav_demuxer = {
+#ifndef MSC_STRUCTS
     "wav",
     NULL_IF_CONFIG_SMALL("WAV format"),
     sizeof(WAVContext),
@@ -326,6 +350,27 @@ AVInputFormat wav_demuxer = {
     .flags= AVFMT_GENERIC_INDEX,
     .codec_tag= (const AVCodecTag* const []){ff_codec_wav_tags, 0},
 };
+#else
+	"wav",
+	NULL_IF_CONFIG_SMALL("WAV format"),
+	sizeof(WAVContext),
+	wav_probe,
+	wav_read_header,
+	wav_read_packet,
+	NULL,
+	wav_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ wav_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif /* CONFIG_WAV_DEMUXER */
 
 
@@ -401,6 +446,7 @@ static int w64_read_header(AVFormatContext *s, AVFormatParameters *ap)
 }
 
 AVInputFormat w64_demuxer = {
+#ifndef MSC_STRUCTS
     "w64",
     NULL_IF_CONFIG_SMALL("Sony Wave64 format"),
     sizeof(WAVContext),
@@ -412,4 +458,25 @@ AVInputFormat w64_demuxer = {
     .flags = AVFMT_GENERIC_INDEX,
     .codec_tag = (const AVCodecTag* const []){ff_codec_wav_tags, 0},
 };
+#else
+	"w64",
+	NULL_IF_CONFIG_SMALL("Sony Wave64 format"),
+	sizeof(WAVContext),
+	w64_probe,
+	w64_read_header,
+	wav_read_packet,
+	NULL,
+	wav_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ wav_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif /* CONFIG_W64_DEMUXER */

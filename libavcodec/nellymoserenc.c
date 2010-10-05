@@ -383,6 +383,7 @@ static int encode_frame(AVCodecContext *avctx, uint8_t *frame, int buf_size, voi
 }
 
 AVCodec nellymoser_encoder = {
+#ifndef MSC_STRUCTS
     .name = "nellymoser",
     .type = AVMEDIA_TYPE_AUDIO,
     .id = CODEC_ID_NELLYMOSER,
@@ -392,4 +393,23 @@ AVCodec nellymoser_encoder = {
     .close = encode_end,
     .capabilities = CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY,
     .long_name = NULL_IF_CONFIG_SMALL("Nellymoser Asao"),
+#else
+    /* name = */ "nellymoser",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_NELLYMOSER,
+    /* priv_data_size = */ sizeof(NellyMoserEncodeContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Nellymoser Asao"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

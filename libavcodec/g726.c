@@ -385,7 +385,10 @@ static int g726_decode_frame(AVCodecContext *avctx,
 }
 
 #if CONFIG_ADPCM_G726_ENCODER
+const enum SampleFormat adpcm_g726_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec adpcm_g726_encoder = {
+#ifndef MSC_STRUCTS
     "g726",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ADPCM_G726,
@@ -396,10 +399,30 @@ AVCodec adpcm_g726_encoder = {
     NULL,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("G.726 ADPCM"),
+#else
+    /* name = */ "g726",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ADPCM_G726,
+    /* priv_data_size = */ sizeof(G726Context),
+    /* init = */ g726_init,
+    /* encode = */ g726_encode_frame,
+    /* close = */ g726_close,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("G.726 ADPCM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ adpcm_g726_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 AVCodec adpcm_g726_decoder = {
+#ifndef MSC_STRUCTS
     "g726",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ADPCM_G726,
@@ -409,4 +432,23 @@ AVCodec adpcm_g726_decoder = {
     g726_close,
     g726_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("G.726 ADPCM"),
+#else
+    /* name = */ "g726",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ADPCM_G726,
+    /* priv_data_size = */ sizeof(G726Context),
+    /* init = */ g726_init,
+    /* encode = */ NULL,
+    /* close = */ g726_close,
+    /* decode = */ g726_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("G.726 ADPCM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

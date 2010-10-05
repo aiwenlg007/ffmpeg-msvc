@@ -26,6 +26,10 @@
 #ifndef AVUTIL_MEM_H
 #define AVUTIL_MEM_H
 
+#ifdef _MSC_VER
+#define av_malloc_items(count, type) av_malloc((count) * sizeof(type))
+#endif
+
 #include "attributes.h"
 
 #if defined(__ICC) || defined(__SUNPRO_C)

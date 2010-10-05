@@ -23,6 +23,8 @@
 * functions common to libdirac and libschroedinger
 */
 
+#if CONFIG_LIBDIRAC
+
 #include "libdirac_libschro.h"
 
 static const FfmpegDiracSchroVideoFormatInfo ff_dirac_schro_video_format_info[] = {
@@ -111,3 +113,6 @@ void *ff_dirac_schro_queue_pop(FfmpegDiracSchroQueue *queue)
 
     return NULL;
 }
+
+
+#endif

@@ -138,6 +138,7 @@ static int flac_probe(AVProbeData *p)
 }
 
 AVInputFormat flac_demuxer = {
+#ifndef MSC_STRUCTS
     "flac",
     NULL_IF_CONFIG_SMALL("raw FLAC"),
     0,
@@ -149,3 +150,24 @@ AVInputFormat flac_demuxer = {
     .value = CODEC_ID_FLAC,
     .metadata_conv = ff_vorbiscomment_metadata_conv,
 };
+#else
+	"flac",
+	NULL_IF_CONFIG_SMALL("raw FLAC"),
+	0,
+	flac_probe,
+	flac_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "flac",
+	/*value = */ CODEC_ID_FLAC,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ ff_vorbiscomment_metadata_conv,
+	/*next = */ 0
+};
+#endif

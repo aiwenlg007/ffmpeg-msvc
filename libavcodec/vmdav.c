@@ -566,6 +566,7 @@ static int vmdaudio_decode_frame(AVCodecContext *avctx,
  */
 
 AVCodec vmdvideo_decoder = {
+#ifndef MSC_STRUCTS
     "vmdvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VMDVIDEO,
@@ -576,9 +577,29 @@ AVCodec vmdvideo_decoder = {
     vmdvideo_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Sierra VMD video"),
+#else
+    /* name = */ "vmdvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VMDVIDEO,
+    /* priv_data_size = */ sizeof(VmdVideoContext),
+    /* init = */ vmdvideo_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vmdvideo_decode_end,
+    /* decode = */ vmdvideo_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sierra VMD video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec vmdaudio_decoder = {
+#ifndef MSC_STRUCTS
     "vmdaudio",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_VMDAUDIO,
@@ -588,4 +609,23 @@ AVCodec vmdaudio_decoder = {
     NULL,
     vmdaudio_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Sierra VMD audio"),
+#else
+    /* name = */ "vmdaudio",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_VMDAUDIO,
+    /* priv_data_size = */ sizeof(VmdAudioContext),
+    /* init = */ vmdaudio_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ vmdaudio_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sierra VMD audio"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

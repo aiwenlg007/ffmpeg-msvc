@@ -118,6 +118,9 @@ static int alloc_table(VLC *vlc, int size, int use_static)
 }
 
 static av_always_inline uint32_t bitswap_32(uint32_t x) {
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     return av_reverse[x&0xFF]<<24
          | av_reverse[(x>>8)&0xFF]<<16
          | av_reverse[(x>>16)&0xFF]<<8
@@ -275,7 +278,12 @@ int init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
              const void *symbols, int symbols_wrap, int symbols_size,
              int flags)
 {
+#ifndef _MSC_VER
     VLCcode buf[nb_codes];
+#else
+    VLCcode *buf = av_malloc((nb_codes + 1) * sizeof(VLCcode));
+#endif
+
     int i, j;
 
     vlc->bits = nb_bits;
@@ -321,10 +329,18 @@ int init_vlc_sparse(VLC *vlc, int nb_bits, int nb_codes,
 
     if (build_table(vlc, nb_bits, nb_codes, buf, flags) < 0) {
         av_freep(&vlc->table);
+#ifdef _MSC_VER
+		av_free(buf);
+#endif
         return -1;
     }
     if((flags & INIT_VLC_USE_NEW_STATIC) && vlc->table_size != vlc->table_allocated)
         av_log(NULL, AV_LOG_ERROR, "needed %d had %d\n", vlc->table_size, vlc->table_allocated);
+
+#ifdef _MSC_VER
+	av_free(buf);
+#endif
+
     return 0;
 }
 

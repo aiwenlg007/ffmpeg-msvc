@@ -208,6 +208,9 @@ void avcodec_align_dimensions2(AVCodecContext *s, int *width, int *height, int l
 }
 
 void avcodec_align_dimensions(AVCodecContext *s, int *width, int *height){
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
     int chroma_shift = av_pix_fmt_descriptors[s->pix_fmt].log2_chroma_w;
     int linesize_align[4];
     int align;
@@ -940,6 +943,13 @@ void avcodec_init(void)
     if (initialized != 0)
         return;
     initialized = 1;
+
+#ifdef _MSC_VER
+	{
+		extern void avpicture_init_pixfmtinfo(void);
+		avpicture_init_pixfmtinfo();
+	}
+#endif
 
     dsputil_static_init();
 }

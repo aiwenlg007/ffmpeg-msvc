@@ -216,6 +216,7 @@ static int dvdsub_encode(AVCodecContext *avctx,
 }
 
 AVCodec dvdsub_encoder = {
+#ifndef MSC_STRUCTS
     "dvdsub",
     AVMEDIA_TYPE_SUBTITLE,
     CODEC_ID_DVD_SUBTITLE,
@@ -223,4 +224,23 @@ AVCodec dvdsub_encoder = {
     NULL,
     dvdsub_encode,
     .long_name = NULL_IF_CONFIG_SMALL("DVD subtitles"),
+#else
+    /* name = */ "dvdsub",
+    /* type = */ AVMEDIA_TYPE_SUBTITLE,
+    /* id = */ CODEC_ID_DVD_SUBTITLE,
+    /* priv_data_size = */ 0,
+    /* init = */ NULL,
+    /* encode = */ dvdsub_encode,
+    /* close = */ 0,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DVD subtitles"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -54,6 +54,10 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size,
     int64_t packet_time = 0;
     GetBitContext gb;
 
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab  = get_ff_log2_tab();
+#endif
+
     memset(sub, 0, sizeof(*sub));
 
     // check that at least header fits
@@ -68,7 +72,11 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size,
         return -1;
     }
     if (avpkt->pts != AV_NOPTS_VALUE)
+#ifndef _MSC_VER
         packet_time = av_rescale_q(avpkt->pts, AV_TIME_BASE_Q, (AVRational){1, 1000});
+#else
+        packet_time = av_rescale_q(avpkt->pts, AV_TIME_BASE_Q, av_create_rational(1, 1000));
+#endif
     sub->start_display_time = parse_timecode(buf +  1, packet_time);
     sub->end_display_time   = parse_timecode(buf + 14, packet_time);
     buf += 27;
@@ -131,6 +139,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size,
 }
 
 AVCodec xsub_decoder = {
+#ifndef MSC_STRUCTS
     "xsub",
     AVMEDIA_TYPE_SUBTITLE,
     CODEC_ID_XSUB,
@@ -140,4 +149,23 @@ AVCodec xsub_decoder = {
     NULL,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("XSUB"),
+#else
+    /* name = */ "xsub",
+    /* type = */ AVMEDIA_TYPE_SUBTITLE,
+    /* id = */ CODEC_ID_XSUB,
+    /* priv_data_size = */ 0,
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("XSUB"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

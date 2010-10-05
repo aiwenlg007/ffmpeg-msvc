@@ -23,7 +23,11 @@
 
 #include <stdint.h>
 
+#ifndef _MSC_VER
 extern const int av_md5_size;
+#else
+extern int get_av_md5_size();
+#endif
 
 struct AVMD5;
 

@@ -29,6 +29,20 @@
 
 #include "config.h"
 
+#ifdef _MSC_VER
+#  define strcasecmp _stricmp
+#define strtoll _strtoi64
+#define atoll _atoi64
+#define strncasecmp _strnicmp
+#define atoll _atoi64
+
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#  define usleep(t)    Sleep((t) / 1000)
+#  include <fcntl.h>
+#  define lseek(f,p,w) _lseeki64((f), (p), (w))
+#endif
+
 #if defined(__MINGW32__) && !defined(__MINGW32CE__)
 #  include <fcntl.h>
 #  define lseek(f,p,w) _lseeki64((f), (p), (w))

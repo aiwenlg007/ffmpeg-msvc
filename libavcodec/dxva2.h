@@ -25,6 +25,10 @@
 
 #include <stdint.h>
 
+#ifdef _MSC_VER
+# define _COM_interface	struct
+#endif
+
 #include <dxva2api.h>
 
 /**

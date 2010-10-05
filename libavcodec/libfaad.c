@@ -27,6 +27,8 @@
  * still a bit unfinished - but it plays something
  */
 
+#if CONFIG_LIBFAAD
+
 #include "avcodec.h"
 #include "faad.h"
 
@@ -321,6 +323,7 @@ static av_cold int faac_decode_init(AVCodecContext *avctx)
 }
 
 AVCodec libfaad_decoder = {
+#ifndef MSC_STRUCTS
     "libfaad",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_AAC,
@@ -330,4 +333,25 @@ AVCodec libfaad_decoder = {
     faac_decode_end,
     faac_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("libfaad AAC (Advanced Audio Codec)"),
+#else
+    /* name = */ "libfaad",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_AAC,
+    /* priv_data_size = */ sizeof(FAACContext),
+    /* init = */ faac_decode_init,
+    /* encode = */ NULL,
+    /* close = */ faac_decode_end,
+    /* decode = */ faac_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libfaad AAC (Advanced Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

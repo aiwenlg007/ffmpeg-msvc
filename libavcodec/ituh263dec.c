@@ -938,8 +938,13 @@ int h263_decode_picture_header(MpegEncContext *s)
 
         s->width = width;
         s->height = height;
+#ifndef _MSC_VER
         s->avctx->sample_aspect_ratio= (AVRational){12,11};
         s->avctx->time_base= (AVRational){1001, 30000};
+#else
+        s->avctx->sample_aspect_ratio= av_create_rational(12,11);
+        s->avctx->time_base= av_create_rational(1001, 30000);
+#endif
     } else {
         int ufep;
 
@@ -1026,7 +1031,11 @@ int h263_decode_picture_header(MpegEncContext *s)
             } else {
                 width = h263_format[format][0];
                 height = h263_format[format][1];
+#ifndef _MSC_VER
                 s->avctx->sample_aspect_ratio= (AVRational){12,11};
+#else
+                s->avctx->sample_aspect_ratio= av_create_rational(12,11);
+#endif
             }
             if ((width == 0) || (height == 0))
                 return -1;
@@ -1046,7 +1055,11 @@ int h263_decode_picture_header(MpegEncContext *s)
                 s->avctx->time_base.den /= gcd;
                 s->avctx->time_base.num /= gcd;
             }else{
+#ifndef _MSC_VER
                 s->avctx->time_base= (AVRational){1001, 30000};
+#else
+                s->avctx->time_base= av_create_rational(1001, 30000);
+#endif
             }
         }
 

@@ -23,6 +23,8 @@
  * VP8 decoder support via libvpx
  */
 
+#if CONFIG_LIBVPX
+
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
@@ -111,6 +113,7 @@ static av_cold int vp8_free(AVCodecContext *avctx)
 }
 
 AVCodec libvpx_decoder = {
+#ifndef MSC_STRUCTS
     "libvpx",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP8,
@@ -121,4 +124,25 @@ AVCodec libvpx_decoder = {
     vp8_decode,
     0, /* capabilities */
     .long_name = NULL_IF_CONFIG_SMALL("libvpx VP8"),
+#else
+    /* name = */ "libvpx",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP8,
+    /* priv_data_size = */ sizeof(VP8Context),
+    /* init = */ vp8_init,
+    /* encode = */ NULL, /* encode */
+    /* close = */ vp8_free,
+    /* decode = */ vp8_decode,
+    /* capabilities = */ 0, /* capabilities */
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libvpx VP8"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

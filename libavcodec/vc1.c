@@ -469,7 +469,11 @@ static int decode_sequence_header_adv(VC1Context *v, GetBitContext *gb)
         }else if(ar == 15){
             w = get_bits(gb, 8);
             h = get_bits(gb, 8);
+#ifndef _MSC_VER
             v->s.avctx->sample_aspect_ratio = (AVRational){w, h};
+#else
+            v->s.avctx->sample_aspect_ratio = av_create_rational(w, h);
+#endif
         }
         av_log(v->s.avctx, AV_LOG_DEBUG, "Aspect: %i:%i\n", v->s.avctx->sample_aspect_ratio.num, v->s.avctx->sample_aspect_ratio.den);
 

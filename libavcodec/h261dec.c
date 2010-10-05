@@ -463,7 +463,12 @@ static int h261_decode_picture_header(H261Context *h){
         i += 32;
     s->picture_number = (s->picture_number&~31) + i;
 
-    s->avctx->time_base= (AVRational){1001, 30000};
+ #ifndef _MSC_VER
+   s->avctx->time_base= (AVRational){1001, 30000};
+#else
+	//MSVC
+   s->avctx->time_base= av_create_rational(1001, 30000);
+#endif
     s->current_picture.pts= s->picture_number;
 
 
@@ -642,6 +647,7 @@ static av_cold int h261_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec h261_decoder = {
+#ifndef MSC_STRUCTS
     "h261",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H261,
@@ -652,4 +658,23 @@ AVCodec h261_decoder = {
     h261_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("H.261"),
+#else
+    /* name = */ "h261",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H261,
+    /* priv_data_size = */ sizeof(H261Context),
+    /* init = */ h261_decode_init,
+    /* encode = */ NULL,
+    /* close = */ h261_decode_end,
+    /* decode = */ h261_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.261"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -69,6 +69,23 @@ const uint8_t av_reverse[256]={
 0x0F,0x8F,0x4F,0xCF,0x2F,0xAF,0x6F,0xEF,0x1F,0x9F,0x5F,0xDF,0x3F,0xBF,0x7F,0xFF,
 };
 
+#ifdef _MSC_VER
+uint8_t *get_ff_log2_tab()
+{
+	return ff_log2_tab;
+}
+
+uint8_t *get_av_reverse()
+{
+	return av_reverse;
+}
+
+uint8_t *get_ff_sqrt_tab()
+{
+	return ff_sqrt_tab;
+}
+#endif
+
 int64_t av_gcd(int64_t a, int64_t b){
     if(b) return av_gcd(b, a%b);
     else  return a;

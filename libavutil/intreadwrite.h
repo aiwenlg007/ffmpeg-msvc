@@ -23,7 +23,9 @@
 #include "config.h"
 #include "bswap.h"
 #include "common.h"
+#include "internal.h"
 
+#ifndef _MSC_VER
 typedef union {
     uint64_t u64;
     uint32_t u32[2];
@@ -44,6 +46,28 @@ typedef union {
     uint16_t u16;
     uint8_t  u8 [2];
 } av_alias av_alias16;
+#else
+typedef union {
+    uint64_t u64;
+    uint32_t u32[2];
+    uint16_t u16[4];
+    uint8_t  u8 [8];
+    double   f64;
+    float    f32[2];
+} av_alias64;
+
+typedef union {
+    uint32_t u32;
+    uint16_t u16[2];
+    uint8_t  u8 [4];
+    float    f32;
+} av_alias32;
+
+typedef union {
+    uint16_t u16;
+    uint8_t  u8 [2];
+} av_alias16;
+#endif
 
 /*
  * Arch-specific headers can provide any combination of
@@ -179,9 +203,18 @@ typedef union {
 
 #if   HAVE_ATTRIBUTE_PACKED
 
+#ifndef _MSC_VER
 union unaligned_64 { uint64_t l; } __attribute__((packed)) av_alias;
 union unaligned_32 { uint32_t l; } __attribute__((packed)) av_alias;
 union unaligned_16 { uint16_t l; } __attribute__((packed)) av_alias;
+#else
+#pragma pack(push)
+#pragma pack(1)
+	union unaligned_64 { uint64_t l; };
+	union unaligned_32 { uint32_t l; };
+	union unaligned_16 { uint16_t l; };
+#pragma pack(pop)
+#endif
 
 #   define AV_RN(s, p) (((const union unaligned_##s *) (p))->l)
 #   define AV_WN(s, p, v) ((((union unaligned_##s *) (p))->l) = (v))

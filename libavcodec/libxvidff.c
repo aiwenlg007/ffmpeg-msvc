@@ -25,6 +25,8 @@
  * @author Adam Thayer (krevnik@comcast.net)
  */
 
+#if CONFIG_LIBXVID
+
 #include <xvid.h>
 #include <unistd.h>
 #include "avcodec.h"
@@ -767,7 +769,11 @@ int xvid_ff_2pass(void *ref, int cmd, void *p1, void *p2) {
 /**
  * Xvid codec definition for libavcodec.
  */
+
+const enum PixelFormat libxvid_encoder_formats[] = { PIX_FMT_YUV420P, PIX_FMT_NONE };
+
 AVCodec libxvid_encoder = {
+#ifndef MSC_STRUCTS
     "libxvid",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MPEG4,
@@ -777,4 +783,25 @@ AVCodec libxvid_encoder = {
     xvid_encode_close,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("libxvidcore MPEG-4 part 2"),
+#else
+    /* name = */ "libxvid",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MPEG4,
+    /* priv_data_size = */ sizeof(struct xvid_context),
+    /* init = */ xvid_encode_init,
+    /* encode = */ xvid_encode_frame,
+    /* close = */ xvid_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libxvid_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libxvidcore MPEG-4 part 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

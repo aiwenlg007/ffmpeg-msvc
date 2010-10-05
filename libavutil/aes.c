@@ -31,7 +31,14 @@ typedef struct AVAES{
     int rounds;
 }AVAES;
 
+#ifndef _MSC_VER
 const int av_aes_size= sizeof(AVAES);
+#else
+int get_av_aes_size()
+{
+	return sizeof(AVAES);
+}
+#endif
 
 static const uint8_t rcon[10] = {
   0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
@@ -146,8 +153,17 @@ int av_aes_init(AVAES *a, const uint8_t *key, int key_bits, int decrypt) {
             inv_sbox[j]= i;
             sbox    [i]= j;
         }
-        init_multbl2(dec_multbl[0], (const int[4]){0xe, 0x9, 0xd, 0xb}, log8, alog8, inv_sbox);
-        init_multbl2(enc_multbl[0], (const int[4]){0x2, 0x1, 0x1, 0x3}, log8, alog8, sbox);
+#ifndef _MSC_VER
+	        init_multbl2(dec_multbl[0], (const int[4]){0xe, 0x9, 0xd, 0xb}, log8, alog8, inv_sbox);
+	        init_multbl2(enc_multbl[0], (const int[4]){0x2, 0x1, 0x1, 0x3}, log8, alog8, sbox);
+#else
+			{
+			const int i1[4] = {0xe, 0x9, 0xd, 0xb};
+			const int i2[4] = {0x2, 0x1, 0x1, 0x3};
+	        init_multbl2(dec_multbl[0], i1, log8, alog8, inv_sbox);
+	        init_multbl2(enc_multbl[0], i2, log8, alog8, sbox);
+			}
+#endif
     }
 
     if(key_bits!=128 && key_bits!=192 && key_bits!=256)

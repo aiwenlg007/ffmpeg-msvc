@@ -2491,8 +2491,8 @@ static int decode_frame_mp3on4(AVCodecContext * avctx,
 #endif /* CONFIG_MP3ON4_DECODER */
 
 #if CONFIG_MP1_DECODER
-AVCodec mp1_decoder =
-{
+AVCodec mp1_decoder = {
+#ifndef MSC_STRUCTS
     "mp1",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP1,
@@ -2504,11 +2504,30 @@ AVCodec mp1_decoder =
     CODEC_CAP_PARSE_ONLY,
     .flush= flush,
     .long_name= NULL_IF_CONFIG_SMALL("MP1 (MPEG audio layer 1)"),
+#else
+    /* name = */ "mp1",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP1,
+    /* priv_data_size = */ sizeof(MPADecodeContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_PARSE_ONLY,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MP1 (MPEG audio layer 1)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 #if CONFIG_MP2_DECODER
-AVCodec mp2_decoder =
-{
+AVCodec mp2_decoder = {
+#ifndef MSC_STRUCTS
     "mp2",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP2,
@@ -2520,11 +2539,30 @@ AVCodec mp2_decoder =
     CODEC_CAP_PARSE_ONLY,
     .flush= flush,
     .long_name= NULL_IF_CONFIG_SMALL("MP2 (MPEG audio layer 2)"),
+#else
+    /* name = */ "mp2",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP2,
+    /* priv_data_size = */ sizeof(MPADecodeContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_PARSE_ONLY,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MP2 (MPEG audio layer 2)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 #if CONFIG_MP3_DECODER
-AVCodec mp3_decoder =
-{
+AVCodec mp3_decoder = {
+#ifndef MSC_STRUCTS
     "mp3",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP3,
@@ -2536,11 +2574,30 @@ AVCodec mp3_decoder =
     CODEC_CAP_PARSE_ONLY,
     .flush= flush,
     .long_name= NULL_IF_CONFIG_SMALL("MP3 (MPEG audio layer 3)"),
+#else
+    /* name = */ "mp3",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP3,
+    /* priv_data_size = */ sizeof(MPADecodeContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_PARSE_ONLY,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MP3 (MPEG audio layer 3)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 #if CONFIG_MP3ADU_DECODER
-AVCodec mp3adu_decoder =
-{
+AVCodec mp3adu_decoder = {
+#ifndef MSC_STRUCTS
     "mp3adu",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP3ADU,
@@ -2552,11 +2609,30 @@ AVCodec mp3adu_decoder =
     CODEC_CAP_PARSE_ONLY,
     .flush= flush,
     .long_name= NULL_IF_CONFIG_SMALL("ADU (Application Data Unit) MP3 (MPEG audio layer 3)"),
+#else
+    /* name = */ "mp3adu",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP3ADU,
+    /* priv_data_size = */ sizeof(MPADecodeContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame_adu,
+    /* capabilities = */ CODEC_CAP_PARSE_ONLY,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ADU (Application Data Unit) MP3 (MPEG audio layer 3)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 #if CONFIG_MP3ON4_DECODER
-AVCodec mp3on4_decoder =
-{
+AVCodec mp3on4_decoder = {
+#ifndef MSC_STRUCTS
     "mp3on4",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP3ON4,
@@ -2567,5 +2643,24 @@ AVCodec mp3on4_decoder =
     decode_frame_mp3on4,
     .flush= flush,
     .long_name= NULL_IF_CONFIG_SMALL("MP3onMP4"),
+#else
+    /* name = */ "mp3on4",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP3ON4,
+    /* priv_data_size = */ sizeof(MP3On4DecodeContext),
+    /* init = */ decode_init_mp3on4,
+    /* encode = */ NULL,
+    /* close = */ decode_close_mp3on4,
+    /* decode = */ decode_frame_mp3on4,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MP3onMP4"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

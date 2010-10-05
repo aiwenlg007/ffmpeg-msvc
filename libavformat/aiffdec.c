@@ -311,7 +311,13 @@ static int aiff_read_packet(AVFormatContext *s,
     return 0;
 }
 
+AVCodecTag *aiff_demuxer_ct[] = {
+	ff_codec_aiff_tags,
+	0
+};
+
 AVInputFormat aiff_demuxer = {
+#ifndef MSC_STRUCTS
     "aiff",
     NULL_IF_CONFIG_SMALL("Audio IFF"),
     sizeof(AIFFInputContext),
@@ -322,3 +328,24 @@ AVInputFormat aiff_demuxer = {
     pcm_read_seek,
     .codec_tag= (const AVCodecTag* const []){ff_codec_aiff_tags, 0},
 };
+#else
+	/*name = */ "aiff",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("Audio IFF"),
+	/*priv_data_size = */ sizeof(AIFFInputContext),
+	/*read_probe = */ aiff_probe,
+	/*read_header = */ aiff_read_header,
+	/*read_packet = */ aiff_read_packet,
+	/*read_close = */ NULL,
+	/*read_seek = */ pcm_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ aiff_demuxer_ct,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

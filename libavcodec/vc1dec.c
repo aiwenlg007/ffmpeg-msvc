@@ -3255,10 +3255,13 @@ static int vc1_decode_frame(AVCodecContext *avctx,
     s->me.qpel_put= s->dsp.put_qpel_pixels_tab;
     s->me.qpel_avg= s->dsp.avg_qpel_pixels_tab;
 
+#ifndef _MSC_VER
     if ((CONFIG_VC1_VDPAU_DECODER)
         &&s->avctx->codec->capabilities&CODEC_CAP_HWACCEL_VDPAU)
         ff_vdpau_vc1_decode_picture(s, buf_start, (buf + buf_size) - buf_start);
-    else if (avctx->hwaccel) {
+    else 
+#endif
+		if (avctx->hwaccel) {
         if (avctx->hwaccel->start_frame(avctx, buf, buf_size) < 0)
             return -1;
         if (avctx->hwaccel->decode_slice(avctx, buf_start, (buf + buf_size) - buf_start) < 0)
@@ -3318,6 +3321,7 @@ static av_cold int vc1_decode_end(AVCodecContext *avctx)
 
 
 AVCodec vc1_decoder = {
+#ifndef MSC_STRUCTS
     "vc1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VC1,
@@ -3330,10 +3334,30 @@ AVCodec vc1_decoder = {
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("SMPTE VC-1"),
     .pix_fmts = ff_hwaccel_pixfmt_list_420
+#else
+    /* name = */ "vc1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VC1,
+    /* priv_data_size = */ sizeof(VC1Context),
+    /* init = */ vc1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vc1_decode_end,
+    /* decode = */ vc1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_hwaccel_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("SMPTE VC-1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_WMV3_DECODER
 AVCodec wmv3_decoder = {
+#ifndef MSC_STRUCTS
     "wmv3",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WMV3,
@@ -3346,11 +3370,33 @@ AVCodec wmv3_decoder = {
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Windows Media Video 9"),
     .pix_fmts = ff_hwaccel_pixfmt_list_420
+#else
+    /* name = */ "wmv3",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WMV3,
+    /* priv_data_size = */ sizeof(VC1Context),
+    /* init = */ vc1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vc1_decode_end,
+    /* decode = */ vc1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_hwaccel_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Video 9"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_WMV3_VDPAU_DECODER
+const enum PixelFormat wmv3_vdpau_decoder_formats[] = {PIX_FMT_VDPAU_WMV3, PIX_FMT_NONE};
+
 AVCodec wmv3_vdpau_decoder = {
+#ifndef MSC_STRUCTS
     "wmv3_vdpau",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WMV3,
@@ -3363,11 +3409,33 @@ AVCodec wmv3_vdpau_decoder = {
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Windows Media Video 9 VDPAU"),
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_VDPAU_WMV3, PIX_FMT_NONE}
+#else
+    /* name = */ "wmv3_vdpau",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WMV3,
+    /* priv_data_size = */ sizeof(VC1Context),
+    /* init = */ vc1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vc1_decode_end,
+    /* decode = */ vc1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY | CODEC_CAP_HWACCEL_VDPAU,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ wmv3_vdpau_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Video 9 VDPAU"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_VC1_VDPAU_DECODER
+const enum PixelFormat vc1_vdpau_decoder_formats[] = {PIX_FMT_VDPAU_VC1, PIX_FMT_NONE};
+
 AVCodec vc1_vdpau_decoder = {
+#ifndef MSC_STRUCTS
     "vc1_vdpau",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VC1,
@@ -3380,5 +3448,24 @@ AVCodec vc1_vdpau_decoder = {
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("SMPTE VC-1 VDPAU"),
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_VDPAU_VC1, PIX_FMT_NONE}
+#else
+    /* name = */ "vc1_vdpau",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VC1,
+    /* priv_data_size = */ sizeof(VC1Context),
+    /* init = */ vc1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vc1_decode_end,
+    /* decode = */ vc1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY | CODEC_CAP_HWACCEL_VDPAU,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ vc1_vdpau_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("SMPTE VC-1 VDPAU"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

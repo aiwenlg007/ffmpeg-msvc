@@ -891,6 +891,7 @@ static av_cold int truemotion1_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec truemotion1_decoder = {
+#ifndef MSC_STRUCTS
     "truemotion1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TRUEMOTION1,
@@ -901,4 +902,23 @@ AVCodec truemotion1_decoder = {
     truemotion1_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Duck TrueMotion 1.0"),
+#else
+    /* name = */ "truemotion1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TRUEMOTION1,
+    /* priv_data_size = */ sizeof(TrueMotion1Context),
+    /* init = */ truemotion1_decode_init,
+    /* encode = */ NULL,
+    /* close = */ truemotion1_decode_end,
+    /* decode = */ truemotion1_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Duck TrueMotion 1.0"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -23,7 +23,11 @@
 #include "libavutil/intreadwrite.h"
 #include "libavutil/avstring.h"
 #include "avformat.h"
+#ifndef MSC_STRUCTS
 #include <strings.h>
+#else
+#include "os_support.h"
+#endif
 
 typedef struct {
     int img_first;
@@ -438,6 +442,7 @@ AVInputFormat image2pipe_demuxer = {
 /* output */
 #if CONFIG_IMAGE2_MUXER
 AVOutputFormat image2_muxer = {
+#ifndef MSC_STRUCTS
     "image2",
     NULL_IF_CONFIG_SMALL("image2 sequence"),
     "",
@@ -450,9 +455,30 @@ AVOutputFormat image2_muxer = {
     NULL,
     .flags= AVFMT_NOTIMESTAMPS | AVFMT_NODIMENSIONS | AVFMT_NOFILE
 };
+#else
+	"image2",
+	NULL_IF_CONFIG_SMALL("image2 sequence"),
+	"",
+	"bmp,jpeg,jpg,ljpg,pam,pbm,pcx,pgm,pgmyuv,png,ppm,sgi,tif,tiff,jp2",
+	sizeof(VideoData),
+	CODEC_ID_NONE,
+	CODEC_ID_MJPEG,
+	img_write_header,
+	img_write_packet,
+	NULL,
+	/*flags = */ AVFMT_NOTIMESTAMPS | AVFMT_NODIMENSIONS | AVFMT_NOFILE,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_IMAGE2PIPE_MUXER
 AVOutputFormat image2pipe_muxer = {
+#ifndef MSC_STRUCTS
     "image2pipe",
     NULL_IF_CONFIG_SMALL("piped image2 sequence"),
     "",
@@ -464,4 +490,24 @@ AVOutputFormat image2pipe_muxer = {
     img_write_packet,
     .flags= AVFMT_NOTIMESTAMPS | AVFMT_NODIMENSIONS
 };
+#else
+	"image2pipe",
+	NULL_IF_CONFIG_SMALL("piped image2 sequence"),
+	"",
+	"",
+	sizeof(VideoData),
+	CODEC_ID_NONE,
+	CODEC_ID_MJPEG,
+	img_write_header,
+	img_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS | AVFMT_NODIMENSIONS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif

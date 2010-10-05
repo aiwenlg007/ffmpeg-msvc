@@ -110,6 +110,7 @@ static av_cold int decode_close(AVCodecContext *avctx)
 }
 
 AVCodec frwu_decoder = {
+#ifndef MSC_STRUCTS
     "FRWU",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FRWU,
@@ -120,4 +121,23 @@ AVCodec frwu_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Forward Uncompressed"),
+#else
+    /* name = */ "FRWU",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FRWU,
+    /* priv_data_size = */ 0,
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_close,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Forward Uncompressed"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

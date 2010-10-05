@@ -117,6 +117,7 @@ static int flac_write_packet(struct AVFormatContext *s, AVPacket *pkt)
 }
 
 AVOutputFormat flac_muxer = {
+#ifndef MSC_STRUCTS
     "flac",
     NULL_IF_CONFIG_SMALL("raw FLAC"),
     "audio/x-flac",
@@ -130,3 +131,23 @@ AVOutputFormat flac_muxer = {
     .flags= AVFMT_NOTIMESTAMPS,
     .metadata_conv = ff_vorbiscomment_metadata_conv,
 };
+#else
+	"flac",
+	NULL_IF_CONFIG_SMALL("raw FLAC"),
+	"audio/x-flac",
+	"flac",
+	0,
+	CODEC_ID_FLAC,
+	CODEC_ID_NONE,
+	flac_write_header,
+	flac_write_packet,
+	flac_write_trailer,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_vorbiscomment_metadata_conv,
+	/*next = */ 0
+};
+#endif

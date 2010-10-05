@@ -25,6 +25,8 @@
 #include "libavutil/mathematics.h"
 #include "fft.h"
 
+#include <assert.h>
+
 /**
  * @file
  * MDCT/IMDCT transforms.
@@ -36,8 +38,14 @@ av_cold void ff_kbd_window_init(float *window, float alpha, int n)
 {
    int i, j;
    double sum = 0.0, bessel, tmp;
+#ifndef _MSC_VER
    double local_window[n];
    double alpha2 = (alpha * M_PI / n) * (alpha * M_PI / n);
+#else
+   double local_window[1024];
+   double alpha2 = (alpha * M_PI / n) * (alpha * M_PI / n);
+   assert(n <= 1024);
+#endif
 
    for (i = 0; i < n; i++) {
        tmp = i * (n - i) * alpha2;

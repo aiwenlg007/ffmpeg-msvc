@@ -852,8 +852,12 @@ static int asf_write_trailer(AVFormatContext *s)
     return 0;
 }
 
+AVCodecTag* asf_codec_tags [] = 
+{codec_asf_bmp_tags, ff_codec_bmp_tags, ff_codec_wav_tags, 0};
+
 #if CONFIG_ASF_MUXER
 AVOutputFormat asf_muxer = {
+#ifndef MSC_STRUCTS
     "asf",
     NULL_IF_CONFIG_SMALL("ASF format"),
     "video/x-ms-asf",
@@ -872,10 +876,35 @@ AVOutputFormat asf_muxer = {
     .codec_tag= (const AVCodecTag* const []){codec_asf_bmp_tags, ff_codec_bmp_tags, ff_codec_wav_tags, 0},
     .metadata_conv = ff_asf_metadata_conv,
 };
+#else
+	/*name = */ "asf",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("ASF format"),
+	/*mime_type = */ "video/x-ms-asf",
+	/*extensions = */ "asf,wmv,wma",
+	/*priv_data_size = */ sizeof(ASFContext),
+#if CONFIG_LIBMP3LAME
+	/*audio_codec = */ CODEC_ID_MP3,
+#else
+	/*audio_codec = */ CODEC_ID_MP2,
+#endif
+	/*video_codec = */ CODEC_ID_MSMPEG4V3,
+	/*write_header = */ asf_write_header,
+	/*write_packet = */ asf_write_packet,
+	/*write_trailer = */ asf_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ asf_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_asf_metadata_conv,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_ASF_STREAM_MUXER
 AVOutputFormat asf_stream_muxer = {
+#ifndef MSC_STRUCTS
     "asf_stream",
     NULL_IF_CONFIG_SMALL("ASF format"),
     "video/x-ms-asf",
@@ -894,4 +923,28 @@ AVOutputFormat asf_stream_muxer = {
     .codec_tag= (const AVCodecTag* const []){codec_asf_bmp_tags, ff_codec_bmp_tags, ff_codec_wav_tags, 0},
     .metadata_conv = ff_asf_metadata_conv,
 };
+#else
+	/*name = */ "asf_stream",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("ASF format"),
+	/*mime_type = */ "video/x-ms-asf",
+	/*extensions = */ "asf,wmv,wma",
+	/*priv_data_size = */ sizeof(ASFContext),
+#if CONFIG_LIBMP3LAME
+	/*audio_codec = */ CODEC_ID_MP3,
+#else
+	/*audio_codec = */ CODEC_ID_MP2,
+#endif
+	/*video_codec = */ CODEC_ID_MSMPEG4V3,
+	/*write_header = */ asf_write_stream_header,
+	/*write_packet = */ asf_write_packet,
+	/*write_trailer = */ asf_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ asf_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_asf_metadata_conv,
+	/*next = */ 0
+};
+#endif
 #endif //CONFIG_ASF_STREAM_MUXER

@@ -336,6 +336,7 @@ static av_cold int bmp_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec bmp_decoder = {
+#ifndef MSC_STRUCTS
     "bmp",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_BMP,
@@ -346,4 +347,23 @@ AVCodec bmp_decoder = {
     bmp_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("BMP image"),
+#else
+    /* name = */ "bmp",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_BMP,
+    /* priv_data_size = */ sizeof(BMPContext),
+    /* init = */ bmp_decode_init,
+    /* encode = */ NULL,
+    /* close = */ bmp_decode_end,
+    /* decode = */ bmp_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("BMP image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

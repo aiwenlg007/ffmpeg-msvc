@@ -35,6 +35,9 @@ static void mpegvideo_extract_headers(AVCodecParserContext *s,
     int picture_structure, top_field_first, repeat_first_field, progressive_frame;
     int horiz_size_ext, vert_size_ext, bit_rate_ext;
     int did_set_size=0;
+#ifdef _MSC_VER
+	AVRational *ff_frame_rate_tab = get_ff_frame_rate_tab();
+#endif
 //FIXME replace the crap with get_bits()
     s->repeat_pict = 0;
 

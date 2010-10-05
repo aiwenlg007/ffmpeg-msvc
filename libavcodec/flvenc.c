@@ -84,7 +84,10 @@ void ff_flv2_encode_ac_esc(PutBitContext *pb, int slevel, int level, int run, in
     }
 }
 
+const enum PixelFormat flv_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec flv_encoder = {
+#ifndef MSC_STRUCTS
     "flv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FLV1,
@@ -94,4 +97,23 @@ AVCodec flv_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("Flash Video (FLV) / Sorenson Spark / Sorenson H.263"),
+#else
+    /* name = */ "flv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FLV1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ flv_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Flash Video (FLV) / Sorenson Spark / Sorenson H.263"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

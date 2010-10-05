@@ -26,7 +26,29 @@ static void end_frame(AVFilterLink *link)
 {
 }
 
+AVFilterPad avfilter_vsink_nullsink_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ start_frame,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ end_frame,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+	};
+
+AVFilterPad avfilter_vsink_nullsink_outputs[] = {
+	{0}
+};
+
 AVFilter avfilter_vsink_nullsink = {
+#ifndef MSC_STRUCTS
     .name        = "nullsink",
     .description = "Do absolutely nothing with the input video.",
 
@@ -43,3 +65,14 @@ AVFilter avfilter_vsink_nullsink = {
     },
     .outputs   = (AVFilterPad[]) {{ .name = NULL }},
 };
+#else
+	/*name*/ "nullsink",
+	/*priv_size*/ 0,
+	/*init*/ 0,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vsink_nullsink_inputs,
+	/*outputs*/ avfilter_vsink_nullsink_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Do absolutely nothing with the input video."),
+};
+#endif

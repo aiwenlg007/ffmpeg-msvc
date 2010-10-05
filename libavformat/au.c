@@ -177,8 +177,12 @@ static int au_read_packet(AVFormatContext *s,
     return 0;
 }
 
+const AVCodecTag* au_codec_tags[] = {codec_au_tags, 0};
+
 #if CONFIG_AU_DEMUXER
+
 AVInputFormat au_demuxer = {
+#ifndef MSC_STRUCTS
     "au",
     NULL_IF_CONFIG_SMALL("SUN AU format"),
     0,
@@ -189,10 +193,32 @@ AVInputFormat au_demuxer = {
     pcm_read_seek,
     .codec_tag= (const AVCodecTag* const []){codec_au_tags, 0},
 };
+#else
+	"au",
+	NULL_IF_CONFIG_SMALL("SUN AU format"),
+	0,
+	au_probe,
+	au_read_header,
+	au_read_packet,
+	NULL,
+	pcm_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ au_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_AU_MUXER
 AVOutputFormat au_muxer = {
+#ifndef MSC_STRUCTS
     "au",
     NULL_IF_CONFIG_SMALL("SUN AU format"),
     "audio/basic",
@@ -205,4 +231,24 @@ AVOutputFormat au_muxer = {
     au_write_trailer,
     .codec_tag= (const AVCodecTag* const []){codec_au_tags, 0},
 };
+#else
+	"au",
+	NULL_IF_CONFIG_SMALL("SUN AU format"),
+	"audio/basic",
+	"au",
+	0,
+	CODEC_ID_PCM_S16BE,
+	CODEC_ID_NONE,
+	au_write_header,
+	au_write_packet,
+	au_write_trailer,
+	/*flags = */ 0,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ au_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif //CONFIG_AU_MUXER

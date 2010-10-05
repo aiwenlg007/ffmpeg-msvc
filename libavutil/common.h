@@ -26,6 +26,10 @@
 #ifndef AVUTIL_COMMON_H
 #define AVUTIL_COMMON_H
 
+#ifdef _MSC_VER
+#include "msvc-compat.h"
+#endif
+
 #include <ctype.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -53,13 +57,23 @@
 #define FFALIGN(x, a) (((x)+(a)-1)&~((a)-1))
 
 /* misc math functions */
-extern const uint8_t ff_log2_tab[256];
 
+
+#ifndef _MSC_VER
+extern const uint8_t ff_log2_tab[256];
 extern const uint8_t av_reverse[256];
+#else
+extern uint8_t *get_ff_log2_tab();
+extern uint8_t *get_av_reverse();
+#endif
 
 static inline av_const int av_log2_c(unsigned int v)
 {
     int n = 0;
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab = get_ff_log2_tab();
+#endif
+
     if (v & 0xffff0000) {
         v >>= 16;
         n += 16;
@@ -76,6 +90,9 @@ static inline av_const int av_log2_c(unsigned int v)
 static inline av_const int av_log2_16bit_c(unsigned int v)
 {
     int n = 0;
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab = get_ff_log2_tab();
+#endif
     if (v & 0xff00) {
         v >>= 8;
         n += 8;

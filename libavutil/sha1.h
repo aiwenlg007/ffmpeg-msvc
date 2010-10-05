@@ -23,7 +23,11 @@
 
 #include <stdint.h>
 
+#ifndef _MSC_VER
 extern const int av_sha1_size;
+#else
+extern int get_av_sha1_size();
+#endif
 
 struct AVSHA1;
 

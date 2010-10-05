@@ -228,6 +228,7 @@ static int siff_read_packet(AVFormatContext *s, AVPacket *pkt)
 }
 
 AVInputFormat siff_demuxer = {
+#ifndef MSC_STRUCTS
     "siff",
     NULL_IF_CONFIG_SMALL("Beam Software SIFF"),
     sizeof(SIFFContext),
@@ -236,3 +237,24 @@ AVInputFormat siff_demuxer = {
     siff_read_packet,
     .extensions = "vb,son"
 };
+#else
+	"siff",
+	NULL_IF_CONFIG_SMALL("Beam Software SIFF"),
+	sizeof(SIFFContext),
+	siff_probe,
+	siff_read_header,
+	siff_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "vb,son",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

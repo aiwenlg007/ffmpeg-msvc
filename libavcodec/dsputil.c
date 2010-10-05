@@ -4517,6 +4517,7 @@ av_cold void dsputil_init(DSPContext* c, AVCodecContext *avctx)
     memset(c->put_2tap_qpel_pixels_tab, 0, sizeof(c->put_2tap_qpel_pixels_tab));
     memset(c->avg_2tap_qpel_pixels_tab, 0, sizeof(c->avg_2tap_qpel_pixels_tab));
 
+#ifndef _MSC_VER
     if (HAVE_MMX)        dsputil_init_mmx   (c, avctx);
     if (ARCH_ARM)        dsputil_init_arm   (c, avctx);
     if (CONFIG_MLIB)     dsputil_init_mlib  (c, avctx);
@@ -4526,6 +4527,11 @@ av_cold void dsputil_init(DSPContext* c, AVCodecContext *avctx)
     if (HAVE_MMI)        dsputil_init_mmi   (c, avctx);
     if (ARCH_SH4)        dsputil_init_sh4   (c, avctx);
     if (ARCH_BFIN)       dsputil_init_bfin  (c, avctx);
+#else
+#if HAVE_MMX
+	                     dsputil_init_mmx   (c, avctx);
+#endif
+#endif
 
     for(i=0; i<64; i++){
         if(!c->put_2tap_qpel_pixels_tab[0][i])

@@ -619,10 +619,12 @@ retry:
     if(MPV_frame_start(s, avctx) < 0)
         return -1;
 
+#ifndef _MSC_VER
     if (CONFIG_MPEG4_VDPAU_DECODER && (s->avctx->codec->capabilities & CODEC_CAP_HWACCEL_VDPAU)) {
         ff_vdpau_mpeg4_decode_picture(s, s->gb.buffer, s->gb.buffer_end - s->gb.buffer);
         goto frame_end;
     }
+#endif
 
     if (avctx->hwaccel) {
         if (avctx->hwaccel->start_frame(avctx, s->gb.buffer, s->gb.buffer_end - s->gb.buffer) < 0)
@@ -728,6 +730,7 @@ av_log(avctx, AV_LOG_DEBUG, "%"PRId64"\n", rdtsc()-time);
 }
 
 AVCodec h263_decoder = {
+#ifndef MSC_STRUCTS
     "h263",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H263,
@@ -740,4 +743,23 @@ AVCodec h263_decoder = {
     .flush= ff_mpeg_flush,
     .long_name= NULL_IF_CONFIG_SMALL("H.263 / H.263-1996, H.263+ / H.263-1998 / H.263 version 2"),
     .pix_fmts= ff_hwaccel_pixfmt_list_420,
+#else
+    /* name = */ "h263",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H263,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_h263_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1 | CODEC_CAP_TRUNCATED | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ ff_mpeg_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_hwaccel_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.263 / H.263-1996, H.263+ / H.263-1998 / H.263 version 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -848,7 +848,10 @@ static int dnxhd_encode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat dnxhd_encoder_formats[] = {PIX_FMT_YUV422P, PIX_FMT_NONE};
+
 AVCodec dnxhd_encoder = {
+#ifndef MSC_STRUCTS
     "dnxhd",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DNXHD,
@@ -858,4 +861,23 @@ AVCodec dnxhd_encoder = {
     dnxhd_encode_end,
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_YUV422P, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+#else
+    /* name = */ "dnxhd",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DNXHD,
+    /* priv_data_size = */ sizeof(DNXHDEncContext),
+    /* init = */ dnxhd_encode_init,
+    /* encode = */ dnxhd_encode_picture,
+    /* close = */ dnxhd_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ dnxhd_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
