@@ -442,7 +442,15 @@ fail:
     return ret;
 }
 
+const enum PixelFormat tiff_encoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_PAL8, PIX_FMT_GRAY8,
+PIX_FMT_MONOBLACK, PIX_FMT_MONOWHITE,
+PIX_FMT_YUV420P, PIX_FMT_YUV422P,
+PIX_FMT_YUV444P, PIX_FMT_YUV410P,
+PIX_FMT_YUV411P,
+PIX_FMT_NONE};
+
 AVCodec tiff_encoder = {
+#ifndef MSC_STRUCTS
     "tiff",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TIFF,
@@ -453,12 +461,30 @@ AVCodec tiff_encoder = {
     NULL,
     0,
     NULL,
-    .pix_fmts =
-        (const enum PixelFormat[]) {PIX_FMT_RGB24, PIX_FMT_PAL8, PIX_FMT_GRAY8,
-                              PIX_FMT_MONOBLACK, PIX_FMT_MONOWHITE,
-                              PIX_FMT_YUV420P, PIX_FMT_YUV422P,
-                              PIX_FMT_YUV444P, PIX_FMT_YUV410P,
-                              PIX_FMT_YUV411P,
-                              PIX_FMT_NONE},
+	.pix_fmts = (const enum PixelFormat[]) {PIX_FMT_RGB24, PIX_FMT_PAL8, PIX_FMT_GRAY8,
+	PIX_FMT_MONOBLACK, PIX_FMT_MONOWHITE,
+	PIX_FMT_YUV420P, PIX_FMT_YUV422P,
+	PIX_FMT_YUV444P, PIX_FMT_YUV410P,
+	PIX_FMT_YUV411P,
+	PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("TIFF image"),
+#else
+    /* name = */ "tiff",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TIFF,
+    /* priv_data_size = */ sizeof(TiffEncoderContext),
+    /* init = */ NULL,
+    /* encode = */ encode_frame,
+    /* close = */ NULL,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ tiff_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("TIFF image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

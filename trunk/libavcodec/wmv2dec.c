@@ -485,6 +485,7 @@ static av_cold int wmv2_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec wmv2_decoder = {
+#ifndef MSC_STRUCTS
     "wmv2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WMV2,
@@ -496,4 +497,23 @@ AVCodec wmv2_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Windows Media Video 8"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "wmv2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WMV2,
+    /* priv_data_size = */ sizeof(Wmv2Context),
+    /* init = */ wmv2_decode_init,
+    /* encode = */ NULL,
+    /* close = */ wmv2_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Video 8"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

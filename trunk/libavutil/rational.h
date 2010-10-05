@@ -39,6 +39,14 @@ typedef struct AVRational{
     int den; ///< denominator
 } AVRational;
 
+
+#ifdef _MSC_VER
+static inline AVRational av_create_rational(int num, int den){
+	AVRational ret = {num, den};
+	return ret;
+}
+#endif
+
 /**
  * Compares two rationals.
  * @param a first rational

@@ -146,6 +146,7 @@ static int ws_snd_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec ws_snd1_decoder = {
+#ifndef MSC_STRUCTS
     "ws_snd1",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_WESTWOOD_SND1,
@@ -155,4 +156,23 @@ AVCodec ws_snd1_decoder = {
     NULL,
     ws_snd_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Westwood Audio (SND1)"),
+#else
+    /* name = */ "ws_snd1",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_WESTWOOD_SND1,
+    /* priv_data_size = */ 0,
+    /* init = */ ws_snd_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ ws_snd_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Westwood Audio (SND1)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

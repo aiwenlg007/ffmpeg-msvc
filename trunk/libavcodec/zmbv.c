@@ -654,6 +654,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec zmbv_decoder = {
+#ifndef MSC_STRUCTS
     "zmbv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ZMBV,
@@ -664,5 +665,24 @@ AVCodec zmbv_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Zip Motion Blocks Video"),
+#else
+    /* name = */ "zmbv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ZMBV,
+    /* priv_data_size = */ sizeof(ZmbvContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Zip Motion Blocks Video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

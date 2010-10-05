@@ -124,6 +124,7 @@ static int read_packet(AVFormatContext *s, AVPacket *pkt)
 }
 
 AVInputFormat mvi_demuxer = {
+#ifndef MSC_STRUCTS
     "mvi",
     NULL_IF_CONFIG_SMALL("Motion Pixels MVI format"),
     sizeof(MviDemuxContext),
@@ -132,3 +133,24 @@ AVInputFormat mvi_demuxer = {
     read_packet,
     .extensions = "mvi"
 };
+#else
+	"mvi",
+	NULL_IF_CONFIG_SMALL("Motion Pixels MVI format"),
+	sizeof(MviDemuxContext),
+	NULL,
+	read_header,
+	read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "mvi",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

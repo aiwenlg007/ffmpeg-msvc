@@ -19,14 +19,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include "avformat.h"
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
+
 #include "internal.h"
 #include "network.h"
 #include "os_support.h"
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#endif
 
 typedef struct TCPContext {
     int fd;
@@ -205,6 +212,7 @@ static int tcp_get_file_handle(URLContext *h)
 }
 
 URLProtocol tcp_protocol = {
+#ifndef MSC_STRUCTS
     "tcp",
     tcp_open,
     tcp_read,
@@ -213,3 +221,16 @@ URLProtocol tcp_protocol = {
     tcp_close,
     .url_get_file_handle = tcp_get_file_handle,
 };
+#else
+	"tcp",
+	tcp_open,
+	tcp_read,
+	tcp_write,
+	NULL, /* seek */
+	tcp_close,
+	/*next = */ 0,
+	/*url_read_pause = */ 0,
+	/*url_read_seek = */ 0,
+	/*url_get_file_handle = */ tcp_get_file_handle
+};
+#endif

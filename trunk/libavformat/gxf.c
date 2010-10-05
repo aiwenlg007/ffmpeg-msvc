@@ -184,7 +184,12 @@ static void gxf_material_tags(ByteIOContext *pb, int *len, struct gxf_stream_inf
  * \return fps as AVRational, or 0 / 0 if unknown
  */
 static AVRational fps_tag2avr(int32_t fps) {
+#ifndef _MSC_VER
     extern const AVRational ff_frame_rate_tab[];
+#else
+    AVRational *ff_frame_rate_tab = get_ff_frame_rate_tab();
+#endif
+
     if (fps < 1 || fps > 9) fps = 9;
     return ff_frame_rate_tab[9 - fps]; // values have opposite order
 }
@@ -207,7 +212,11 @@ static AVRational fps_umf2avr(uint32_t flags) {
  * \param si struct to store collected information into
  */
 static void gxf_track_tags(ByteIOContext *pb, int *len, struct gxf_stream_info *si) {
+#ifndef _MSC_VER
     si->frames_per_second = (AVRational){0, 0};
+#else
+    si->frames_per_second.den = si->frames_per_second.num = 0;
+#endif
     si->fields_per_frame = 0;
     while (*len >= 2) {
         GXFTrackTag tag = get_byte(pb);
@@ -354,7 +363,11 @@ static int gxf_header(AVFormatContext *s, AVFormatParameters *ap) {
     // set a fallback value, 60000/1001 is specified for audio-only files
     // so use that regardless of why we do not know the video frame rate.
     if (!main_timebase.num || !main_timebase.den)
+#ifndef _MSC_VER
         main_timebase = (AVRational){1001, 60000};
+#else
+		main_timebase = av_create_rational(1001, 60000);
+#endif
     for (i = 0; i < s->nb_streams; i++) {
         AVStream *st = s->streams[i];
         av_set_pts_info(st, 32, main_timebase.num, main_timebase.den);

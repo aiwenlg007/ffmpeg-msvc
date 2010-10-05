@@ -57,6 +57,9 @@ int ff_nut_sp_pts_cmp(const Syncpoint *a, const Syncpoint *b){
 
 void ff_nut_add_sp(NUTContext *nut, int64_t pos, int64_t back_ptr, int64_t ts){
     Syncpoint *sp= av_mallocz(sizeof(Syncpoint));
+#ifdef _MSC_VER
+	int av_tree_node_size = get_av_tree_node_size();
+#endif
     struct AVTreeNode *node= av_mallocz(av_tree_node_size);
 
     sp->pos= pos;

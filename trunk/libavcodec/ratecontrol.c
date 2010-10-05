@@ -538,8 +538,13 @@ static void adaptive_quantization(MpegEncContext *s, double q){
     const float border_masking = s->avctx->border_masking;
     float bits_sum= 0.0;
     float cplx_sum= 0.0;
+#ifndef _MSC_VER
     float cplx_tab[s->mb_num];
     float bits_tab[s->mb_num];
+#else
+    float *cplx_tab = av_malloc_items(s->mb_num, float);
+    float *bits_tab = av_malloc_items(s->mb_num, float);
+#endif
     const int qmin= s->avctx->mb_lmin;
     const int qmax= s->avctx->mb_lmax;
     Picture * const pic= &s->current_picture;
@@ -640,6 +645,11 @@ static void adaptive_quantization(MpegEncContext *s, double q){
 //printf("%2d%3d ", intq, ff_sqrt(s->mc_mb_var[i]));
         s->lambda_table[mb_xy]= intq;
     }
+
+#ifdef _MSC_VER
+	av_free(cplx_tab);
+	av_free(bits_tab);
+#endif
 }
 
 void ff_get_2pass_fcode(MpegEncContext *s){

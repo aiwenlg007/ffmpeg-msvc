@@ -30,6 +30,8 @@
  * and o_ prefixes on variables which are libogg types.
  */
 
+#if CONFIG_LIBTHEORA
+
 /* FFmpeg includes */
 #include "libavutil/intreadwrite.h"
 #include "libavutil/log.h"
@@ -356,8 +358,11 @@ static av_cold int encode_close(AVCodecContext* avc_context)
     return 0;
 }
 
+const enum PixelFormat libtheora_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE};
+
 /** AVCodec struct exposed to libavcodec */
 AVCodec libtheora_encoder = {
+#ifndef MSC_STRUCTS
     .name = "libtheora",
     .type = AVMEDIA_TYPE_VIDEO,
     .id = CODEC_ID_THEORA,
@@ -368,4 +373,25 @@ AVCodec libtheora_encoder = {
     .capabilities = CODEC_CAP_DELAY, // needed to get the statsfile summary
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("libtheora Theora"),
+#else
+    /* name = */ "libtheora",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_THEORA,
+    /* priv_data_size = */ sizeof(TheoraContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY, // needed to get the statsfile summary
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libtheora_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libtheora Theora"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

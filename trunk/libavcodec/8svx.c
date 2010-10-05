@@ -93,6 +93,7 @@ static av_cold int eightsvx_decode_init(AVCodecContext *avctx)
 }
 
 AVCodec eightsvx_fib_decoder = {
+#ifndef MSC_STRUCTS
   .name           = "8svx_fib",
   .type           = AVMEDIA_TYPE_AUDIO,
   .id             = CODEC_ID_8SVX_FIB,
@@ -100,9 +101,29 @@ AVCodec eightsvx_fib_decoder = {
   .init           = eightsvx_decode_init,
   .decode         = eightsvx_decode_frame,
   .long_name      = NULL_IF_CONFIG_SMALL("8SVX fibonacci"),
+#else
+    /* name = */ "8svx_fib",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_8SVX_FIB,
+    /* priv_data_size = */ sizeof (EightSvxContext),
+    /* init = */ eightsvx_decode_init,
+    /* encode = */ 0,
+    /* close = */ 0,
+    /* decode = */ eightsvx_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("8SVX fibonacci"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec eightsvx_exp_decoder = {
+#ifndef MSC_STRUCTS
   .name           = "8svx_exp",
   .type           = AVMEDIA_TYPE_AUDIO,
   .id             = CODEC_ID_8SVX_EXP,
@@ -110,4 +131,23 @@ AVCodec eightsvx_exp_decoder = {
   .init           = eightsvx_decode_init,
   .decode         = eightsvx_decode_frame,
   .long_name      = NULL_IF_CONFIG_SMALL("8SVX exponential"),
+#else
+    /* name = */ "8svx_exp",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_8SVX_EXP,
+    /* priv_data_size = */ sizeof (EightSvxContext),
+    /* init = */ eightsvx_decode_init,
+    /* encode = */ 0,
+    /* close = */ 0,
+    /* decode = */ eightsvx_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("8SVX exponential"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

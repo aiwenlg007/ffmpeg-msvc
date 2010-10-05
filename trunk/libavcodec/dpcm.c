@@ -298,6 +298,7 @@ static int dpcm_decode_frame(AVCodecContext *avctx,
     return buf_size;
 }
 
+#ifndef MSC_STRUCTS
 #define DPCM_DECODER(id, name, long_name_)      \
 AVCodec name ## _decoder = {                    \
     #name,                                      \
@@ -310,6 +311,25 @@ AVCodec name ## _decoder = {                    \
     dpcm_decode_frame,                          \
     .long_name = NULL_IF_CONFIG_SMALL(long_name_), \
 };
+#else
+#define DPCM_DECODER(id, name, long_name_)              \
+AVCodec name ## _decoder = {                            \
+    /* name = */ #name,                                 \
+    /* type = */ AVMEDIA_TYPE_AUDIO,                    \
+    /* id = */ id,                                      \
+    /* priv_data_size = */ sizeof(DPCMContext),         \
+    /* init = */ dpcm_decode_init,                      \
+    /* encode = */ NULL,                                \
+    /* close = */ NULL,                                 \
+    /* decode = */ dpcm_decode_frame,                   \
+    /* capabilities = */ 0,                             \
+    /* next = */ 0,                                     \
+    /* flush = */ 0,                                    \
+    /* supported_framerates = */ 0,                     \
+    /* pix_fmts = */ 0,                                 \
+	/* long_name = */ NULL_IF_CONFIG_SMALL(long_name_), \
+};
+#endif
 
 DPCM_DECODER(CODEC_ID_INTERPLAY_DPCM, interplay_dpcm, "DPCM Interplay");
 DPCM_DECODER(CODEC_ID_ROQ_DPCM, roq_dpcm, "DPCM id RoQ");

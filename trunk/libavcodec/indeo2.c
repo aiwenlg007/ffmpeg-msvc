@@ -145,7 +145,9 @@ static int ir2_decode_frame(AVCodecContext *avctx,
     AVFrame *picture = data;
     AVFrame * const p= (AVFrame*)&s->picture;
     int start;
-
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     if(p->data[0])
         avctx->release_buffer(avctx, p);
 
@@ -225,6 +227,7 @@ static av_cold int ir2_decode_end(AVCodecContext *avctx){
 }
 
 AVCodec indeo2_decoder = {
+#ifndef MSC_STRUCTS
     "indeo2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_INDEO2,
@@ -235,4 +238,23 @@ AVCodec indeo2_decoder = {
     ir2_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Intel Indeo 2"),
+#else
+    /* name = */ "indeo2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_INDEO2,
+    /* priv_data_size = */ sizeof(Ir2Context),
+    /* init = */ ir2_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ir2_decode_end,
+    /* decode = */ ir2_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Intel Indeo 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

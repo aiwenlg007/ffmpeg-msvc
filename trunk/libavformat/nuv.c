@@ -258,6 +258,7 @@ static int nuv_packet(AVFormatContext *s, AVPacket *pkt) {
 }
 
 AVInputFormat nuv_demuxer = {
+#ifndef MSC_STRUCTS
     "nuv",
     NULL_IF_CONFIG_SMALL("NuppelVideo format"),
     sizeof(NUVContext),
@@ -268,3 +269,24 @@ AVInputFormat nuv_demuxer = {
     NULL,
     .flags = AVFMT_GENERIC_INDEX,
 };
+#else
+	"nuv",
+	NULL_IF_CONFIG_SMALL("NuppelVideo format"),
+	sizeof(NUVContext),
+	nuv_probe,
+	nuv_header,
+	nuv_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

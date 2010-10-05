@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_LIBNUT
+
 #include <strings.h>
 #include "libavutil/avstring.h"
 #include "libavutil/bswap.h"
@@ -925,4 +927,6 @@ AVInputFormat nut_demuxer = {
     .extensions = "nut",
     .metadata_conv = ff_nut_metadata_conv,
 };
+#endif
+
 #endif

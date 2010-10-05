@@ -66,6 +66,7 @@ static int daud_write_packet(struct AVFormatContext *s, AVPacket *pkt)
 
 #if CONFIG_DAUD_DEMUXER
 AVInputFormat daud_demuxer = {
+#ifndef MSC_STRUCTS
     "daud",
     NULL_IF_CONFIG_SMALL("D-Cinema audio format"),
     0,
@@ -76,11 +77,32 @@ AVInputFormat daud_demuxer = {
     NULL,
     .extensions = "302",
 };
+#else
+	"daud",
+	NULL_IF_CONFIG_SMALL("D-Cinema audio format"),
+	0,
+	NULL,
+	daud_header,
+	daud_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "302",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DAUD_MUXER
-AVOutputFormat daud_muxer =
-{
+AVOutputFormat daud_muxer = {
+#ifndef MSC_STRUCTS
     "daud",
     NULL_IF_CONFIG_SMALL("D-Cinema audio format"),
     NULL,
@@ -92,4 +114,24 @@ AVOutputFormat daud_muxer =
     daud_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"daud",
+	NULL_IF_CONFIG_SMALL("D-Cinema audio format"),
+	NULL,
+	"302",
+	0,
+	CODEC_ID_PCM_S24DAUD,
+	CODEC_ID_NONE,
+	daud_write_header,
+	daud_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif

@@ -1000,6 +1000,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec bink_decoder = {
+#ifndef MSC_STRUCTS
     "binkvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_BINKVIDEO,
@@ -1009,4 +1010,23 @@ AVCodec bink_decoder = {
     decode_end,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Bink video"),
+#else
+    /* name = */ "binkvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_BINKVIDEO,
+    /* priv_data_size = */ sizeof(BinkContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Bink video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

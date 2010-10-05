@@ -325,6 +325,13 @@ const AVRational ff_frame_rate_tab[] = {
     {    0,    0},
 };
 
+#ifdef _MSC_VER
+AVRational *get_ff_frame_rate_tab()
+{
+	return ff_frame_rate_tab;
+}
+#endif
+
 const float ff_mpeg1_aspect[16]={
     0.0000,
     1.0000,

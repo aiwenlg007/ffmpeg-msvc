@@ -136,6 +136,7 @@ static av_cold int encode_init(AVCodecContext *avctx){
 #endif
 
 AVCodec cljr_decoder = {
+#ifndef MSC_STRUCTS
     "cljr",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_CLJR,
@@ -146,10 +147,30 @@ AVCodec cljr_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Cirrus Logic AccuPak"),
+#else
+    /* name = */ "cljr",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_CLJR,
+    /* priv_data_size = */ sizeof(CLJRContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Cirrus Logic AccuPak"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_CLJR_ENCODER
 AVCodec cljr_encoder = {
+#ifndef MSC_STRUCTS
     "cljr",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_CLJR,
@@ -158,5 +179,24 @@ AVCodec cljr_encoder = {
     encode_frame,
     //encode_end,
     .long_name = NULL_IF_CONFIG_SMALL("Cirrus Logic AccuPak"),
+#else
+    /* name = */ "cljr",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_CLJR,
+    /* priv_data_size = */ sizeof(CLJRContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ //encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Cirrus Logic AccuPak"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

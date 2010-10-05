@@ -1280,7 +1280,10 @@ static int dvvideo_close(AVCodecContext *c)
 
 
 #if CONFIG_DVVIDEO_ENCODER
+const enum PixelFormat dvvideo_encoder_formats[] =  {PIX_FMT_YUV411P, PIX_FMT_YUV422P, PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec dvvideo_encoder = {
+#ifndef MSC_STRUCTS
     "dvvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DVVIDEO,
@@ -1288,13 +1291,33 @@ AVCodec dvvideo_encoder = {
     dvvideo_init_encoder,
     dvvideo_encode_frame,
     .pix_fmts  = (const enum PixelFormat[]) {PIX_FMT_YUV411P, PIX_FMT_YUV422P, PIX_FMT_YUV420P, PIX_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+	.long_name = NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+#else
+    /* name = */ "dvvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DVVIDEO,
+    /* priv_data_size = */ sizeof(DVVideoContext),
+    /* init = */ dvvideo_init_encoder,
+    /* encode = */ dvvideo_encode_frame,
+    /* close = */ 0,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ dvvideo_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif // CONFIG_DVVIDEO_ENCODER
 
 #if CONFIG_DVVIDEO_DECODER
 AVCodec dvvideo_decoder = {
-    "dvvideo",
+#ifndef MSC_STRUCTS
+	"dvvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DVVIDEO,
     sizeof(DVVideoContext),
@@ -1304,6 +1327,25 @@ AVCodec dvvideo_decoder = {
     dvvideo_decode_frame,
     CODEC_CAP_DR1,
     NULL,
-    .long_name = NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+	.long_name = NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+#else
+    /* name = */ "dvvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DVVIDEO,
+    /* priv_data_size = */ sizeof(DVVideoContext),
+    /* init = */ dvvideo_init,
+    /* encode = */ NULL,
+    /* close = */ dvvideo_close,
+    /* decode = */ dvvideo_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DV (Digital Video)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

@@ -24,6 +24,8 @@
  * Interface to libfaac for aac encoding.
  */
 
+#if CONFIG_LIBFAAC
+
 #include "avcodec.h"
 #include <faac.h>
 
@@ -145,7 +147,10 @@ static av_cold int Faac_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat libfaac_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec libfaac_encoder = {
+#ifndef MSC_STRUCTS
     "libfaac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_AAC,
@@ -155,4 +160,25 @@ AVCodec libfaac_encoder = {
     Faac_encode_close,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("libfaac AAC (Advanced Audio Codec)"),
+#else
+    /* name = */ "libfaac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_AAC,
+    /* priv_data_size = */ sizeof(FaacAudioContext),
+    /* init = */ Faac_encode_init,
+    /* encode = */ Faac_encode_frame,
+    /* close = */ Faac_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libfaac AAC (Advanced Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ libfaac_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

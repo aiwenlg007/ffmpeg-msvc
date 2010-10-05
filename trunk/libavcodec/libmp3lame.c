@@ -24,6 +24,8 @@
  * Interface to libmp3lame for mp3 encoding.
  */
 
+#if CONFIG_LIBMP3LAME
+
 #include "avcodec.h"
 #include "mpegaudio.h"
 #include <lame/lame.h>
@@ -213,8 +215,10 @@ static av_cold int MP3lame_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat[] libmp3lame_encoder_samples = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
 
 AVCodec libmp3lame_encoder = {
+#ifndef MSC_STRUCTS
     "libmp3lame",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP3,
@@ -226,4 +230,25 @@ AVCodec libmp3lame_encoder = {
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .supported_samplerates= sSampleRates,
     .long_name= NULL_IF_CONFIG_SMALL("libmp3lame MP3 (MPEG audio layer 3)"),
+#else
+    /* name = */ "libmp3lame",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP3,
+    /* priv_data_size = */ sizeof(Mp3AudioContext),
+    /* init = */ MP3lame_encode_init,
+    /* encode = */ MP3lame_encode_frame,
+    /* close = */ MP3lame_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libmp3lame MP3 (MPEG audio layer 3)"),
+    /* supported_samplerates = */ sSampleRates,
+    /* sample_fmts = */ libmp3lame_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

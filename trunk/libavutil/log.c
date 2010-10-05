@@ -24,7 +24,10 @@
  * logging functions
  */
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include "avutil.h"
 #include "log.h"

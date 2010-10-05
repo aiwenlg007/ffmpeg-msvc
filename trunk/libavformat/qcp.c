@@ -188,6 +188,7 @@ static int qcp_read_packet(AVFormatContext *s, AVPacket *pkt)
 }
 
 AVInputFormat qcp_demuxer = {
+#ifndef MSC_STRUCTS
     .name           = "qcp",
     .long_name      = NULL_IF_CONFIG_SMALL("QCP format"),
     .priv_data_size = sizeof(QCPContext),
@@ -195,3 +196,24 @@ AVInputFormat qcp_demuxer = {
     .read_header    = qcp_read_header,
     .read_packet    = qcp_read_packet,
 };
+#else
+	"qcp",
+	NULL_IF_CONFIG_SMALL("QCP format"),
+	sizeof(QCPContext),
+	qcp_probe,
+	qcp_read_header,
+	qcp_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

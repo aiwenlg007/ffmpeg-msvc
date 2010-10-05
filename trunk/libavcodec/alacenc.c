@@ -518,7 +518,10 @@ static av_cold int alac_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat alac_encoder_samples[] = { SAMPLE_FMT_S16, SAMPLE_FMT_NONE};
+
 AVCodec alac_encoder = {
+#ifndef MSC_STRUCTS
     "alac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ALAC,
@@ -529,4 +532,23 @@ AVCodec alac_encoder = {
     .capabilities = CODEC_CAP_SMALL_LAST_FRAME,
     .sample_fmts = (const enum SampleFormat[]){ SAMPLE_FMT_S16, SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("ALAC (Apple Lossless Audio Codec)"),
+#else
+    /* name = */ "alac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ALAC,
+    /* priv_data_size = */ sizeof(AlacEncodeContext),
+    /* init = */ alac_encode_init,
+    /* encode = */ alac_encode_frame,
+    /* close = */ alac_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_SMALL_LAST_FRAME,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ALAC (Apple Lossless Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ alac_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };

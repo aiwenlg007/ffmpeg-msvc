@@ -51,7 +51,6 @@
  * 32bit  samplerate
  */
 
-
 #include "avcodec.h"
 #include "get_bits.h"
 #include "bytestream.h"
@@ -546,13 +545,23 @@ static int alac_decode_frame(AVCodecContext *avctx,
     }
 
     if (!isnotcompressed) {
-        /* so it is compressed */
-        int16_t predictor_coef_table[channels][32];
+		/* so it is compressed */
+#ifndef _MSC_VER
+		int16_t predictor_coef_table[channels][32];
         int predictor_coef_num[channels];
         int prediction_type[channels];
         int prediction_quantitization[channels];
         int ricemodifier[channels];
         int i, chan;
+#else
+		int16_t predictor_coef_table[MAX_AUDIO_CHANNELS][32];
+        int predictor_coef_num[MAX_AUDIO_CHANNELS];
+        int prediction_type[MAX_AUDIO_CHANNELS];
+        int prediction_quantitization[MAX_AUDIO_CHANNELS];
+        int ricemodifier[MAX_AUDIO_CHANNELS];
+        int i, chan;
+		assert(channels <= MAX_AUDIO_CHANNELS);
+#endif
 
         interlacing_shift = get_bits(&alac->gb, 8);
         interlacing_leftweight = get_bits(&alac->gb, 8);
@@ -700,6 +709,7 @@ static av_cold int alac_decode_close(AVCodecContext *avctx)
 }
 
 AVCodec alac_decoder = {
+#ifndef MSC_STRUCTS
     "alac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ALAC,
@@ -709,4 +719,23 @@ AVCodec alac_decoder = {
     alac_decode_close,
     alac_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("ALAC (Apple Lossless Audio Codec)"),
+#else
+    /* name = */ "alac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ALAC,
+    /* priv_data_size = */ sizeof(ALACContext),
+    /* init = */ alac_decode_init,
+    /* encode = */ NULL,
+    /* close = */ alac_decode_close,
+    /* decode = */ alac_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ALAC (Apple Lossless Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

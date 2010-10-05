@@ -44,8 +44,13 @@
 #define MIN_SIZE 3
 #define MAX_SIZE 13
 
+#ifndef _MSC_VER
 #define CHROMA_WIDTH(link)  -((-link->w) >> av_pix_fmt_descriptors[link->format].log2_chroma_w)
 #define CHROMA_HEIGHT(link) -((-link->h) >> av_pix_fmt_descriptors[link->format].log2_chroma_h)
+#else
+#define CHROMA_WIDTH(link)  -((-link->w) >> get_av_pix_fmt_descriptors()[link->format].log2_chroma_w)
+#define CHROMA_HEIGHT(link) -((-link->h) >> get_av_pix_fmt_descriptors()[link->format].log2_chroma_h)
+#endif
 
 typedef struct FilterParam {
     int msize_x;                             ///< matrix width
@@ -212,7 +217,42 @@ static void draw_slice(AVFilterLink *link, int y, int h, int slice_dir)
 {
 }
 
+AVFilterPad avfilter_vf_unsharp_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ AV_PERM_READ,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ end_frame,
+		/*draw_slice*/ draw_slice,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ config_props
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_unsharp_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_unsharp = {
+#ifndef MSC_STRUCTS
     .name      = "unsharp",
     .description = NULL_IF_CONFIG_SMALL("Sharpen or blur the input video."),
 
@@ -234,3 +274,15 @@ AVFilter avfilter_vf_unsharp = {
                                     .type             = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "unsharp",
+	/*priv_size*/ sizeof(UnsharpContext),
+	/*init*/ init,
+	/*uninit*/ uninit,
+	/*query_formats*/ query_formats,
+	/*inputs*/ avfilter_vf_unsharp_inputs,
+	/*outputs*/ avfilter_vf_unsharp_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Sharpen or blur the input video."),
+};
+
+#endif

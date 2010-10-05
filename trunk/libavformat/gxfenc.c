@@ -677,13 +677,22 @@ static int gxf_write_header(AVFormatContext *s)
                 sc->frame_rate_index = 5;
                 sc->sample_rate = 60;
                 gxf->flags |= 0x00000080;
+#ifndef _MSC_VER
                 gxf->time_base = (AVRational){ 1001, 60000 };
+#else
+				gxf->time_base = av_create_rational(1001, 60000);
+#endif
             } else { /* assume PAL */
                 sc->frame_rate_index = 6;
                 sc->media_type++;
                 sc->sample_rate = 50;
                 gxf->flags |= 0x00000040;
+
+#ifndef _MSC_VER
                 gxf->time_base = (AVRational){ 1, 50 };
+#else
+				gxf->time_base = av_create_rational(1, 50);
+#endif
             }
             av_set_pts_info(st, 64, gxf->time_base.num, gxf->time_base.den);
             if (gxf_find_lines_index(st) < 0)
@@ -733,8 +742,13 @@ static int gxf_write_header(AVFormatContext *s)
         sc->order = s->nb_streams - st->index;
     }
 
+#ifndef _MSC_VER
     if (ff_audio_interleave_init(s, GXF_samples_per_frame, (AVRational){ 1, 48000 }) < 0)
         return -1;
+#else
+	if (ff_audio_interleave_init(s, GXF_samples_per_frame, av_create_rational(1, 48000)) < 0)
+		return -1;
+#endif
 
     gxf_init_timecode_track(&gxf->timecode_track, vsc);
     gxf->flags |= 0x200000; // time code track is non-drop frame

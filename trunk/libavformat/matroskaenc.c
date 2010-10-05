@@ -221,7 +221,14 @@ static ebml_master start_ebml_master(ByteIOContext *pb, unsigned int elementid, 
     int bytes = expectedsize ? ebml_num_size(expectedsize) : 8;
     put_ebml_id(pb, elementid);
     put_ebml_size_unknown(pb, bytes);
+#ifndef _MSC_VER
     return (ebml_master){ url_ftell(pb), bytes };
+#else
+	{
+		ebml_master ret = {url_ftell(pb), bytes };
+		return ret;
+	}
+#endif
 }
 
 static void end_ebml_master(ByteIOContext *pb, ebml_master master)
@@ -695,6 +702,10 @@ static int mkv_write_header(AVFormatContext *s)
     AVMetadataTag *tag;
     int ret;
 
+#ifdef _MSC_VER
+	int av_md5_size = get_av_md5_size();
+#endif
+
     if (!strcmp(s->oformat->name, "webm")) mkv->mode = MODE_WEBM;
     else                                   mkv->mode = MODE_MATROSKAv2;
 
@@ -990,8 +1001,11 @@ static int mkv_write_trailer(AVFormatContext *s)
     return 0;
 }
 
+AVCodecTag *matroska_codec_tags[] = {ff_codec_bmp_tags, ff_codec_wav_tags, 0};
+
 #if CONFIG_MATROSKA_MUXER
 AVOutputFormat matroska_muxer = {
+#ifndef MSC_STRUCTS
     "matroska",
     NULL_IF_CONFIG_SMALL("Matroska file format"),
     "video/x-matroska",
@@ -1006,10 +1020,31 @@ AVOutputFormat matroska_muxer = {
     .codec_tag = (const AVCodecTag* const []){ff_codec_bmp_tags, ff_codec_wav_tags, 0},
     .subtitle_codec = CODEC_ID_TEXT,
 };
+#else
+    "matroska",
+    NULL_IF_CONFIG_SMALL("Matroska file format"),
+    "video/x-matroska",
+    "mkv",
+    sizeof(MatroskaMuxContext),
+    CODEC_ID_MP2,
+    CODEC_ID_MPEG4,
+    mkv_write_header,
+    mkv_write_packet,
+    mkv_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ matroska_codec_tags,
+	/*ubtitle_codec = */ CODEC_ID_TEXT,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_WEBM_MUXER
 AVOutputFormat webm_muxer = {
+#ifndef MSC_STRUCTS
     "webm",
     NULL_IF_CONFIG_SMALL("WebM file format"),
     "video/webm",
@@ -1022,10 +1057,33 @@ AVOutputFormat webm_muxer = {
     mkv_write_trailer,
     .flags = AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
 };
+#else
+	"webm",
+	NULL_IF_CONFIG_SMALL("WebM file format"),
+	"video/webm",
+	"webm",
+	sizeof(MatroskaMuxContext),
+	CODEC_ID_VORBIS,
+	CODEC_ID_VP8,
+	mkv_write_header,
+	mkv_write_packet,
+	mkv_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
 #endif
+#endif
+
+AVCodecTag *matroska_audio_codec_tags[] = {ff_codec_wav_tags, 0};
 
 #if CONFIG_MATROSKA_AUDIO_MUXER
 AVOutputFormat matroska_audio_muxer = {
+#ifndef MSC_STRUCTS
     "matroska",
     NULL_IF_CONFIG_SMALL("Matroska file format"),
     "audio/x-matroska",
@@ -1039,4 +1097,24 @@ AVOutputFormat matroska_audio_muxer = {
     .flags = AVFMT_GLOBALHEADER,
     .codec_tag = (const AVCodecTag* const []){ff_codec_wav_tags, 0},
 };
+#else
+	"matroska",
+	NULL_IF_CONFIG_SMALL("Matroska file format"),
+	"audio/x-matroska",
+	"mka",
+	sizeof(MatroskaMuxContext),
+	CODEC_ID_MP2,
+	CODEC_ID_NONE,
+	mkv_write_header,
+	mkv_write_packet,
+	mkv_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ matroska_audio_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif

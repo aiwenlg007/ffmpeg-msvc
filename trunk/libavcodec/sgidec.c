@@ -259,6 +259,7 @@ static av_cold int sgi_end(AVCodecContext *avctx)
 }
 
 AVCodec sgi_decoder = {
+#ifndef MSC_STRUCTS
     "sgi",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SGI,
@@ -268,5 +269,24 @@ AVCodec sgi_decoder = {
     sgi_end,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("SGI image"),
+#else
+    /* name = */ "sgi",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SGI,
+    /* priv_data_size = */ sizeof(SgiState),
+    /* init = */ sgi_init,
+    /* encode = */ NULL,
+    /* close = */ sgi_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("SGI image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

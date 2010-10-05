@@ -18,6 +18,13 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+#include <stdio.h>
+#include <tchar.h>
+
+#ifdef _MSC_VER
+#include "libavformat\os_support.h"
+#include "libavutil\libm.h"
+#endif
 
 #include "config.h"
 #include <inttypes.h>
@@ -32,6 +39,12 @@
 #include "libavcodec/colorspace.h"
 #include "libavcodec/opt.h"
 #include "libavcodec/avfft.h"
+
+#ifdef _MSC_VER
+exit_is_forbidden(int code)
+{
+}
+#endif
 
 #if CONFIG_AVFILTER
 # include "libavfilter/avfilter.h"
@@ -48,7 +61,10 @@
 #undef main /* We don't want SDL to override our main() */
 #endif
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
+
 #include <assert.h>
 
 const char program_name[] = "FFplay";
@@ -234,11 +250,20 @@ static int frame_height = 0;
 static enum PixelFormat frame_pix_fmt = PIX_FMT_NONE;
 static int audio_disable;
 static int video_disable;
+#ifndef _MSC_VER
 static int wanted_stream[AVMEDIA_TYPE_NB]={
     [AVMEDIA_TYPE_AUDIO]=-1,
     [AVMEDIA_TYPE_VIDEO]=-1,
     [AVMEDIA_TYPE_SUBTITLE]=-1,
 };
+#else
+static int wanted_stream[AVMEDIA_TYPE_NB]={
+    -1,
+    -1,
+	0,
+    -1,
+};
+#endif
 static int seek_by_bytes=-1;
 static int display_disable;
 static int show_status = 1;
@@ -262,7 +287,7 @@ static int error_concealment = 3;
 static int decoder_reorder_pts= -1;
 static int autoexit;
 static int loop=1;
-static int framedrop=1;
+static int framedrop=0;
 
 static int rdftspeed=20;
 #if CONFIG_AVFILTER
@@ -923,7 +948,15 @@ static void video_audio_display(VideoState *s)
             s->rdft_bits= rdft_bits;
         }
         {
+ #ifndef _MSC_VER
             FFTSample data[2][2*nb_freq];
+#else
+			FFTSample *data[2];
+			FFTSample *buffer = av_malloc_items(2*2*nb_freq, FFTSample);
+
+			data[0] = buffer;
+			data[1] = buffer + 2*nb_freq;
+#endif
             for(ch = 0;ch < nb_display_channels; ch++) {
                 i = i_start + ch;
                 for(x = 0; x < 2*nb_freq; x++) {
@@ -948,6 +981,10 @@ static void video_audio_display(VideoState *s)
                             s->xpos, s->height-y, 1, 1,
                             fgcolor);
             }
+
+#ifdef _MSC_VER
+			av_free(buffer);
+#endif
         }
         SDL_UpdateRect(screen, s->xpos, s->ytop, 1, s->height);
         s->xpos++;
@@ -1567,8 +1604,9 @@ static int input_get_buffer(AVCodecContext *codec, AVFrame *pic)
     AVFilterContext *ctx = codec->opaque;
     AVFilterPicRef  *ref;
     int perms = AV_PERM_WRITE;
-    int w, h, stride[4];
+    int w, h, i, stride[4];
     unsigned edge;
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
 
     if(pic->buffer_hints & FF_BUFFER_HINTS_VALID) {
         if(pic->buffer_hints & FF_BUFFER_HINTS_READABLE) perms |= AV_PERM_READ;
@@ -1589,7 +1627,7 @@ static int input_get_buffer(AVCodecContext *codec, AVFrame *pic)
 
     ref->w = codec->width;
     ref->h = codec->height;
-    for(int i = 0; i < 3; i ++) {
+    for(i = 0; i < 3; i ++) {
         unsigned hshift = i == 0 ? 0 : av_pix_fmt_descriptors[ref->pic->format].log2_chroma_w;
         unsigned vshift = i == 0 ? 0 : av_pix_fmt_descriptors[ref->pic->format].log2_chroma_h;
 
@@ -1691,8 +1729,30 @@ static int input_config_props(AVFilterLink *link)
     return 0;
 }
 
-static AVFilter input_filter =
-{
+
+AVFilterPad input_filter_inputs[] = {
+	{0}
+};
+
+AVFilterPad input_filter_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ input_request_frame,
+		/*config_props*/ input_config_props
+	},
+	{0}
+};
+
+static AVFilter input_filter = {
+#ifndef MSC_STRUCTS
     .name      = "ffplay_input",
 
     .priv_size = sizeof(FilterPriv),
@@ -1709,6 +1769,17 @@ static AVFilter input_filter =
                                     .config_props  = input_config_props, },
                                   { .name = NULL }},
 };
+#else
+	/*name*/ "ffplay_input",
+	/*priv_size*/ sizeof(FilterPriv),
+	/*init*/ input_init,
+	/*uninit*/ input_uninit,
+	/*query_formats*/ input_query_formats,
+	/*inputs*/ input_filter_inputs,
+	/*outputs*/ input_filter_outputs,
+	/*description*/ 0,
+};
+#endif
 
 static void output_end_frame(AVFilterLink *link)
 {
@@ -1743,8 +1814,30 @@ static int get_filtered_video_frame(AVFilterContext *ctx, AVFrame *frame,
     return 1;
 }
 
-static AVFilter output_filter =
-{
+
+AVFilterPad output_filter_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ AV_PERM_READ,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ output_end_frame,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+AVFilterPad output_filter_outputs[] = {
+	{0}
+};
+
+static AVFilter output_filter = {
+#ifndef MSC_STRUCTS
     .name      = "ffplay_output",
 
     .query_formats = output_query_formats,
@@ -1756,6 +1849,17 @@ static AVFilter output_filter =
                                   { .name = NULL }},
     .outputs   = (AVFilterPad[]) {{ .name = NULL }},
 };
+#else
+	/*name*/ "ffplay_output",
+	/*priv_size*/ sizeof(FilterPriv),
+	/*init*/ 0,
+	/*uninit*/ 0,
+	/*query_formats*/ output_query_formats,
+	/*inputs*/ output_filter_inputs,
+	/*outputs*/ output_filter_outputs,
+	/*description*/ 0,
+};
+#endif
 #endif  /* CONFIG_AVFILTER */
 
 static int video_thread(void *arg)
@@ -2381,7 +2485,11 @@ static int decode_thread(void *arg)
     ap->prealloced_context = 1;
     ap->width = frame_width;
     ap->height= frame_height;
+#ifndef _MSC_VER
     ap->time_base= (AVRational){1, 25};
+#else
+    ap->time_base= av_create_rational(1, 25);
+#endif
     ap->pix_fmt = frame_pix_fmt;
 
     set_context_opts(ic, avformat_opts, AV_OPT_FLAG_DECODING_PARAM);
@@ -3096,10 +3204,11 @@ static void opt_input_file(const char *filename)
 }
 
 /* Called from the main */
-int main(int argc, char **argv)
+int SDL_main(int argc, char **argv)
 {
     int flags, i;
 
+	av_get_pix_fmt("asdasd");
     /* register all codecs, demux and protocols */
     avcodec_register_all();
 #if CONFIG_AVDEVICE
@@ -3133,7 +3242,7 @@ int main(int argc, char **argv)
         video_disable = 1;
     }
     flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER;
-#if !defined(__MINGW32__) && !defined(__APPLE__)
+#if !defined(__MINGW32__) && !defined(__APPLE__) && !defined(_MSC_VER)
     flags |= SDL_INIT_EVENTTHREAD; /* Not supported on Windows or Mac OS X */
 #endif
     if (SDL_Init (flags)) {

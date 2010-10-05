@@ -368,6 +368,7 @@ static av_cold int cdg_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec cdgraphics_decoder = {
+#ifndef MSC_STRUCTS
     "cdgraphics",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_CDGRAPHICS,
@@ -378,4 +379,23 @@ AVCodec cdgraphics_decoder = {
     cdg_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("CD Graphics video"),
+#else
+    /* name = */ "cdgraphics",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_CDGRAPHICS,
+    /* priv_data_size = */ sizeof(CDGraphicsContext),
+    /* init = */ cdg_decode_init,
+    /* encode = */ NULL,
+    /* close = */ cdg_decode_end,
+    /* decode = */ cdg_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("CD Graphics video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

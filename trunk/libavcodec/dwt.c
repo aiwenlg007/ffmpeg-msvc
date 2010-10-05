@@ -18,6 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_DWT
+
 #include "libavutil/attributes.h"
 #include "dsputil.h"
 #include "dwt.h"
@@ -232,7 +234,11 @@ inv_liftS(IDWTELEM *dst, IDWTELEM *src, IDWTELEM *ref,
 #endif /* ! liftS */
 
 static void horizontal_decompose53i(DWTELEM *b, int width){
+#ifndef _MSC_VER
     DWTELEM temp[width];
+#else
+    DWTELEM *temp = av_malloc_items(width, sizeof(DWTELEM));
+#endif
     const int width2= width>>1;
     int x;
     const int w2= (width+1)>>1;
@@ -278,6 +284,10 @@ static void horizontal_decompose53i(DWTELEM *b, int width){
     lift(b+w2, temp+w2, temp, 1, 1, 1, width, -1, 0, 1, 1, 0);
     lift(b   , temp   , b+w2, 1, 1, 1, width,  1, 2, 2, 0, 0);
 #endif /* 0 */
+
+#ifdef _MSC_VER
+	av_free(temp);
+#endif
 }
 
 static void vertical_decompose53iH0(DWTELEM *b0, DWTELEM *b1, DWTELEM *b2, int width){
@@ -317,13 +327,21 @@ static void spatial_decompose53i(DWTELEM *buffer, int width, int height, int str
 }
 
 static void horizontal_decompose97i(DWTELEM *b, int width){
-    DWTELEM temp[width];
+#ifndef _MSC_VER
+	DWTELEM temp[width];
+#else
+	DWTELEM *temp = av_malloc_items(width, sizeof(DWTELEM));
+#endif
     const int w2= (width+1)>>1;
 
     lift (temp+w2, b    +1, b      , 1, 2, 2, width,  W_AM, W_AO, W_AS, 1, 1);
     liftS(temp   , b      , temp+w2, 1, 2, 1, width,  W_BM, W_BO, W_BS, 0, 0);
     lift (b   +w2, temp+w2, temp   , 1, 1, 1, width,  W_CM, W_CO, W_CS, 1, 0);
     lift (b      , temp   , b   +w2, 1, 1, 1, width,  W_DM, W_DO, W_DS, 0, 0);
+
+#ifdef _MSC_VER
+	av_free(temp);
+#endif
 }
 
 
@@ -401,7 +419,11 @@ void ff_spatial_dwt(DWTELEM *buffer, int width, int height, int stride, int type
 }
 
 static void horizontal_compose53i(IDWTELEM *b, int width){
-    IDWTELEM temp[width];
+#ifndef _MSC_VER
+	DWTELEM temp[width];
+#else
+	DWTELEM *temp = av_malloc_items(width, sizeof(DWTELEM));
+#endif
     const int width2= width>>1;
     const int w2= (width+1)>>1;
     int x;
@@ -423,6 +445,11 @@ static void horizontal_compose53i(IDWTELEM *b, int width){
         b[x-1] = temp[x-1] + ((b   [x-2] + b  [x  ]+1)>>1);
     }else
         b[x-1] = temp[x-1] + b[x-2];
+
+
+#ifdef _MSC_VER
+	av_free(temp);
+#endif
 }
 
 static void vertical_compose53iH0(IDWTELEM *b0, IDWTELEM *b1, IDWTELEM *b2, int width){
@@ -508,7 +535,11 @@ static void av_unused spatial_compose53i(IDWTELEM *buffer, int width, int height
 
 
 void ff_snow_horizontal_compose97i(IDWTELEM *b, int width){
-    IDWTELEM temp[width];
+#ifndef _MSC_VER
+	DWTELEM temp[width];
+#else
+	DWTELEM *temp = av_malloc_items(width, sizeof(DWTELEM));
+#endif
     const int w2= (width+1)>>1;
 
 #if 0 //maybe more understadable but slower
@@ -540,6 +571,11 @@ void ff_snow_horizontal_compose97i(IDWTELEM *b, int width){
         b[x-1] = temp[x-1] + ((3*(b  [x-2] + b   [x  ] ))>>1);
     }else
         b[x-1] = temp[x-1] + 3*b [x-2];
+#endif
+
+
+#ifdef _MSC_VER
+	av_free(temp);
 #endif
 }
 
@@ -841,3 +877,5 @@ void ff_dwt_init(DWTContext *c)
 
     if (HAVE_MMX) ff_dwt_init_x86(c);
 }
+
+#endif

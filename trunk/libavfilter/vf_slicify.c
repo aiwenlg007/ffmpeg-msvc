@@ -52,6 +52,10 @@ static int config_props(AVFilterLink *link)
 {
     SliceContext *slice = link->dst->priv;
 
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     slice->vshift = av_pix_fmt_descriptors[link->format].log2_chroma_h;
 
     return 0;
@@ -95,7 +99,43 @@ static void draw_slice(AVFilterLink *link, int y, int h, int slice_dir)
     }
 }
 
+
+AVFilterPad avfilter_vf_slicify_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ draw_slice,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ config_props
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_slicify_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_slicify = {
+#ifndef MSC_STRUCTS
     .name      = "slicify",
     .description = "Pass the images of input video on to next video filter as multiple slices.",
 
@@ -115,3 +155,14 @@ AVFilter avfilter_vf_slicify = {
                                     .type            = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "slicify",
+	/*priv_size*/ sizeof(SliceContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vf_slicify_inputs,
+	/*outputs*/ avfilter_vf_slicify_outputs,
+	/*description*/ "Pass the images of input video on to next video filter as multiple slices.",
+};
+#endif

@@ -26,6 +26,9 @@
 #include "avstring.h"
 #include "mem.h"
 
+
+#include "msvc-compat.h"
+
 int av_strstart(const char *str, const char *pfx, const char **ptr)
 {
     while (*pfx && *pfx == *str) {

@@ -707,6 +707,7 @@ static int rv10_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec rv10_decoder = {
+#ifndef MSC_STRUCTS
     "rv10",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RV10,
@@ -718,9 +719,29 @@ AVCodec rv10_decoder = {
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("RealVideo 1.0"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "rv10",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RV10,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ rv10_decode_init,
+    /* encode = */ NULL,
+    /* close = */ rv10_decode_end,
+    /* decode = */ rv10_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealVideo 1.0"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec rv20_decoder = {
+#ifndef MSC_STRUCTS
     "rv20",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RV20,
@@ -733,4 +754,23 @@ AVCodec rv20_decoder = {
     .flush= ff_mpeg_flush,
     .long_name = NULL_IF_CONFIG_SMALL("RealVideo 2.0"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "rv20",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RV20,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ rv10_decode_init,
+    /* encode = */ NULL,
+    /* close = */ rv10_decode_end,
+    /* decode = */ rv10_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ ff_mpeg_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealVideo 2.0"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

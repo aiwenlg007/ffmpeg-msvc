@@ -198,6 +198,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec tscc_decoder = {
+#ifndef MSC_STRUCTS
         "camtasia",
         AVMEDIA_TYPE_VIDEO,
         CODEC_ID_TSCC,
@@ -208,5 +209,24 @@ AVCodec tscc_decoder = {
         decode_frame,
         CODEC_CAP_DR1,
         .long_name = NULL_IF_CONFIG_SMALL("TechSmith Screen Capture Codec"),
+#else
+    /* name = */ "camtasia",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TSCC,
+    /* priv_data_size = */ sizeof(CamtasiaContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("TechSmith Screen Capture Codec"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

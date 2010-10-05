@@ -23,7 +23,9 @@
 #include "avformat.h"
 #include "ffm.h"
 #if CONFIG_FFSERVER
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 int64_t ffm_read_write_index(int fd)
 {

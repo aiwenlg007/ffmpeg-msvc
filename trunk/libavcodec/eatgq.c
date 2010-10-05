@@ -52,7 +52,11 @@ static av_cold int tgq_decode_init(AVCodecContext *avctx){
         avctx->idct_algo=FF_IDCT_EA;
     dsputil_init(&s->dsp, avctx);
     ff_init_scantable(s->dsp.idct_permutation, &s->scantable, ff_zigzag_direct);
+#ifndef _MSC_VER
     avctx->time_base = (AVRational){1, 15};
+#else
+	avctx->time_base = av_create_rational(1, 15);
+#endif
     avctx->pix_fmt = PIX_FMT_YUV420P;
     return 0;
 }
@@ -244,6 +248,7 @@ static av_cold int tgq_decode_end(AVCodecContext *avctx){
 }
 
 AVCodec eatgq_decoder = {
+#ifndef MSC_STRUCTS
     "eatgq",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TGQ,
@@ -254,4 +259,23 @@ AVCodec eatgq_decoder = {
     tgq_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Electronic Arts TGQ video"),
+#else
+    /* name = */ "eatgq",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TGQ,
+    /* priv_data_size = */ sizeof(TgqContext),
+    /* init = */ tgq_decode_init,
+    /* encode = */ NULL,
+    /* close = */ tgq_decode_end,
+    /* decode = */ tgq_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Electronic Arts TGQ video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

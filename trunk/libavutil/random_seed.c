@@ -18,26 +18,38 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#ifndef _MSC_VER
 #include <unistd.h>
 #include <fcntl.h>
+#endif
+
 #include "timer.h"
 #include "random_seed.h"
 
 uint32_t ff_random_get_seed(void)
 {
     uint32_t seed;
-    int fd;
-
-    if ((fd = open("/dev/random", O_RDONLY)) == -1)
-        fd = open("/dev/urandom", O_RDONLY);
-    if (fd != -1){
-        int err = read(fd, &seed, 4);
-        close(fd);
-        if (err == 4)
-            return seed;
-    }
-#ifdef AV_READ_TIME
-    seed = AV_READ_TIME();
+	//JRS: fix
+#ifndef _MSC_VER
+	    int fd;
+	
+	    if ((fd = open("/dev/random", O_RDONLY)) == -1)
+	        fd = open("/dev/urandom", O_RDONLY);
+	    if (fd != -1){
+	        int err = read(fd, &seed, 4);
+	        close(fd);
+	        if (err == 4)
+	            return seed;
+	    }
+	#ifdef AV_READ_TIME
+	    seed = AV_READ_TIME();
+	#endif
+#else
+	#ifdef AV_READ_TIME
+	    seed = AV_READ_TIME();
+	#else
+		seed = 0;
+	#endif
 #endif
     // XXX what to do ?
     return seed;

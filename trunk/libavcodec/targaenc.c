@@ -151,7 +151,10 @@ static av_cold int targa_encode_init(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat targa_encoder_formats[] = {PIX_FMT_BGR24, PIX_FMT_RGB555LE, PIX_FMT_GRAY8, PIX_FMT_NONE};
+
 AVCodec targa_encoder = {
+#ifndef MSC_STRUCTS
     .name = "targa",
     .type = AVMEDIA_TYPE_VIDEO,
     .id = CODEC_ID_TARGA,
@@ -160,4 +163,23 @@ AVCodec targa_encoder = {
     .encode = targa_encode_frame,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_BGR24, PIX_FMT_RGB555LE, PIX_FMT_GRAY8, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("Truevision Targa image"),
+#else
+    /* name = */ "targa",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TARGA,
+    /* priv_data_size = */ sizeof(TargaContext),
+    /* init = */ targa_encode_init,
+    /* encode = */ targa_encode_frame,
+    /* close = */ 0,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ targa_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Truevision Targa image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

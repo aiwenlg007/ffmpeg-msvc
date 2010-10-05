@@ -99,6 +99,7 @@ static av_cold int tmv_decode_close(AVCodecContext *avctx)
 }
 
 AVCodec tmv_decoder = {
+#ifndef MSC_STRUCTS
     .name           = "tmv",
     .type           = AVMEDIA_TYPE_VIDEO,
     .id             = CODEC_ID_TMV,
@@ -107,4 +108,23 @@ AVCodec tmv_decoder = {
     .decode         = tmv_decode_frame,
     .capabilities   = CODEC_CAP_DR1,
     .long_name      = NULL_IF_CONFIG_SMALL("8088flex TMV"),
+#else
+    /* name = */ "tmv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TMV,
+    /* priv_data_size = */ sizeof(TMVContext),
+    /* init = */ 0,
+    /* encode = */ 0,
+    /* close = */ tmv_decode_close,
+    /* decode = */ tmv_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("8088flex TMV"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

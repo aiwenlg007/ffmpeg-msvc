@@ -232,10 +232,18 @@ static void heap_sift(HeapElem *h, int root, int size)
 }
 
 static void generate_len_table(uint8_t *dst, const uint64_t *stats, int size){
+#ifndef _MSC_VER
     HeapElem h[size];
     int up[2*size];
     int len[2*size];
     int offset, i, next;
+#else
+    HeapElem h[256];
+    int up[2*256];
+    int len[2*256];
+    int offset, i, next;
+	assert(size <= 256);
+#endif
 
     for(offset=1; ; offset<<=1){
         for(i=0; i<size; i++){
@@ -1416,6 +1424,7 @@ static av_cold int encode_end(AVCodecContext *avctx)
 
 #if CONFIG_HUFFYUV_DECODER
 AVCodec huffyuv_decoder = {
+#ifndef MSC_STRUCTS
     "huffyuv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_HUFFYUV,
@@ -1427,11 +1436,31 @@ AVCodec huffyuv_decoder = {
     CODEC_CAP_DR1 | CODEC_CAP_DRAW_HORIZ_BAND,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Huffyuv / HuffYUV"),
+#else
+    /* name = */ "huffyuv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_HUFFYUV,
+    /* priv_data_size = */ sizeof(HYuvContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DRAW_HORIZ_BAND,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Huffyuv / HuffYUV"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_FFVHUFF_DECODER
 AVCodec ffvhuff_decoder = {
+#ifndef MSC_STRUCTS
     "ffvhuff",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FFVHUFF,
@@ -1443,11 +1472,33 @@ AVCodec ffvhuff_decoder = {
     CODEC_CAP_DR1 | CODEC_CAP_DRAW_HORIZ_BAND,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Huffyuv FFmpeg variant"),
+#else
+    /* name = */ "ffvhuff",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FFVHUFF,
+    /* priv_data_size = */ sizeof(HYuvContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DRAW_HORIZ_BAND,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Huffyuv FFmpeg variant"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_HUFFYUV_ENCODER
+const enum PixelFormat huffyuv_encoder_formats[] = {PIX_FMT_YUV422P, PIX_FMT_RGB32, PIX_FMT_NONE};
+
 AVCodec huffyuv_encoder = {
+#ifndef MSC_STRUCTS
     "huffyuv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_HUFFYUV,
@@ -1457,11 +1508,33 @@ AVCodec huffyuv_encoder = {
     encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV422P, PIX_FMT_RGB32, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Huffyuv / HuffYUV"),
+#else
+    /* name = */ "huffyuv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_HUFFYUV,
+    /* priv_data_size = */ sizeof(HYuvContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ huffyuv_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Huffyuv / HuffYUV"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
 #if CONFIG_FFVHUFF_ENCODER
+const enum PixelFormat ffvhuff_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_RGB32, PIX_FMT_NONE};
+
 AVCodec ffvhuff_encoder = {
+#ifndef MSC_STRUCTS
     "ffvhuff",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FFVHUFF,
@@ -1471,5 +1544,24 @@ AVCodec ffvhuff_encoder = {
     encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_RGB32, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Huffyuv FFmpeg variant"),
+#else
+    /* name = */ "ffvhuff",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FFVHUFF,
+    /* priv_data_size = */ sizeof(HYuvContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ffvhuff_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Huffyuv FFmpeg variant"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

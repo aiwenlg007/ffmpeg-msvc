@@ -798,6 +798,7 @@ static void flac_flush(AVCodecContext *avctx)
 }
 
 AVCodec flac_decoder = {
+#ifndef MSC_STRUCTS
     "flac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_FLAC,
@@ -811,4 +812,23 @@ AVCodec flac_decoder = {
                                               of these capabilities */
     .flush= flac_flush,
     .long_name= NULL_IF_CONFIG_SMALL("FLAC (Free Lossless Audio Codec)"),
+#else
+    /* name = */ "flac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_FLAC,
+    /* priv_data_size = */ sizeof(FLACContext),
+    /* init = */ flac_decode_init,
+    /* encode = */ NULL,
+    /* close = */ flac_decode_close,
+    /* decode = */ flac_decode_frame,
+    /* capabilities = */ CODEC_CAP_DELAY | CODEC_CAP_SUBFRAMES,
+    /* next = */ 0,
+    /* flush = */ flac_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("FLAC (Free Lossless Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

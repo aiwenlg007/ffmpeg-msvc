@@ -32,6 +32,8 @@
 
 //#define DEBUG
 
+
+
 #include <math.h>
 #include <time.h>
 
@@ -1346,9 +1348,15 @@ static int mxf_parse_mpeg2_frame(AVFormatContext *s, AVStream *st, AVPacket *pkt
         } else if (c == 0x1b3) { // seq
             *flags |= 0x40;
             switch ((pkt->data[i+4]>>4) & 0xf) {
+#ifndef _MSC_VER
             case 2:  sc->aspect_ratio = (AVRational){  4,  3}; break;
             case 3:  sc->aspect_ratio = (AVRational){ 16,  9}; break;
             case 4:  sc->aspect_ratio = (AVRational){221,100}; break;
+#else
+			case 2:  sc->aspect_ratio = av_create_rational(  4,  3); break;
+			case 3:  sc->aspect_ratio = av_create_rational( 16,  9); break;
+			case 4:  sc->aspect_ratio = av_create_rational(221,100); break;
+#endif
             default:
                 av_reduce(&sc->aspect_ratio.num, &sc->aspect_ratio.den,
                           st->codec->width, st->codec->height, 1024*1024);
@@ -1422,11 +1430,19 @@ static int mxf_write_header(AVFormatContext *s)
             }
             if (fabs(av_q2d(st->codec->time_base) - 1/25.0) < 0.0001) {
                 samples_per_frame = PAL_samples_per_frame;
+#ifndef _MSC_VER
                 mxf->time_base = (AVRational){ 1, 25 };
+#else
+				mxf->time_base = av_create_rational(1, 25);
+#endif
                 mxf->timecode_base = 25;
             } else if (fabs(av_q2d(st->codec->time_base) - 1001/30000.0) < 0.0001) {
                 samples_per_frame = NTSC_samples_per_frame;
+#ifndef _MSC_VER
                 mxf->time_base = (AVRational){ 1001, 30000 };
+#else
+				mxf->time_base = av_create_rational(1001, 30000);
+#endif
                 mxf->timecode_base = 30;
             } else {
                 av_log(s, AV_LOG_ERROR, "unsupported video frame rate\n");

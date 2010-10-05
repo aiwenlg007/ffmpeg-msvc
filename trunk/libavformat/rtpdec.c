@@ -26,7 +26,11 @@
 #include "avformat.h"
 #include "mpegts.h"
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
+
 #include "network.h"
 
 #include "rtpdec.h"

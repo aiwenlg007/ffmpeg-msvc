@@ -438,13 +438,21 @@ void avcodec_get_context_defaults2(AVCodecContext *s, enum AVMediaType codec_typ
         flags= AV_OPT_FLAG_SUBTITLE_PARAM;
     av_opt_set_defaults2(s, flags, flags);
 
+#ifndef _MSC_VER
     s->time_base= (AVRational){0,1};
+#else
+    s->time_base= av_create_rational(0,1);
+#endif
     s->get_buffer= avcodec_default_get_buffer;
     s->release_buffer= avcodec_default_release_buffer;
     s->get_format= avcodec_default_get_format;
     s->execute= avcodec_default_execute;
     s->execute2= avcodec_default_execute2;
+#ifndef _MSC_VER
     s->sample_aspect_ratio= (AVRational){0,1};
+#else
+    s->sample_aspect_ratio= av_create_rational(0,1);
+#endif
     s->pix_fmt= PIX_FMT_NONE;
     s->sample_fmt= SAMPLE_FMT_NONE;
 

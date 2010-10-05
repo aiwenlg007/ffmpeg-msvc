@@ -546,7 +546,11 @@ static int asf_read_header(AVFormatContext *s, AVFormatParameters *ap)
                 get_le32(pb);             // flags
                 name_len = get_le32(pb);  // name length
                 get_str16_nolen(pb, name_len * 2, name, sizeof(name));
+#ifndef _MSC_VER
                 ff_new_chapter(s, i, (AVRational){1, 10000000}, pres_time, AV_NOPTS_VALUE, name );
+#else
+				ff_new_chapter(s, i, av_create_rational(1, 10000000), pres_time, AV_NOPTS_VALUE, name );
+#endif
             }
 #if 0
         } else if (!guidcmp(&g, &ff_asf_codec_comment_header)) {
@@ -1049,7 +1053,12 @@ static int64_t asf_read_pts(AVFormatContext *s, int stream_index, int64_t *ppos,
     int64_t pts;
     int64_t pos= *ppos;
     int i;
+#ifndef _MSC_VER
     int64_t start_pos[s->nb_streams];
+#else
+    int64_t start_pos[MAX_STREAMS];
+	assert(s->nb_streams <= MAX_STREAMS);
+#endif
 
     for(i=0; i<s->nb_streams; i++){
         start_pos[i]= pos;
@@ -1192,6 +1201,7 @@ static int asf_read_seek(AVFormatContext *s, int stream_index, int64_t pts, int 
 }
 
 AVInputFormat asf_demuxer = {
+#ifndef MSC_STRUCTS
     "asf",
     NULL_IF_CONFIG_SMALL("ASF format"),
     sizeof(ASFContext),
@@ -1203,3 +1213,24 @@ AVInputFormat asf_demuxer = {
     asf_read_pts,
     .metadata_conv = ff_asf_metadata_conv,
 };
+#else
+	/*name = */ "asf",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("ASF format"),
+	/*priv_data_size = */ sizeof(ASFContext),
+	/*read_probe = */ asf_probe,
+	/*read_header = */ asf_read_header,
+	/*read_packet = */ asf_read_packet,
+	/*read_close = */ asf_read_close,
+	/*read_seek = */ asf_read_seek,
+	/*read_timestamp = */ asf_read_pts,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ ff_asf_metadata_conv,
+	/*next = */ 0
+};
+#endif

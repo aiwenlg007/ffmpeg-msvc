@@ -39,6 +39,7 @@
  *   out of 169 tests.
  */
 
+#if CONFIG_AMRNB_DECODER
 
 #include <string.h>
 #include <math.h>
@@ -1074,3 +1075,5 @@ AVCodec amrnb_decoder = {
     .long_name      = NULL_IF_CONFIG_SMALL("Adaptive Multi-Rate NarrowBand"),
     .sample_fmts    = (enum SampleFormat[]){SAMPLE_FMT_FLT,SAMPLE_FMT_NONE},
 };
+
+#endif

@@ -201,6 +201,7 @@ static int64_t pva_read_timestamp(struct AVFormatContext *s, int stream_index,
 }
 
 AVInputFormat pva_demuxer = {
+#ifndef MSC_STRUCTS
     "pva",
     NULL_IF_CONFIG_SMALL("TechnoTrend PVA file and stream format"),
     sizeof(PVAContext),
@@ -209,3 +210,24 @@ AVInputFormat pva_demuxer = {
     pva_read_packet,
     .read_timestamp = pva_read_timestamp
 };
+#else
+	"pva",
+	NULL_IF_CONFIG_SMALL("TechnoTrend PVA file and stream format"),
+	sizeof(PVAContext),
+	pva_probe,
+	pva_read_header,
+	pva_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ pva_read_timestamp,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

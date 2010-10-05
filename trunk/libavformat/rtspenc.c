@@ -21,7 +21,11 @@
 
 #include "avformat.h"
 
+#ifndef _MSC_VER
 #include <sys/time.h>
+#else
+#endif
+
 #if HAVE_SYS_SELECT_H
 #include <sys/select.h>
 #endif
@@ -167,6 +171,7 @@ static int rtsp_write_close(AVFormatContext *s)
 }
 
 AVOutputFormat rtsp_muxer = {
+#ifndef MSC_STRUCTS
     "rtsp",
     NULL_IF_CONFIG_SMALL("RTSP output format"),
     NULL,
@@ -177,6 +182,26 @@ AVOutputFormat rtsp_muxer = {
     rtsp_write_header,
     rtsp_write_packet,
     rtsp_write_close,
-    .flags = AVFMT_NOFILE | AVFMT_GLOBALHEADER,
+	.flags = AVFMT_NOFILE | AVFMT_GLOBALHEADER,
 };
 
+#else
+	"rtsp",
+	NULL_IF_CONFIG_SMALL("RTSP output format"),
+	NULL,
+	NULL,
+	sizeof(RTSPState),
+	CODEC_ID_PCM_MULAW,
+	CODEC_ID_NONE,
+	rtsp_write_header,
+	rtsp_write_packet,
+	rtsp_write_close,
+	/*flags = */ AVFMT_NOFILE | AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

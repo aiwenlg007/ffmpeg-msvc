@@ -738,6 +738,7 @@ static av_cold int flic_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec flic_decoder = {
+#ifndef MSC_STRUCTS
     "flic",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_FLIC,
@@ -752,4 +753,23 @@ AVCodec flic_decoder = {
     NULL,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Autodesk Animator Flic video"),
+#else
+    /* name = */ "flic",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_FLIC,
+    /* priv_data_size = */ sizeof(FlicDecodeContext),
+    /* init = */ flic_decode_init,
+    /* encode = */ NULL,
+    /* close = */ flic_decode_end,
+    /* decode = */ flic_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Autodesk Animator Flic video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

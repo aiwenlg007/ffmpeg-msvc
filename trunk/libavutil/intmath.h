@@ -27,10 +27,13 @@
 
 extern const uint32_t ff_inverse[257];
 
+#ifndef _MSC_VER
 #if   ARCH_ARM
 #   include "arm/intmath.h"
 #elif ARCH_X86
 #   include "x86/intmath.h"
+#endif
+#else
 #endif
 
 #if HAVE_FAST_CLZ && AV_GCC_VERSION_AT_LEAST(3,4)
@@ -73,11 +76,19 @@ extern const uint32_t ff_inverse[257];
 #   define av_log2_16bit av_log2_16bit_c
 #endif
 
+#ifndef _MSC_VER
 extern const uint8_t ff_sqrt_tab[256];
+#else
+extern uint8_t *get_ff_sqrt_tab();
+#endif
+
 
 static inline av_const unsigned int ff_sqrt(unsigned int a)
 {
     unsigned int b;
+#ifdef _MSC_VER
+	uint8_t *ff_sqrt_tab = get_ff_sqrt_tab();
+#endif
 
     if (a < 255) return (ff_sqrt_tab[a + 1] - 1) >> 4;
     else if (a < (1 << 12)) b = ff_sqrt_tab[a >> 4] >> 2;

@@ -248,6 +248,7 @@ static int vqf_read_seek(AVFormatContext *s,
 }
 
 AVInputFormat vqf_demuxer = {
+#ifndef MSC_STRUCTS
     "vqf",
     NULL_IF_CONFIG_SMALL("Nippon Telegraph and Telephone Corporation (NTT) TwinVQ"),
     sizeof(VqfContext),
@@ -258,3 +259,24 @@ AVInputFormat vqf_demuxer = {
     vqf_read_seek,
     .extensions = "vqf",
 };
+#else
+	"vqf",
+	NULL_IF_CONFIG_SMALL("Nippon Telegraph and Telephone Corporation (NTT) TwinVQ"),
+	sizeof(VqfContext),
+	vqf_probe,
+	vqf_read_header,
+	vqf_read_packet,
+	NULL,
+	vqf_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "vqf",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_MPEG2_VAAPI_HWACCEL
+
 #include "vaapi_internal.h"
 #include "dsputil.h"
 
@@ -149,3 +151,5 @@ AVHWAccel mpeg2_vaapi_hwaccel = {
     .decode_slice   = vaapi_mpeg2_decode_slice,
     .priv_data_size = 0,
 };
+
+#endif

@@ -1438,6 +1438,7 @@ static av_cold int ac3_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec ac3_decoder = {
+#ifndef MSC_STRUCTS
     .name = "ac3",
     .type = AVMEDIA_TYPE_AUDIO,
     .id = CODEC_ID_AC3,
@@ -1447,9 +1448,30 @@ AVCodec ac3_decoder = {
     .decode = ac3_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("ATSC A/52A (AC-3)"),
 };
+#else
+	/* name = */ "ac3",
+	/* type = */ AVMEDIA_TYPE_AUDIO,
+	/* id = */ CODEC_ID_AC3,
+	/* priv_data_size = */ sizeof (AC3DecodeContext),
+	/* init = */ ac3_decode_init,
+	/* encode = */ 0,
+	/* close = */ ac3_decode_end,
+	/* decode = */ ac3_decode_frame,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("ATSC A/52A (AC-3)"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ 0,
+	/* channel_layouts = */ 0
+};
+#endif
 
 #if CONFIG_EAC3_DECODER
 AVCodec eac3_decoder = {
+#ifndef MSC_STRUCTS
     .name = "eac3",
     .type = AVMEDIA_TYPE_AUDIO,
     .id = CODEC_ID_EAC3,
@@ -1459,4 +1481,25 @@ AVCodec eac3_decoder = {
     .decode = ac3_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("ATSC A/52B (AC-3, E-AC-3)"),
 };
+#else
+	/* name = */ "eac3",
+	/* type = */ AVMEDIA_TYPE_AUDIO,
+	/* id = */ CODEC_ID_EAC3,
+	/* priv_data_size = */ sizeof (AC3DecodeContext),
+	/* init = */ ac3_decode_init,
+	/* encode = */ 0,
+	/* close = */ ac3_decode_end,
+	/* decode = */ ac3_decode_frame,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("ATSC A/52B (AC-3, E-AC-3)"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ 0,
+	/* channel_layouts = */ 0
+};
+#endif
+
 #endif

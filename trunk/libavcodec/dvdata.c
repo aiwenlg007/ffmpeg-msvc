@@ -42,6 +42,7 @@ static uint32_t dv_idct_factor_sd    [2*2*22*64];
 static uint32_t dv_idct_factor_hd1080[2*4*16*64];
 static uint32_t dv_idct_factor_hd720 [2*4*16*64];
 
+#ifndef MSC_STRUCTS
 static const DVprofile dv_profiles[] = {
     { .dsf = 0,
       .video_stype = 0x0,
@@ -244,6 +245,212 @@ static const DVprofile dv_profiles[] = {
       .audio_shuffle = dv_audio_shuffle625,
     }
 };
+#else
+	//MSVC
+
+static const DVprofile dv_profiles[] = {
+    { 0,
+      0x0,
+      120000,        /* IEC 61834, SMPTE-314M - 525/60 (NTSC) */
+      10,
+      1,
+      { 1001, 30000 },
+      30,
+      480,
+      720,
+      {{10, 11}, {40, 33}},
+      &work_chunks_dv25ntsc[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV411P,
+      6,
+      block_sizes_dv2550,
+      90,
+      { 1580, 1452, 1053 }, /* for 48, 44.1 and 32kHz */
+      { 1600, 1602, 1602, 1602, 1602 }, /* per SMPTE-314M */
+      dv_audio_shuffle525,
+    },
+    { 1,
+      0x0,
+      144000,        /* IEC 61834 - 625/50 (PAL) */
+      12,
+      1,
+      { 1, 25 },
+      25,
+      576,
+      720,
+      {{59, 54}, {118, 81}},
+      &work_chunks_dv25pal[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV420P,
+      6,
+      block_sizes_dv2550,
+      108,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    },
+    { 1,
+      0x0,
+      144000,        /* SMPTE-314M - 625/50 (PAL) */
+      12,
+      1,
+      { 1, 25 },
+      25,
+      576,
+      720,
+      {{59, 54}, {118, 81}},
+      &work_chunks_dv25pal411[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV411P,
+      6,
+      block_sizes_dv2550,
+      108,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    },
+    { 0,
+      0x4,
+      240000,        /* SMPTE-314M - 525/60 (NTSC) 50 Mbps */
+      10,           /* also known as "DVCPRO50" */
+      2,
+      { 1001, 30000 },
+      30,
+      480,
+      720,
+      {{10, 11}, {40, 33}},
+      &work_chunks_dv50ntsc[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV422P,
+      6,
+      block_sizes_dv2550,
+      90,
+      { 1580, 1452, 1053 }, /* for 48, 44.1 and 32kHz */
+      { 1600, 1602, 1602, 1602, 1602 }, /* per SMPTE-314M */
+      dv_audio_shuffle525,
+    },
+    { 1,
+      0x4,
+      288000,        /* SMPTE-314M - 625/50 (PAL) 50 Mbps */
+      12,           /* also known as "DVCPRO50" */
+      2,
+      { 1, 25 },
+      25,
+      576,
+      720,
+      {{59, 54}, {118, 81}},
+      &work_chunks_dv50pal[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV422P,
+      6,
+      block_sizes_dv2550,
+      108,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    },
+    { 0,
+      0x14,
+      480000,        /* SMPTE-370M - 1080i60 100 Mbps */
+      10,           /* also known as "DVCPRO HD" */
+      4,
+      { 1001, 30000 },
+      30,
+      1080,
+      1280,
+      {{1, 1}, {3, 2}},
+      &work_chunks_dv100ntsci[0],
+      &dv_idct_factor_hd1080[0],
+      PIX_FMT_YUV422P,
+      8,
+      block_sizes_dv100,
+      90,
+      { 1580, 1452, 1053 }, /* for 48, 44.1 and 32kHz */
+      { 1600, 1602, 1602, 1602, 1602 }, /* per SMPTE-314M */
+      dv_audio_shuffle525,
+    },
+    { 1,
+      0x14,
+      576000,        /* SMPTE-370M - 1080i50 100 Mbps */
+      12,           /* also known as "DVCPRO HD" */
+      4,
+      { 1, 25 },
+      25,
+      1080,
+      1440,
+      {{1, 1}, {4, 3}},
+      &work_chunks_dv100pali[0],
+      &dv_idct_factor_hd1080[0],
+      PIX_FMT_YUV422P,
+      8,
+      block_sizes_dv100,
+      108,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    },
+    { 0,
+      0x18,
+      240000,        /* SMPTE-370M - 720p60 100 Mbps */
+      10,           /* also known as "DVCPRO HD" */
+      2,
+      { 1001, 60000 },
+      60,
+      720,
+      960,
+      {{1, 1}, {4, 3}},
+      &work_chunks_dv100ntscp[0],
+      &dv_idct_factor_hd720[0],
+      PIX_FMT_YUV422P,
+      8,
+      block_sizes_dv100,
+      90,
+      { 1580, 1452, 1053 }, /* for 48, 44.1 and 32kHz */
+      { 1600, 1602, 1602, 1602, 1602 }, /* per SMPTE-314M */
+      dv_audio_shuffle525,
+    },
+    { 1,
+      0x18,
+      288000,        /* SMPTE-370M - 720p50 100 Mbps */
+      12,           /* also known as "DVCPRO HD" */
+      2,
+      { 1, 50 },
+      50,
+      720,
+      960,
+      {{1, 1}, {4, 3}},
+      &work_chunks_dv100palp[0],
+      &dv_idct_factor_hd720[0],
+      PIX_FMT_YUV422P,
+      8,
+      block_sizes_dv100,
+      90,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    },
+    { 1,
+      0x1,
+      144000,        /* IEC 61883-5 - 625/50 (PAL) */
+      12,
+      1,
+      { 1, 25 },
+      25,
+      576,
+      720,
+      {{59, 54}, {118, 81}},
+      &work_chunks_dv25pal[0],
+      &dv_idct_factor_sd[0],
+      PIX_FMT_YUV420P,
+      6,
+      block_sizes_dv2550,
+      108,
+      { 1896, 1742, 1264 }, /* for 48, 44.1 and 32kHz */
+      { 1920, 1920, 1920, 1920, 1920 },
+      dv_audio_shuffle625,
+    }
+};
+#endif
 
 const DVprofile* ff_dv_frame_profile(const DVprofile *sys,
                                   const uint8_t* frame, unsigned buf_size)

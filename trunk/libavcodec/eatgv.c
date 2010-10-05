@@ -52,7 +52,11 @@ typedef struct TgvContext {
 static av_cold int tgv_decode_init(AVCodecContext *avctx){
     TgvContext *s = avctx->priv_data;
     s->avctx = avctx;
-    avctx->time_base = (AVRational){1, 15};
+#ifndef _MSC_VER
+	avctx->time_base = (AVRational){1, 15};
+#else
+	avctx->time_base = av_create_rational(1, 15);
+#endif
     avctx->pix_fmt = PIX_FMT_PAL8;
     return 0;
 }
@@ -334,6 +338,7 @@ static av_cold int tgv_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec eatgv_decoder = {
+#ifndef MSC_STRUCTS
     "eatgv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TGV,
@@ -343,4 +348,23 @@ AVCodec eatgv_decoder = {
     tgv_decode_end,
     tgv_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Electronic Arts TGV video"),
+#else
+    /* name = */ "eatgv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TGV,
+    /* priv_data_size = */ sizeof(TgvContext),
+    /* init = */ tgv_decode_init,
+    /* encode = */ NULL,
+    /* close = */ tgv_decode_end,
+    /* decode = */ tgv_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Electronic Arts TGV video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

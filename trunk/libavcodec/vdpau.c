@@ -21,6 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_VDPAU
+
 #include <limits.h>
 #include "avcodec.h"
 #include "h264.h"
@@ -370,3 +372,4 @@ void ff_vdpau_mpeg4_decode_picture(MpegEncContext *s, const uint8_t *buf,
 }
 
 /* @}*/
+#endif

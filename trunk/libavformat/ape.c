@@ -392,13 +392,35 @@ static int ape_read_seek(AVFormatContext *s, int stream_index, int64_t timestamp
 }
 
 AVInputFormat ape_demuxer = {
-    "ape",
-    NULL_IF_CONFIG_SMALL("Monkey's Audio"),
-    sizeof(APEContext),
-    ape_probe,
-    ape_read_header,
-    ape_read_packet,
-    ape_read_close,
-    ape_read_seek,
-    .extensions = "ape,apl,mac"
+#ifndef MSC_STRUCTS
+	    "ape",
+	    NULL_IF_CONFIG_SMALL("Monkey's Audio"),
+	    sizeof(APEContext),
+	    ape_probe,
+	    ape_read_header,
+	    ape_read_packet,
+	    ape_read_close,
+	    ape_read_seek,
+	    .extensions = "ape,apl,mac"
+	};
+#else
+	/*name = */ "ape",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("Monkey's Audio"),
+	/*priv_data_size = */ sizeof(APEContext),
+	/*read_probe = */ ape_probe,
+	/*read_header = */ ape_read_header,
+	/*read_packet = */ ape_read_packet,
+	/*read_close = */ ape_read_close,
+	/*read_seek = */ ape_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "ape,apl,mac",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
 };
+#endif

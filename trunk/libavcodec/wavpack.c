@@ -1019,6 +1019,7 @@ static int wavpack_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec wavpack_decoder = {
+#ifndef MSC_STRUCTS
     "wavpack",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_WAVPACK,
@@ -1029,4 +1030,23 @@ AVCodec wavpack_decoder = {
     wavpack_decode_frame,
     .capabilities = CODEC_CAP_SUBFRAMES,
     .long_name = NULL_IF_CONFIG_SMALL("WavPack"),
+#else
+    /* name = */ "wavpack",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_WAVPACK,
+    /* priv_data_size = */ sizeof(WavpackContext),
+    /* init = */ wavpack_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ wavpack_decode_frame,
+    /* capabilities = */ CODEC_CAP_SUBFRAMES,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("WavPack"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

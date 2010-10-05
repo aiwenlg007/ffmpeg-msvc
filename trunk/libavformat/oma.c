@@ -94,10 +94,17 @@ static int oma_read_header(AVFormatContext *s,
         EA3_pos = 0;
     }
 
+#ifndef _MSC_VER
     if (memcmp(buf, ((const uint8_t[]){'E', 'A', '3'}),3) || buf[4] != 0 || buf[5] != EA3_HEADER_SIZE) {
         av_log(s, AV_LOG_ERROR, "Couldn't find the EA3 header !\n");
         return -1;
     }
+#else
+    if (memcmp(buf, "EA3", 3) || buf[4] != 0 || buf[5] != EA3_HEADER_SIZE) {
+        av_log(s, AV_LOG_ERROR, "Couldn't find the EA3 header !\n");
+        return -1;
+    }
+#endif
 
     eid = AV_RB16(&buf[6]);
     if (eid != -1 && eid != -128) {
@@ -182,7 +189,11 @@ static int oma_read_packet(AVFormatContext *s, AVPacket *pkt)
 
 static int oma_read_probe(AVProbeData *p)
 {
+#ifndef _MSC_VER
     if (!memcmp(p->buf, ((const uint8_t[]){'e', 'a', '3', 3, 0}), 5) ||
+#else
+    if (!memcmp(p->buf, "ea3\3\0", 5) ||
+#endif
         (!memcmp(p->buf, "EA3", 3) &&
          !p->buf[4] && p->buf[5] == EA3_HEADER_SIZE))
         return AVPROBE_SCORE_MAX;
@@ -190,8 +201,10 @@ static int oma_read_probe(AVProbeData *p)
         return 0;
 }
 
+AVCodecTag * oma_demuxer_codec_tags[] = {codec_oma_tags, 0};
 
 AVInputFormat oma_demuxer = {
+#ifndef _MSC_VER
     "oma",
     NULL_IF_CONFIG_SMALL("Sony OpenMG audio"),
     0,
@@ -204,4 +217,24 @@ AVInputFormat oma_demuxer = {
     .extensions = "oma,aa3",
     .codec_tag= (const AVCodecTag* const []){codec_oma_tags, 0},
 };
-
+#else
+    "oma",
+    NULL_IF_CONFIG_SMALL("Sony OpenMG audio"),
+    0,
+    oma_read_probe,
+    oma_read_header,
+    oma_read_packet,
+    0,
+    pcm_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "oma,aa3",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ oma_demuxer_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

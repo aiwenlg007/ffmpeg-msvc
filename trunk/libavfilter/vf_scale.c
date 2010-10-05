@@ -104,6 +104,10 @@ static int config_props(AVFilterLink *outlink)
     ScaleContext *scale = ctx->priv;
     int64_t w, h;
 
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     if (!(w = scale->w))
         w = inlink->w;
     if (!(h = scale->h))
@@ -139,6 +143,10 @@ static void start_frame(AVFilterLink *link, AVFilterPicRef *picref)
     ScaleContext *scale = link->dst->priv;
     AVFilterLink *outlink = link->dst->outputs[0];
     AVFilterPicRef *outpicref;
+
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
 
     scale->hsub = av_pix_fmt_descriptors[link->format].log2_chroma_w;
     scale->vsub = av_pix_fmt_descriptors[link->format].log2_chroma_h;
@@ -185,7 +193,42 @@ static void draw_slice(AVFilterLink *link, int y, int h, int slice_dir)
         scale->slice_y += out_h;
 }
 
+AVFilterPad avfilter_vf_scale_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ AV_PERM_READ,
+		/*rej_perms*/ 0,
+		/*start_frame*/ start_frame,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ draw_slice,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_scale_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ config_props
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_scale = {
+#ifndef MSC_STRUCTS
     .name      = "scale",
     .description = "Scale the input video to width:height size and/or convert the image format.",
 
@@ -207,3 +250,14 @@ AVFilter avfilter_vf_scale = {
                                     .config_props     = config_props, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "scale",
+	/*priv_size*/ sizeof(ScaleContext),
+	/*init*/ init,
+	/*uninit*/ uninit,
+	/*query_formats*/ query_formats,
+	/*inputs*/ avfilter_vf_scale_inputs,
+	/*outputs*/ avfilter_vf_scale_outputs,
+	/*description*/ "Scale the input video to width:height size and/or convert the image format.",
+};
+#endif

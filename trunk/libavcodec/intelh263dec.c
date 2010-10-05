@@ -116,6 +116,7 @@ int ff_intel_h263_decode_picture_header(MpegEncContext *s)
 }
 
 AVCodec h263i_decoder = {
+#ifndef MSC_STRUCTS
     "h263i",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H263I,
@@ -127,5 +128,24 @@ AVCodec h263i_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Intel H.263"),
     .pix_fmts= ff_pixfmt_list_420,
+#else
+    /* name = */ "h263i",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H263I,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ ff_h263_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h263_decode_end,
+    /* decode = */ ff_h263_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Intel H.263"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

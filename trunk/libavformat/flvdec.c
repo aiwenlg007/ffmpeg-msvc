@@ -483,6 +483,7 @@ static int flv_read_seek2(AVFormatContext *s, int stream_index,
 #endif
 
 AVInputFormat flv_demuxer = {
+#ifndef MSC_STRUCTS
     "flv",
     NULL_IF_CONFIG_SMALL("FLV format"),
     sizeof(FLVContext),
@@ -496,3 +497,24 @@ AVInputFormat flv_demuxer = {
     .extensions = "flv",
     .value = CODEC_ID_FLV1,
 };
+#else
+	"flv",
+	NULL_IF_CONFIG_SMALL("FLV format"),
+	sizeof(FLVContext),
+	flv_probe,
+	flv_read_header,
+	flv_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ flv_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "flv",
+	/*value = */ CODEC_ID_FLV1,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

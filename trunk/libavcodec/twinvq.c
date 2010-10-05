@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_TWINVQ_DECODER
+
 #include "avcodec.h"
 #include "get_bits.h"
 #include "dsputil.h"
@@ -1113,8 +1115,8 @@ static av_cold int twin_decode_close(AVCodecContext *avctx)
     return 0;
 }
 
-AVCodec twinvq_decoder =
-{
+AVCodec twinvq_decoder = {
+#ifndef MSC_STRUCTS
     "twinvq",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_TWINVQ,
@@ -1124,4 +1126,25 @@ AVCodec twinvq_decoder =
     twin_decode_close,
     twin_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("VQF TwinVQ"),
+#else
+    /* name = */ "twinvq",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_TWINVQ,
+    /* priv_data_size = */ sizeof(TwinContext),
+    /* init = */ twin_decode_init,
+    /* encode = */ NULL,
+    /* close = */ twin_decode_close,
+    /* decode = */ twin_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("VQF TwinVQ"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

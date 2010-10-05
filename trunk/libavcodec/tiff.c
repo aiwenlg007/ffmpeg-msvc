@@ -148,6 +148,9 @@ static int tiff_unpack_strip(TiffContext *s, uint8_t* dst, int stride, const uin
         if(!s->fill_order){
             memcpy(src2, src, size);
         }else{
+#ifdef _MSC_VER
+			uint8_t *av_reverse = get_av_reverse();
+#endif
             for(i = 0; i < size; i++)
                 src2[i] = av_reverse[src[i]];
         }
@@ -591,6 +594,7 @@ static av_cold int tiff_end(AVCodecContext *avctx)
 }
 
 AVCodec tiff_decoder = {
+#ifndef MSC_STRUCTS
     "tiff",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TIFF,
@@ -602,4 +606,23 @@ AVCodec tiff_decoder = {
     CODEC_CAP_DR1,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("TIFF image"),
+#else
+    /* name = */ "tiff",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TIFF,
+    /* priv_data_size = */ sizeof(TiffContext),
+    /* init = */ tiff_init,
+    /* encode = */ NULL,
+    /* close = */ tiff_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("TIFF image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -80,8 +80,17 @@ static int skeleton_header(AVFormatContext *s, int idx)
     return 1;
 }
 
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_skeleton_codec = {
     .magic = "fishead",
     .magicsize = 8,
     .header = skeleton_header,
 };
+#else
+const struct ogg_codec ff_skeleton_codec = {
+    "fishead",
+    8,
+	0,
+    skeleton_header,
+};
+#endif

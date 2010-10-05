@@ -140,7 +140,10 @@ static int voc_read_packet(AVFormatContext *s, AVPacket *pkt)
     return voc_get_packet(s, pkt, s->streams[0], 0);
 }
 
+AVCodecTag *voc_demuxer_codec_tags[] = {ff_voc_codec_tags, 0};
+
 AVInputFormat voc_demuxer = {
+#ifndef MSC_STRUCTS
     "voc",
     NULL_IF_CONFIG_SMALL("Creative Voice file format"),
     sizeof(VocDecContext),
@@ -149,3 +152,24 @@ AVInputFormat voc_demuxer = {
     voc_read_packet,
     .codec_tag=(const AVCodecTag* const []){ff_voc_codec_tags, 0},
 };
+#else
+	"voc",
+	NULL_IF_CONFIG_SMALL("Creative Voice file format"),
+	sizeof(VocDecContext),
+	voc_probe,
+	voc_read_header,
+	voc_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ voc_demuxer_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

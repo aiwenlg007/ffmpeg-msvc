@@ -71,7 +71,9 @@ static const unsigned char *seq_decode_op1(SeqVideoContext *seq, const unsigned 
     int b, i, len, bits;
     GetBitContext gb;
     unsigned char block[8 * 8];
-
+#ifdef _MSC_VER
+	uint8_t *ff_log2_tab  = get_ff_log2_tab();
+#endif
     len = *src++;
     if (len & 0x80) {
         switch (len & 3) {
@@ -220,6 +222,7 @@ static av_cold int seqvideo_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec tiertexseqvideo_decoder = {
+#ifndef MSC_STRUCTS
     "tiertexseqvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_TIERTEXSEQVIDEO,
@@ -230,4 +233,23 @@ AVCodec tiertexseqvideo_decoder = {
     seqvideo_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Tiertex Limited SEQ video"),
+#else
+    /* name = */ "tiertexseqvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_TIERTEXSEQVIDEO,
+    /* priv_data_size = */ sizeof(SeqVideoContext),
+    /* init = */ seqvideo_decode_init,
+    /* encode = */ NULL,
+    /* close = */ seqvideo_decode_end,
+    /* decode = */ seqvideo_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Tiertex Limited SEQ video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

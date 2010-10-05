@@ -20,9 +20,12 @@
  */
 #ifndef AVCODEC_X86_MMX_H
 #define AVCODEC_X86_MMX_H
-
+ 
+#ifndef _MSC_VER
 #warning Everything in this header is deprecated, use plain __asm__()! New code using this header will be rejected.
-
+#else
+#pragma message(__FILE__ "("__LINE__") : Warning Msg:Everything in this header is deprecated, use plain __asm__()! New code using this header will be rejected.")
+#endif
 
 #define         mmx_i2r(op,imm,reg) \
         __asm__ volatile (#op " %0, %%" #reg \

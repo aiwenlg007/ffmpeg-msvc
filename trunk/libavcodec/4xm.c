@@ -841,6 +841,7 @@ static av_cold int decode_end(AVCodecContext *avctx){
 }
 
 AVCodec fourxm_decoder = {
+#ifndef MSC_STRUCTS
     "4xm",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_4XM,
@@ -851,5 +852,23 @@ AVCodec fourxm_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("4X Movie"),
+#else
+    /* name = */ "4xm",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_4XM,
+    /* priv_data_size = */ sizeof(FourXContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("4X Movie"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
-

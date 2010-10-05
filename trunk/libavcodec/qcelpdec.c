@@ -842,8 +842,8 @@ erasure:
     return *data_size;
 }
 
-AVCodec qcelp_decoder =
-{
+AVCodec qcelp_decoder = {
+#ifndef MSC_STRUCTS
     .name   = "qcelp",
     .type   = AVMEDIA_TYPE_AUDIO,
     .id     = CODEC_ID_QCELP,
@@ -851,4 +851,23 @@ AVCodec qcelp_decoder =
     .decode = qcelp_decode_frame,
     .priv_data_size = sizeof(QCELPContext),
     .long_name = NULL_IF_CONFIG_SMALL("QCELP / PureVoice"),
+#else
+    /* name = */ "qcelp",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_QCELP,
+    /* priv_data_size = */ sizeof(QCELPContext),
+    /* init = */ qcelp_decode_init,
+    /* encode = */ 0,
+    /* close = */ 0,
+    /* decode = */ qcelp_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("QCELP / PureVoice"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

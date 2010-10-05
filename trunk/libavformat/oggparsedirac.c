@@ -42,7 +42,11 @@ static int dirac_header(AVFormatContext *s, int idx)
     st->codec->codec_type = AVMEDIA_TYPE_VIDEO;
     st->codec->codec_id = CODEC_ID_DIRAC;
     // dirac in ogg always stores timestamps as though the video were interlaced
+#ifndef _MSC_VER
     st->time_base = (AVRational){st->codec->time_base.num, 2*st->codec->time_base.den};
+#else
+	st->time_base = av_create_rational(st->codec->time_base.num, 2*st->codec->time_base.den);
+#endif
     return 1;
 }
 
@@ -98,6 +102,7 @@ static uint64_t old_dirac_gptopts(AVFormatContext *s, int idx, uint64_t gp,
     return iframe + pframe;
 }
 
+#ifndef MSC_STRUCTS
 const struct ogg_codec ff_dirac_codec = {
     .magic = "BBCD\0",
     .magicsize = 5,
@@ -113,3 +118,22 @@ const struct ogg_codec ff_old_dirac_codec = {
     .gptopts = old_dirac_gptopts,
     .granule_is_start = 1,
 };
+#else
+const struct ogg_codec ff_dirac_codec = {
+    "BBCD\0",
+    5,
+    dirac_header,
+	NULL,
+    dirac_gptopts,
+    1,
+};
+
+const struct ogg_codec ff_old_dirac_codec = {
+    "KW-DIRAC",
+    8,
+    old_dirac_header,
+	NULL,
+    old_dirac_gptopts,
+    1,
+};
+#endif

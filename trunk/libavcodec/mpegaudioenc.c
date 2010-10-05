@@ -788,7 +788,11 @@ static av_cold int MPA_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const int mp2_encoder_sample_rates[] = {44100, 48000,  32000, 22050, 24000, 16000, 0};
+const enum SampleFormat mp2_encoder_sample_formats[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec mp2_encoder = {
+#ifndef MSC_STRUCTS
     "mp2",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_MP2,
@@ -800,6 +804,25 @@ AVCodec mp2_encoder = {
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .supported_samplerates= (const int[]){44100, 48000,  32000, 22050, 24000, 16000, 0},
     .long_name = NULL_IF_CONFIG_SMALL("MP2 (MPEG audio layer 2)"),
+#else
+    /* name = */ "mp2",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_MP2,
+    /* priv_data_size = */ sizeof(MpegAudioContext),
+    /* init = */ MPA_encode_init,
+    /* encode = */ MPA_encode_frame,
+    /* close = */ MPA_encode_close,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MP2 (MPEG audio layer 2)"),
+    /* supported_samplerates = */ mp2_encoder_sample_rates,
+    /* sample_fmts = */ mp2_encoder_sample_formats,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #undef FIX

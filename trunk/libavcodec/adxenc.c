@@ -183,15 +183,44 @@ static int adx_encode_frame(AVCodecContext *avctx,
     return dst-frame;
 }
 
+const enum SampleFormat adpcm_adx_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec adpcm_adx_encoder = {
-    "adpcm_adx",
-    AVMEDIA_TYPE_AUDIO,
-    CODEC_ID_ADPCM_ADX,
-    sizeof(ADXContext),
-    adx_encode_init,
-    adx_encode_frame,
-    adx_encode_close,
-    NULL,
-    .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
-    .long_name = NULL_IF_CONFIG_SMALL("SEGA CRI ADX ADPCM"),
+#ifndef MSC_STRUCTS
+	"adpcm_adx",
+	AVMEDIA_TYPE_AUDIO,
+	CODEC_ID_ADPCM_ADX,
+	sizeof(ADXContext),
+	adx_encode_init,
+	adx_encode_frame,
+	adx_encode_close,
+	/* decode = */ 0,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("SEGA CRI ADX ADPCM"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ adpcm_adx_encoder_samples,
+	/* channel_layouts = */ 0
+#else
+    /* name = */ "adpcm_adx",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ADPCM_ADX,
+    /* priv_data_size = */ sizeof(ADXContext),
+    /* init = */ adx_encode_init,
+    /* encode = */ adx_encode_frame,
+    /* close = */ adx_encode_close,
+    /* decode = */ /* decode = */ 0,
+    /* capabilities = */ /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ 0,
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ adpcm_adx_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };

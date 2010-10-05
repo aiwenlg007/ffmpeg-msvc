@@ -42,7 +42,11 @@
 #include "avformat.h"
 #include "mpegts.h"
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
+
 #include "network.h"
 #include <assert.h>
 
@@ -409,6 +413,7 @@ static int parse_h264_sdp_line(AVFormatContext *s, int st_index,
 /**
 This is the structure for expanding on the dynamic rtp protocols (makes everything static. yay!)
 */
+#ifndef MSC_STRUCTS
 RTPDynamicProtocolHandler ff_h264_dynamic_handler = {
     .enc_name         = "H264",
     .codec_type       = AVMEDIA_TYPE_VIDEO,
@@ -418,3 +423,15 @@ RTPDynamicProtocolHandler ff_h264_dynamic_handler = {
     .close            = h264_free_context,
     .parse_packet     = h264_handle_packet
 };
+#else
+	//MSVC
+RTPDynamicProtocolHandler ff_h264_dynamic_handler = {
+    "H264",
+    AVMEDIA_TYPE_VIDEO,
+    CODEC_ID_H264,
+    parse_h264_sdp_line,
+    h264_new_context,
+    h264_free_context,
+    h264_handle_packet
+};
+#endif

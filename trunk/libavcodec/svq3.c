@@ -1068,8 +1068,10 @@ static int svq3_decode_frame(AVCodecContext *avctx,
     return buf_size;
 }
 
+const enum PixelFormat svq3_decoder_formats[] = {PIX_FMT_YUVJ420P, PIX_FMT_NONE};
 
 AVCodec svq3_decoder = {
+#ifndef MSC_STRUCTS
     "svq3",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SVQ3,
@@ -1081,4 +1083,23 @@ AVCodec svq3_decoder = {
     CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1 | CODEC_CAP_DELAY,
     .long_name = NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 3 / Sorenson Video 3 / SVQ3"),
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUVJ420P, PIX_FMT_NONE},
+#else
+    /* name = */ "svq3",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SVQ3,
+    /* priv_data_size = */ sizeof(H264Context),
+    /* init = */ svq3_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h264_decode_end,
+    /* decode = */ svq3_decode_frame,
+    /* capabilities = */ CODEC_CAP_DRAW_HORIZ_BAND | CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ svq3_decoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 3 / Sorenson Video 3 / SVQ3"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

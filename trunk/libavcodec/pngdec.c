@@ -657,6 +657,7 @@ static av_cold int png_dec_end(AVCodecContext *avctx)
 }
 
 AVCodec png_decoder = {
+#ifndef MSC_STRUCTS
     "png",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PNG,
@@ -668,4 +669,23 @@ AVCodec png_decoder = {
     CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("PNG image"),
+#else
+    /* name = */ "png",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PNG,
+    /* priv_data_size = */ sizeof(PNGDecContext),
+    /* init = */ png_dec_init,
+    /* encode = */ NULL,
+    /* close = */ png_dec_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 /*| CODEC_CAP_DRAW_HORIZ_BAND*/,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PNG image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

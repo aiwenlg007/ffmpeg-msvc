@@ -27,6 +27,8 @@
 * (http://dirac.sourceforge.net/specification.html).
 */
 
+#if CONFIG_LIBSCHROEDINGER
+
 #include "avcodec.h"
 #include "libdirac_libschro.h"
 #include "libschroedinger.h"
@@ -346,6 +348,7 @@ static void libschroedinger_flush(AVCodecContext *avccontext)
 }
 
 AVCodec libschroedinger_decoder = {
+#ifndef MSC_STRUCTS
     "libschroedinger",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DIRAC,
@@ -357,4 +360,25 @@ AVCodec libschroedinger_decoder = {
     CODEC_CAP_DELAY,
     .flush = libschroedinger_flush,
     .long_name = NULL_IF_CONFIG_SMALL("libschroedinger Dirac 2.2"),
+#else
+    /* name = */ "libschroedinger",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DIRAC,
+    /* priv_data_size = */ sizeof(FfmpegSchroDecoderParams),
+    /* init = */ libschroedinger_decode_init,
+    /* encode = */ NULL,
+    /* close = */ libschroedinger_decode_close,
+    /* decode = */ libschroedinger_decode_frame,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ libschroedinger_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libschroedinger Dirac 2.2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

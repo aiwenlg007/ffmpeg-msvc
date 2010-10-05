@@ -57,7 +57,10 @@ void rv20_encode_picture_header(MpegEncContext *s, int picture_number){
     }
 }
 
+const enum PixelFormat rv20_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec rv20_encoder = {
+#ifndef MSC_STRUCTS
     "rv20",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RV20,
@@ -67,4 +70,23 @@ AVCodec rv20_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("RealVideo 2.0"),
+#else
+    /* name = */ "rv20",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RV20,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ rv20_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealVideo 2.0"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

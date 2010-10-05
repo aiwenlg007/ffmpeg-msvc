@@ -310,9 +310,18 @@ static av_cold void psy_3gpp_end(FFPsyContext *apc)
 
 const FFPsyModel ff_aac_psy_model =
 {
+#ifndef MSC_STRUCTS
     .name    = "3GPP TS 26.403-inspired model",
     .init    = psy_3gpp_init,
     .window  = psy_3gpp_window,
     .analyze = psy_3gpp_analyze,
     .end     = psy_3gpp_end,
 };
+#else
+    "3GPP TS 26.403-inspired model",
+    psy_3gpp_init,
+    psy_3gpp_window,
+    psy_3gpp_analyze,
+    psy_3gpp_end,
+};
+#endif

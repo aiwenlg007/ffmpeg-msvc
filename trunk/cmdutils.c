@@ -167,8 +167,12 @@ unknown_opt:
             } else if (po->flags & OPT_INT64) {
                 *po->u.int64_arg = parse_number_or_die(opt, arg, OPT_INT64, INT64_MIN, INT64_MAX);
             } else if (po->flags & OPT_FLOAT) {
+#ifndef _MSC_VER
                 *po->u.float_arg = parse_number_or_die(opt, arg, OPT_FLOAT, -1.0/0.0, 1.0/0.0);
-            } else if (po->flags & OPT_FUNC2) {
+#else
+                *po->u.float_arg = parse_number_or_die(opt, arg, OPT_FLOAT, NEG_INFINITY, INFINITY);
+#endif
+            } else if (po->flags & OPT_FUNC2) { 
                 if (po->u.func2_arg(opt, arg) < 0) {
                     fprintf(stderr, "%s: failed to set value '%s' for option '%s'\n", argv[0], arg, opt);
                     exit(1);
@@ -315,10 +319,14 @@ static void print_all_lib_versions(FILE* outstream, int indent)
     PRINT_LIB_VERSION(outstream, avutil,   AVUTIL,   indent);
     PRINT_LIB_VERSION(outstream, avcodec,  AVCODEC,  indent);
     PRINT_LIB_VERSION(outstream, avformat, AVFORMAT, indent);
+#ifndef _MSC_VER
     PRINT_LIB_VERSION(outstream, avdevice, AVDEVICE, indent);
-    PRINT_LIB_VERSION(outstream, avfilter, AVFILTER, indent);
-    PRINT_LIB_VERSION(outstream, swscale,  SWSCALE,  indent);
+	PRINT_LIB_VERSION(outstream, avfilter, AVFILTER, indent);
+#endif
+	PRINT_LIB_VERSION(outstream, swscale,  SWSCALE,  indent);
+#ifndef _MSC_VER
     PRINT_LIB_VERSION(outstream, postproc, POSTPROC, indent);
+#endif
 }
 
 static void maybe_print_config(const char *lib, const char *cfg)
@@ -348,11 +356,15 @@ void show_banner(void)
     fprintf(stderr, "  configuration: " FFMPEG_CONFIGURATION "\n");
     PRINT_LIB_CONFIG(AVUTIL,   "libavutil",   avutil_configuration());
     PRINT_LIB_CONFIG(AVCODEC,  "libavcodec",  avcodec_configuration());
-    PRINT_LIB_CONFIG(AVFORMAT, "libavformat", avformat_configuration());
-    PRINT_LIB_CONFIG(AVDEVICE, "libavdevice", avdevice_configuration());
-    PRINT_LIB_CONFIG(AVFILTER, "libavfilter", avfilter_configuration());
+	PRINT_LIB_CONFIG(AVFORMAT, "libavformat", avformat_configuration());
+#ifndef _MSC_VER
+	PRINT_LIB_CONFIG(AVDEVICE, "libavdevice", avdevice_configuration());
+	PRINT_LIB_CONFIG(AVFILTER, "libavfilter", avfilter_configuration());
+#endif
     PRINT_LIB_CONFIG(SWSCALE,  "libswscale",  swscale_configuration());
+#ifndef _MSC_VER
     PRINT_LIB_CONFIG(POSTPROC, "libpostproc", postproc_configuration());
+#endif
     print_all_lib_versions(stderr, 1);
 }
 
@@ -598,6 +610,7 @@ void show_filters(void)
 void show_pix_fmts(void)
 {
     enum PixelFormat pix_fmt;
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
 
     printf(
         "Pixel formats:\n"
@@ -615,7 +628,7 @@ void show_pix_fmts(void)
 #endif
 
     for (pix_fmt = 0; pix_fmt < PIX_FMT_NB; pix_fmt++) {
-        const AVPixFmtDescriptor *pix_desc = &av_pix_fmt_descriptors[pix_fmt];
+       const AVPixFmtDescriptor *pix_desc = &av_pix_fmt_descriptors[pix_fmt];
         printf("%c%c%c%c%c %-16s       %d            %2d\n",
                sws_isSupportedInput (pix_fmt)      ? 'I' : '.',
                sws_isSupportedOutput(pix_fmt)      ? 'O' : '.',

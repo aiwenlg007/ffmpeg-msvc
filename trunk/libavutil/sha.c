@@ -38,7 +38,14 @@ typedef struct AVSHA {
     void     (*transform)(uint32_t *state, const uint8_t buffer[64]);
 } AVSHA;
 
+#ifndef _MSC_VER
 const int av_sha_size = sizeof(AVSHA);
+#else
+int get_av_sha_size()
+{
+	return sizeof(AVSHA);
+}
+#endif
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
@@ -329,7 +336,14 @@ struct AVSHA1 {
     AVSHA sha;
 };
 
+#ifndef _MSC_VER
 const int av_sha1_size = sizeof(struct AVSHA1);
+#else
+int get_av_sha1_size()
+{
+	return sizeof(struct AVSHA1);
+}
+#endif
 
 void av_sha1_init(struct AVSHA1* context)
 {

@@ -110,6 +110,7 @@ static int vc1t_read_packet(AVFormatContext *s,
 }
 
 AVInputFormat vc1t_demuxer = {
+#ifndef MSC_STRUCTS
     "vc1test",
     NULL_IF_CONFIG_SMALL("VC-1 test bitstream format"),
     0,
@@ -118,3 +119,24 @@ AVInputFormat vc1t_demuxer = {
     vc1t_read_packet,
     .flags = AVFMT_GENERIC_INDEX,
 };
+#else
+	"vc1test",
+	NULL_IF_CONFIG_SMALL("VC-1 test bitstream format"),
+	0,
+	vc1t_probe,
+	vc1t_read_header,
+	vc1t_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

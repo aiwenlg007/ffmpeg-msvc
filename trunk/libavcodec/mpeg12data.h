@@ -48,7 +48,11 @@ extern const uint8_t ff_mpeg12_mbPatTable[64][2];
 
 extern const uint8_t ff_mpeg12_mbMotionVectorTable[17][2];
 
+#ifndef _MSC_VER
 extern const AVRational ff_frame_rate_tab[];
+#else
+extern AVRational *get_ff_frame_rate_tab();
+#endif
 
 extern const float ff_mpeg1_aspect[16];
 extern const AVRational ff_mpeg2_aspect[16];

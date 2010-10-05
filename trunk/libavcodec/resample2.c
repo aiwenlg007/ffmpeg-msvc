@@ -97,7 +97,11 @@ static double bessel(double x){
  */
 static void build_filter(FELEM *filter, double factor, int tap_count, int phase_count, int scale, int type){
     int ph, i;
+#ifndef _MSC_VER
     double x, y, w, tab[tap_count];
+#else
+    double x, y, w, *tab = av_malloc_items(tap_count, double);
+#endif
     const int center= (tap_count-1)/2;
 
     /* if upsampling, only need to interpolate, no filter */
@@ -175,6 +179,10 @@ static void build_filter(FELEM *filter, double factor, int tap_count, int phase_
             }
         }
     }
+#endif
+
+#ifdef _MSC_VER
+	av_free(tab);
 #endif
 }
 

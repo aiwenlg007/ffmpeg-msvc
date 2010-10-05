@@ -284,7 +284,11 @@ static int video_read_header(AVFormatContext *s,
                 st->codec->codec_id == CODEC_ID_DIRAC ||
                 st->codec->codec_id == CODEC_ID_DNXHD ||
                 st->codec->codec_id == CODEC_ID_H264) {
+#ifndef _MSC_VER
         st->codec->time_base= (AVRational){1,25};
+#else
+		st->codec->time_base= av_create_rational(1, 25);
+#endif
     }
     av_set_pts_info(st, 64, 1, 1200000);
 
@@ -716,6 +720,7 @@ static int adts_aac_read_header(AVFormatContext *s,
 
 #if CONFIG_AAC_DEMUXER
 AVInputFormat aac_demuxer = {
+#ifndef MSC_STRUCTS
     "aac",
     NULL_IF_CONFIG_SMALL("raw ADTS AAC"),
     0,
@@ -726,10 +731,32 @@ AVInputFormat aac_demuxer = {
     .extensions = "aac",
     .value = CODEC_ID_AAC,
 };
+#else
+	"aac",
+	NULL_IF_CONFIG_SMALL("raw ADTS AAC"),
+	0,
+	adts_aac_probe,
+	adts_aac_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "ac3",
+	/*value = */ CODEC_ID_AC3,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_AC3_DEMUXER
 AVInputFormat ac3_demuxer = {
+#ifndef MSC_STRUCTS
     "ac3",
     NULL_IF_CONFIG_SMALL("raw AC-3"),
     0,
@@ -740,10 +767,32 @@ AVInputFormat ac3_demuxer = {
     .extensions = "ac3",
     .value = CODEC_ID_AC3,
 };
+#else
+	"ac3",
+	NULL_IF_CONFIG_SMALL("raw AC-3"),
+	0,
+	ac3_probe,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "ac3",
+	/*value = */ CODEC_ID_AC3,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_AC3_MUXER
 AVOutputFormat ac3_muxer = {
+#ifndef MSC_STRUCTS
     "ac3",
     NULL_IF_CONFIG_SMALL("raw AC-3"),
     "audio/x-ac3",
@@ -753,12 +802,33 @@ AVOutputFormat ac3_muxer = {
     CODEC_ID_NONE,
     NULL,
     raw_write_packet,
-    .flags= AVFMT_NOTIMESTAMPS,
+	.flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"ac3",
+	NULL_IF_CONFIG_SMALL("raw AC-3"),
+	"audio/x-ac3",
+	"ac3",
+	0,
+	CODEC_ID_AC3,
+	CODEC_ID_NONE,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DIRAC_DEMUXER
 AVInputFormat dirac_demuxer = {
+#ifndef MSC_STRUCTS
     "dirac",
     NULL_IF_CONFIG_SMALL("raw Dirac"),
     0,
@@ -768,10 +838,32 @@ AVInputFormat dirac_demuxer = {
     .flags= AVFMT_GENERIC_INDEX,
     .value = CODEC_ID_DIRAC,
 };
+#else
+	"dirac",
+	NULL_IF_CONFIG_SMALL("raw Dirac"),
+	0,
+	dirac_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ CODEC_ID_DIRAC,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DIRAC_MUXER
 AVOutputFormat dirac_muxer = {
+#ifndef MSC_STRUCTS
     "dirac",
     NULL_IF_CONFIG_SMALL("raw Dirac"),
     NULL,
@@ -783,10 +875,31 @@ AVOutputFormat dirac_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"dirac",
+	NULL_IF_CONFIG_SMALL("raw Dirac"),
+	NULL,
+	"drc",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_DIRAC,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DNXHD_DEMUXER
 AVInputFormat dnxhd_demuxer = {
+#ifndef MSC_STRUCTS
     "dnxhd",
     NULL_IF_CONFIG_SMALL("raw DNxHD (SMPTE VC-3)"),
     0,
@@ -796,10 +909,32 @@ AVInputFormat dnxhd_demuxer = {
     .flags= AVFMT_GENERIC_INDEX,
     .value = CODEC_ID_DNXHD,
 };
+#else
+	"dnxhd",
+	NULL_IF_CONFIG_SMALL("raw DNxHD (SMPTE VC-3)"),
+	0,
+	dnxhd_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ CODEC_ID_DNXHD,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DNXHD_MUXER
 AVOutputFormat dnxhd_muxer = {
+#ifndef MSC_STRUCTS
     "dnxhd",
     NULL_IF_CONFIG_SMALL("raw DNxHD (SMPTE VC-3)"),
     NULL,
@@ -811,10 +946,31 @@ AVOutputFormat dnxhd_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"dnxhd",
+	NULL_IF_CONFIG_SMALL("raw DNxHD (SMPTE VC-3)"),
+	NULL,
+	"dnxhd",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_DNXHD,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DTS_DEMUXER
 AVInputFormat dts_demuxer = {
+#ifndef MSC_STRUCTS
     "dts",
     NULL_IF_CONFIG_SMALL("raw DTS"),
     0,
@@ -825,10 +981,32 @@ AVInputFormat dts_demuxer = {
     .extensions = "dts",
     .value = CODEC_ID_DTS,
 };
+#else
+	"dts",
+	NULL_IF_CONFIG_SMALL("raw DTS"),
+	0,
+	dts_probe,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "dts",
+	/*value = */ CODEC_ID_DTS,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_DTS_MUXER
 AVOutputFormat dts_muxer = {
+#ifndef MSC_STRUCTS
     "dts",
     NULL_IF_CONFIG_SMALL("raw DTS"),
     "audio/x-dca",
@@ -840,10 +1018,31 @@ AVOutputFormat dts_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"dts",
+	NULL_IF_CONFIG_SMALL("raw DTS"),
+	"audio/x-dca",
+	"dts",
+	0,
+	CODEC_ID_DTS,
+	CODEC_ID_NONE,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_EAC3_DEMUXER
 AVInputFormat eac3_demuxer = {
+#ifndef MSC_STRUCTS
     "eac3",
     NULL_IF_CONFIG_SMALL("raw E-AC-3"),
     0,
@@ -854,9 +1053,31 @@ AVInputFormat eac3_demuxer = {
     .extensions = "eac3",
     .value = CODEC_ID_EAC3,
 };
+#else
+	"eac3",
+	NULL_IF_CONFIG_SMALL("raw E-AC-3"),
+	0,
+	eac3_probe,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "eac3",
+	/*value = */ CODEC_ID_EAC3,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_EAC3_MUXER
+#ifndef MSC_STRUCTS
 AVOutputFormat eac3_muxer = {
     "eac3",
     NULL_IF_CONFIG_SMALL("raw E-AC-3"),
@@ -867,12 +1088,34 @@ AVOutputFormat eac3_muxer = {
     CODEC_ID_NONE,
     NULL,
     raw_write_packet,
-    .flags= AVFMT_NOTIMESTAMPS,
+	.flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+AVOutputFormat eac3_muxer = {
+	"eac3",
+	NULL_IF_CONFIG_SMALL("raw E-AC-3"),
+	"audio/x-eac3",
+	"eac3",
+	0,
+	CODEC_ID_EAC3,
+	CODEC_ID_NONE,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_GSM_DEMUXER
 AVInputFormat gsm_demuxer = {
+#ifndef MSC_STRUCTS
     "gsm",
     NULL_IF_CONFIG_SMALL("raw GSM"),
     0,
@@ -883,10 +1126,32 @@ AVInputFormat gsm_demuxer = {
     .extensions = "gsm",
     .value = CODEC_ID_GSM,
 };
+#else
+	"gsm",
+	NULL_IF_CONFIG_SMALL("raw GSM"),
+	0,
+	NULL,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "gsm",
+	/*value = */ CODEC_ID_GSM,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H261_DEMUXER
 AVInputFormat h261_demuxer = {
+#ifndef MSC_STRUCTS
     "h261",
     NULL_IF_CONFIG_SMALL("raw H.261"),
     0,
@@ -897,10 +1162,32 @@ AVInputFormat h261_demuxer = {
     .extensions = "h261",
     .value = CODEC_ID_H261,
 };
+#else
+	"h261",
+	NULL_IF_CONFIG_SMALL("raw H.261"),
+	0,
+	h261_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "h261",
+	/*value = */ CODEC_ID_H261,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H261_MUXER
 AVOutputFormat h261_muxer = {
+#ifndef MSC_STRUCTS
     "h261",
     NULL_IF_CONFIG_SMALL("raw H.261"),
     "video/x-h261",
@@ -912,10 +1199,31 @@ AVOutputFormat h261_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"h261",
+	NULL_IF_CONFIG_SMALL("raw H.261"),
+	"video/x-h261",
+	"h261",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_H261,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H263_DEMUXER
 AVInputFormat h263_demuxer = {
+#ifndef MSC_STRUCTS
     "h263",
     NULL_IF_CONFIG_SMALL("raw H.263"),
     0,
@@ -926,10 +1234,32 @@ AVInputFormat h263_demuxer = {
 //    .extensions = "h263", //FIXME remove after writing mpeg4_probe
     .value = CODEC_ID_H263,
 };
+#else
+	"h263",
+	NULL_IF_CONFIG_SMALL("raw H.263"),
+	0,
+	h263_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ CODEC_ID_H263,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H263_MUXER
 AVOutputFormat h263_muxer = {
+#ifndef MSC_STRUCTS
     "h263",
     NULL_IF_CONFIG_SMALL("raw H.263"),
     "video/x-h263",
@@ -941,10 +1271,31 @@ AVOutputFormat h263_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"h263",
+	NULL_IF_CONFIG_SMALL("raw H.263"),
+	"video/x-h263",
+	"h263",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_H263,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H264_DEMUXER
 AVInputFormat h264_demuxer = {
+#ifndef MSC_STRUCTS
     "h264",
     NULL_IF_CONFIG_SMALL("raw H.264 video format"),
     0,
@@ -955,10 +1306,32 @@ AVInputFormat h264_demuxer = {
     .extensions = "h26l,h264,264", //FIXME remove after writing mpeg4_probe
     .value = CODEC_ID_H264,
 };
+#else
+	"h264",
+	NULL_IF_CONFIG_SMALL("raw H.264 video format"),
+	0,
+	h264_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "h26l,h264,264",
+	/*value = */ CODEC_ID_H264,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_H264_MUXER
 AVOutputFormat h264_muxer = {
+#ifndef MSC_STRUCTS
     "h264",
     NULL_IF_CONFIG_SMALL("raw H.264 video format"),
     NULL,
@@ -970,10 +1343,31 @@ AVOutputFormat h264_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"h264",
+	NULL_IF_CONFIG_SMALL("raw H.264 video format"),
+	NULL,
+	"h264",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_H264,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_INGENIENT_DEMUXER
 AVInputFormat ingenient_demuxer = {
+#ifndef MSC_STRUCTS
     "ingenient",
     NULL_IF_CONFIG_SMALL("raw Ingenient MJPEG"),
     0,
@@ -984,10 +1378,32 @@ AVInputFormat ingenient_demuxer = {
     .extensions = "cgi", // FIXME
     .value = CODEC_ID_MJPEG,
 };
+#else
+	"ingenient",
+	NULL_IF_CONFIG_SMALL("raw Ingenient MJPEG"),
+	0,
+	NULL,
+	video_read_header,
+	ingenient_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "cgi",
+	/*value = */ CODEC_ID_MJPEG,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_M4V_DEMUXER
 AVInputFormat m4v_demuxer = {
+#ifndef MSC_STRUCTS
     "m4v",
     NULL_IF_CONFIG_SMALL("raw MPEG-4 video format"),
     0,
@@ -998,10 +1414,32 @@ AVInputFormat m4v_demuxer = {
     .extensions = "m4v",
     .value = CODEC_ID_MPEG4,
 };
+#else
+	"m4v",
+	NULL_IF_CONFIG_SMALL("raw MPEG-4 video format"),
+	0,
+	mpeg4video_probe, /** probing for MPEG-4 data */
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "m4v",
+	/*value = */ CODEC_ID_MPEG4,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_M4V_MUXER
 AVOutputFormat m4v_muxer = {
+#ifndef MSC_STRUCTS
     "m4v",
     NULL_IF_CONFIG_SMALL("raw MPEG-4 video format"),
     NULL,
@@ -1013,10 +1451,31 @@ AVOutputFormat m4v_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"m4v",
+	NULL_IF_CONFIG_SMALL("raw MPEG-4 video format"),
+	NULL,
+	"m4v",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_MPEG4,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MJPEG_DEMUXER
 AVInputFormat mjpeg_demuxer = {
+#ifndef MSC_STRUCTS
     "mjpeg",
     NULL_IF_CONFIG_SMALL("raw MJPEG video"),
     0,
@@ -1027,10 +1486,32 @@ AVInputFormat mjpeg_demuxer = {
     .extensions = "mjpg,mjpeg",
     .value = CODEC_ID_MJPEG,
 };
+#else
+	"mjpeg",
+	NULL_IF_CONFIG_SMALL("raw MJPEG video"),
+	0,
+	NULL,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "mjpg,mjpeg",
+	/*value = */ CODEC_ID_MJPEG,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MJPEG_MUXER
 AVOutputFormat mjpeg_muxer = {
+#ifndef MSC_STRUCTS
     "mjpeg",
     NULL_IF_CONFIG_SMALL("raw MJPEG video"),
     "video/x-mjpeg",
@@ -1042,10 +1523,31 @@ AVOutputFormat mjpeg_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"mjpeg",
+	NULL_IF_CONFIG_SMALL("raw MJPEG video"),
+	"video/x-mjpeg",
+	"mjpg,mjpeg",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_MJPEG,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MLP_DEMUXER
 AVInputFormat mlp_demuxer = {
+#ifndef MSC_STRUCTS
     "mlp",
     NULL_IF_CONFIG_SMALL("raw MLP"),
     0,
@@ -1056,10 +1558,32 @@ AVInputFormat mlp_demuxer = {
     .extensions = "mlp",
     .value = CODEC_ID_MLP,
 };
+#else
+	"mlp",
+	NULL_IF_CONFIG_SMALL("raw MLP"),
+	0,
+	NULL,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "mlp",
+	/*value = */ CODEC_ID_MLP,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MLP_MUXER
 AVOutputFormat mlp_muxer = {
+#ifndef MSC_STRUCTS
     "mlp",
     NULL_IF_CONFIG_SMALL("raw MLP"),
     NULL,
@@ -1071,10 +1595,31 @@ AVOutputFormat mlp_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"mlp",
+	NULL_IF_CONFIG_SMALL("raw MLP"),
+	NULL,
+	"mlp",
+	0,
+	CODEC_ID_MLP,
+	CODEC_ID_NONE,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_TRUEHD_DEMUXER
 AVInputFormat truehd_demuxer = {
+#ifndef MSC_STRUCTS
     "truehd",
     NULL_IF_CONFIG_SMALL("raw TrueHD"),
     0,
@@ -1085,10 +1630,32 @@ AVInputFormat truehd_demuxer = {
     .extensions = "thd",
     .value = CODEC_ID_TRUEHD,
 };
+#else
+	"truehd",
+	NULL_IF_CONFIG_SMALL("raw TrueHD"),
+	0,
+	NULL,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */  "thd",
+	/*value = */ CODEC_ID_TRUEHD,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_TRUEHD_MUXER
 AVOutputFormat truehd_muxer = {
+#ifndef MSC_STRUCTS
     "truehd",
     NULL_IF_CONFIG_SMALL("raw TrueHD"),
     NULL,
@@ -1100,10 +1667,31 @@ AVOutputFormat truehd_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"truehd",
+	NULL_IF_CONFIG_SMALL("raw TrueHD"),
+	NULL,
+	"thd",
+	0,
+	CODEC_ID_TRUEHD,
+	CODEC_ID_NONE,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MPEG1VIDEO_MUXER
 AVOutputFormat mpeg1video_muxer = {
+#ifndef MSC_STRUCTS
     "mpeg1video",
     NULL_IF_CONFIG_SMALL("raw MPEG-1 video"),
     "video/x-mpeg",
@@ -1115,10 +1703,31 @@ AVOutputFormat mpeg1video_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"mpeg1video",
+	NULL_IF_CONFIG_SMALL("raw MPEG-1 video"),
+	"video/x-mpeg",
+	"mpg,mpeg,m1v",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_MPEG1VIDEO,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MPEG2VIDEO_MUXER
 AVOutputFormat mpeg2video_muxer = {
+#ifndef MSC_STRUCTS
     "mpeg2video",
     NULL_IF_CONFIG_SMALL("raw MPEG-2 video"),
     NULL,
@@ -1130,10 +1739,31 @@ AVOutputFormat mpeg2video_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"mpeg2video",
+	NULL_IF_CONFIG_SMALL("raw MPEG-2 video"),
+	NULL,
+	"m2v",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_MPEG2VIDEO,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_MPEGVIDEO_DEMUXER
 AVInputFormat mpegvideo_demuxer = {
+#ifndef MSC_STRUCTS
     "mpegvideo",
     NULL_IF_CONFIG_SMALL("raw MPEG video"),
     0,
@@ -1143,10 +1773,32 @@ AVInputFormat mpegvideo_demuxer = {
     .flags= AVFMT_GENERIC_INDEX,
     .value = CODEC_ID_MPEG1VIDEO,
 };
+#else
+	"mpegvideo",
+	NULL_IF_CONFIG_SMALL("raw MPEG video"),
+	0,
+	mpegvideo_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ CODEC_ID_MPEG1VIDEO,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_CAVSVIDEO_DEMUXER
 AVInputFormat cavsvideo_demuxer = {
+#ifndef MSC_STRUCTS
     "cavsvideo",
     NULL_IF_CONFIG_SMALL("raw Chinese AVS video"),
     0,
@@ -1156,10 +1808,32 @@ AVInputFormat cavsvideo_demuxer = {
     .flags= AVFMT_GENERIC_INDEX,
     .value = CODEC_ID_CAVS,
 };
+#else
+	"cavsvideo",
+	NULL_IF_CONFIG_SMALL("raw Chinese AVS video"),
+	0,
+	cavsvideo_probe,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ 0,
+	/*value = */ CODEC_ID_CAVS,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_NULL_MUXER
 AVOutputFormat null_muxer = {
+#ifndef MSC_STRUCTS
     "null",
     NULL_IF_CONFIG_SMALL("raw null video format"),
     NULL,
@@ -1175,10 +1849,35 @@ AVOutputFormat null_muxer = {
     null_write_packet,
     .flags = AVFMT_NOFILE | AVFMT_RAWPICTURE | AVFMT_NOTIMESTAMPS,
 };
+#else
+	"null",
+	NULL_IF_CONFIG_SMALL("raw null video format"),
+	NULL,
+	NULL,
+	0,
+#if HAVE_BIGENDIAN
+	CODEC_ID_PCM_S16BE,
+#else
+	CODEC_ID_PCM_S16LE,
+#endif
+	CODEC_ID_RAWVIDEO,
+	NULL,
+	null_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOFILE | AVFMT_RAWPICTURE | AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_RAWVIDEO_DEMUXER
 AVInputFormat rawvideo_demuxer = {
+#ifndef MSC_STRUCTS
     "rawvideo",
     NULL_IF_CONFIG_SMALL("raw video format"),
     0,
@@ -1189,10 +1888,32 @@ AVInputFormat rawvideo_demuxer = {
     .extensions = "yuv,cif,qcif,rgb",
     .value = CODEC_ID_RAWVIDEO,
 };
+#else
+	"rawvideo",
+	NULL_IF_CONFIG_SMALL("raw video format"),
+	0,
+	NULL,
+	raw_read_header,
+	rawvideo_read_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "yuv,cif,qcif,rgb",
+	/*value = */ CODEC_ID_RAWVIDEO,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_RAWVIDEO_MUXER
 AVOutputFormat rawvideo_muxer = {
+#ifndef MSC_STRUCTS
     "rawvideo",
     NULL_IF_CONFIG_SMALL("raw video format"),
     NULL,
@@ -1204,6 +1925,26 @@ AVOutputFormat rawvideo_muxer = {
     raw_write_packet,
     .flags= AVFMT_NOTIMESTAMPS,
 };
+#else
+	"rawvideo",
+	NULL_IF_CONFIG_SMALL("raw video format"),
+	NULL,
+	"yuv,rgb",
+	0,
+	CODEC_ID_NONE,
+	CODEC_ID_RAWVIDEO,
+	NULL,
+	raw_write_packet,
+	/*write_trailer = */ 0,
+	/*flags = */ AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_ROQ_MUXER
@@ -1223,6 +1964,7 @@ AVOutputFormat roq_muxer =
 
 #if CONFIG_SHORTEN_DEMUXER
 AVInputFormat shorten_demuxer = {
+#ifndef MSC_STRUCTS
     "shn",
     NULL_IF_CONFIG_SMALL("raw Shorten"),
     0,
@@ -1233,10 +1975,32 @@ AVInputFormat shorten_demuxer = {
     .extensions = "shn",
     .value = CODEC_ID_SHORTEN,
 };
+#else
+	"shn",
+	NULL_IF_CONFIG_SMALL("raw Shorten"),
+	0,
+	NULL,
+	audio_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "shn",
+	/*value = */ CODEC_ID_SHORTEN,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 #if CONFIG_VC1_DEMUXER
 AVInputFormat vc1_demuxer = {
+#ifndef MSC_STRUCTS
     "vc1",
     NULL_IF_CONFIG_SMALL("raw VC-1"),
     0,
@@ -1246,10 +2010,32 @@ AVInputFormat vc1_demuxer = {
     .extensions = "vc1",
     .value = CODEC_ID_VC1,
 };
+#else
+	"vc1",
+	NULL_IF_CONFIG_SMALL("raw VC-1"),
+	0,
+	NULL /* vc1_probe */,
+	video_read_header,
+	ff_raw_read_partial_packet,
+	/*read_close = */ 0,
+	/*read_seek = */ 0,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ "vc1",
+	/*value = */ CODEC_ID_VC1,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 
 /* PCM formats */
 
+#ifndef MSC_STRUCTS
 #define PCMINPUTDEF(name, long_name, ext, codec) \
 AVInputFormat pcm_ ## name ## _demuxer = {\
     #name,\
@@ -1264,7 +2050,25 @@ AVInputFormat pcm_ ## name ## _demuxer = {\
     .extensions = ext,\
     .value = codec,\
 };
+#else
+#define PCMINPUTDEF(name, long_name, ext, codec) \
+	AVInputFormat pcm_ ## name ## _demuxer = {\
+	#name,\
+	NULL_IF_CONFIG_SMALL(long_name),\
+	0,\
+	NULL,\
+	raw_read_header,\
+	raw_read_packet,\
+	NULL,\
+	pcm_read_seek,\
+	/*read_timestamp = */ 0,\
+	/*flags = */ AVFMT_GENERIC_INDEX,\
+	/*extensions = */ ext,\
+	/*value = */ codec,\
+};
+#endif
 
+#ifndef MSC_STRUCTS
 #define PCMOUTPUTDEF(name, long_name, ext, codec) \
 AVOutputFormat pcm_ ## name ## _muxer = {\
     #name,\
@@ -1278,7 +2082,21 @@ AVOutputFormat pcm_ ## name ## _muxer = {\
     raw_write_packet,\
     .flags= AVFMT_NOTIMESTAMPS,\
 };
-
+#else
+#define PCMOUTPUTDEF(name, long_name, ext, codec) \
+	AVOutputFormat pcm_ ## name ## _muxer = {\
+#name,\
+	NULL_IF_CONFIG_SMALL(long_name),\
+	NULL,\
+	ext,\
+	0,\
+	codec,\
+	CODEC_ID_NONE,\
+	NULL,\
+	raw_write_packet,\
+	/*flags = */ AVFMT_NOTIMESTAMPS,\
+};
+#endif
 
 #if  !CONFIG_MUXERS && CONFIG_DEMUXERS
 #define PCMDEF(name, long_name, ext, codec) \

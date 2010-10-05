@@ -1632,8 +1632,10 @@ static void field_end(H264Context *h){
     s->current_picture_ptr->qscale_type= FF_QSCALE_TYPE_H264;
     s->current_picture_ptr->pict_type= s->pict_type;
 
+#ifndef _MSC_VER
     if (CONFIG_H264_VDPAU_DECODER && s->avctx->codec->capabilities&CODEC_CAP_HWACCEL_VDPAU)
         ff_vdpau_h264_set_reference_frames(s);
+#endif
 
     if(!s->dropable) {
         ff_h264_execute_ref_pic_marking(h, h->mmco, h->mmco_index);
@@ -1648,9 +1650,10 @@ static void field_end(H264Context *h){
             av_log(avctx, AV_LOG_ERROR, "hardware accelerator failed to decode picture\n");
     }
 
+#ifndef _MSC_VER
     if (CONFIG_H264_VDPAU_DECODER && s->avctx->codec->capabilities&CODEC_CAP_HWACCEL_VDPAU)
         ff_vdpau_h264_picture_complete(s);
-
+#endif
     /*
      * FIXME: Error handling code does not seem to support interlaced
      * when slices span multiple rows
@@ -2823,8 +2826,11 @@ static int decode_nal_units(H264Context *h, const uint8_t *buf, int buf_size){
             if (h->current_slice == 1) {
                 if (s->avctx->hwaccel && s->avctx->hwaccel->start_frame(s->avctx, NULL, 0) < 0)
                     return -1;
+
+#ifndef _MSC_VER
                 if(CONFIG_H264_VDPAU_DECODER && s->avctx->codec->capabilities&CODEC_CAP_HWACCEL_VDPAU)
                     ff_vdpau_h264_picture_start(s);
+#endif
             }
 
             s->current_picture_ptr->key_frame |=
@@ -2839,11 +2845,14 @@ static int decode_nal_units(H264Context *h, const uint8_t *buf, int buf_size){
                     if (avctx->hwaccel->decode_slice(avctx, &buf[buf_index - consumed], consumed) < 0)
                         return -1;
                 }else
+
+#ifndef _MSC_VER
                 if(CONFIG_H264_VDPAU_DECODER && s->avctx->codec->capabilities&CODEC_CAP_HWACCEL_VDPAU){
                     static const uint8_t start_code[] = {0x00, 0x00, 0x01};
                     ff_vdpau_add_data_chunk(s, start_code, sizeof(start_code));
                     ff_vdpau_add_data_chunk(s, &buf[buf_index - consumed], consumed );
                 }else
+#endif
                     context_count++;
             }
             break;
@@ -3360,6 +3369,7 @@ av_cold int ff_h264_decode_end(AVCodecContext *avctx)
 
 
 AVCodec h264_decoder = {
+#ifndef MSC_STRUCTS
     "h264",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H264,
@@ -3372,10 +3382,30 @@ AVCodec h264_decoder = {
     .flush= flush_dpb,
     .long_name = NULL_IF_CONFIG_SMALL("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"),
     .pix_fmts= ff_hwaccel_pixfmt_list_420,
+#else
+    /* name = */ "h264",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H264,
+    /* priv_data_size = */ sizeof(H264Context),
+    /* init = */ ff_h264_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h264_decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ /*CODEC_CAP_DRAW_HORIZ_BAND |*/ CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ flush_dpb,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ ff_hwaccel_pixfmt_list_420,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 #if CONFIG_H264_VDPAU_DECODER
 AVCodec h264_vdpau_decoder = {
+#ifndef MSC_STRUCTS
     "h264_vdpau",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H264,
@@ -3388,5 +3418,24 @@ AVCodec h264_vdpau_decoder = {
     .flush= flush_dpb,
     .long_name = NULL_IF_CONFIG_SMALL("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (VDPAU acceleration)"),
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_VDPAU_H264, PIX_FMT_NONE},
+#else
+    /* name = */ "h264_vdpau",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H264,
+    /* priv_data_size = */ sizeof(H264Context),
+    /* init = */ ff_h264_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_h264_decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY | CODEC_CAP_HWACCEL_VDPAU,
+    /* next = */ 0,
+    /* flush = */ flush_dpb,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ (const enum PixelFormat[]){PIX_FMT_VDPAU_H264, PIX_FMT_NONE},
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (VDPAU acceleration)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

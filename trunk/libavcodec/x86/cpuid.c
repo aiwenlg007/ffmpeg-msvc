@@ -24,6 +24,10 @@
 #include "libavutil/x86_cpu.h"
 #include "libavcodec/dsputil.h"
 
+//JRS: needed?
+#ifndef _MSC_VER
+#undef mm_support
+#endif
 #undef printf
 
 /* ebx saving is necessary for PIC. gcc seems unable to see it alone */

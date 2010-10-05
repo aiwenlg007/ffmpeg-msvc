@@ -21,6 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_H263_VAAPI_HWACCEL || CONFIG_H264_VAAPI_HWACCEL || CONFIG_MPEG2_VAAPI_HWACCEL || CONFIG_MPEG4_VAAPI_HWACCEL || CONFIG_VC1_VAAPI_HWACCEL || CONFIG_WMV3_VAAPI_HWACCEL
+
 #include "vaapi_internal.h"
 
 /**
@@ -206,3 +208,5 @@ done:
 }
 
 /* @} */
+
+#endif

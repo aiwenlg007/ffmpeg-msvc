@@ -366,7 +366,10 @@ static int read_seek(AVFormatContext *s, int stream_index,
     return 0;
 }
 
+const AVCodecTag *caf_codec_tags [] = {ff_codec_caf_tags, 0};
+
 AVInputFormat caf_demuxer = {
+#ifndef MSC_STRUCTS
     "caf",
     NULL_IF_CONFIG_SMALL("Apple Core Audio Format"),
     sizeof(CaffContext),
@@ -377,3 +380,24 @@ AVInputFormat caf_demuxer = {
     read_seek,
     .codec_tag = (const AVCodecTag*[]){ff_codec_caf_tags, 0},
 };
+#else
+	"caf",
+	NULL_IF_CONFIG_SMALL("Apple Core Audio Format"),
+	sizeof(CaffContext),
+	probe,
+	read_header,
+	read_packet,
+	NULL,
+	read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ caf_codec_tags,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

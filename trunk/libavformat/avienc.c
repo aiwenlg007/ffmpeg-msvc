@@ -18,6 +18,7 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
 #include "avformat.h"
 #include "avi.h"
 #include "riff.h"
@@ -326,8 +327,13 @@ static int avi_write_header(AVFormatContext *s)
            && s->streams[i]->sample_aspect_ratio.num>0
            && s->streams[i]->sample_aspect_ratio.den>0){
             int vprp= ff_start_tag(pb, "vprp");
+#ifndef _MSC_VER
             AVRational dar = av_mul_q(s->streams[i]->sample_aspect_ratio,
                                       (AVRational){stream->width, stream->height});
+#else
+            AVRational dar = av_mul_q(s->streams[i]->sample_aspect_ratio, 
+				                      av_create_rational(stream->width, stream->height));
+#endif
             int num, den;
             av_reduce(&num, &den, dar.num, dar.den, 0xFFFF);
 
@@ -631,7 +637,10 @@ static int avi_write_trailer(AVFormatContext *s)
     return res;
 }
 
+AVCodecTag *avi_codec_tags[] = {ff_codec_bmp_tags, ff_codec_wav_tags, 0};
+
 AVOutputFormat avi_muxer = {
+#ifndef MSC_STRUCTS
     "avi",
     NULL_IF_CONFIG_SMALL("AVI format"),
     "video/x-msvideo",
@@ -646,3 +655,23 @@ AVOutputFormat avi_muxer = {
     .flags= AVFMT_VARIABLE_FPS,
     .metadata_conv = ff_avi_metadata_conv,
 };
+#else
+	"avi",
+	NULL_IF_CONFIG_SMALL("AVI format"),
+	"video/x-msvideo",
+	"avi",
+	sizeof(AVIContext),
+	CODEC_ID_MP2,
+	CODEC_ID_MPEG4,
+	avi_write_header,
+	avi_write_packet,
+	avi_write_trailer,
+	/*flags = */ AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ avi_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ ff_avi_metadata_conv,
+	/*next = */ 0
+};
+#endif

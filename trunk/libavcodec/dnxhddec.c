@@ -345,6 +345,7 @@ static av_cold int dnxhd_decode_close(AVCodecContext *avctx)
 }
 
 AVCodec dnxhd_decoder = {
+#ifndef MSC_STRUCTS
     "dnxhd",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DNXHD,
@@ -355,4 +356,23 @@ AVCodec dnxhd_decoder = {
     dnxhd_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+#else
+    /* name = */ "dnxhd",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DNXHD,
+    /* priv_data_size = */ sizeof(DNXHDContext),
+    /* init = */ dnxhd_decode_init,
+    /* encode = */ NULL,
+    /* close = */ dnxhd_decode_close,
+    /* decode = */ dnxhd_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("VC3/DNxHD"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

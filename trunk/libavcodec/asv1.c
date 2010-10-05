@@ -140,10 +140,16 @@ static av_cold void init_vlcs(ASV1Context *a){
 
 //FIXME write a reversed bitstream reader to avoid the double reverse
 static inline int asv2_get_bits(GetBitContext *gb, int n){
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     return av_reverse[ get_bits(gb, n) << (8-n) ];
 }
 
 static inline void asv2_put_bits(PutBitContext *pb, int n, int v){
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     put_bits(pb, n, av_reverse[ v << (8-n) ]);
 }
 
@@ -396,6 +402,9 @@ static int decode_frame(AVCodecContext *avctx,
     AVFrame *picture = data;
     AVFrame * const p= &a->picture;
     int mb_x, mb_y;
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
 
     if(p->data[0])
         avctx->release_buffer(avctx, p);
@@ -477,7 +486,9 @@ static int encode_frame(AVCodecContext *avctx, unsigned char *buf, int buf_size,
     AVFrame * const p= &a->picture;
     int size;
     int mb_x, mb_y;
-
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
     init_put_bits(&a->pb, buf, buf_size);
 
     *p = *pict;
@@ -614,6 +625,7 @@ static av_cold int decode_end(AVCodecContext *avctx){
 }
 
 AVCodec asv1_decoder = {
+#ifndef MSC_STRUCTS
     "asv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ASV1,
@@ -624,9 +636,29 @@ AVCodec asv1_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("ASUS V1"),
+#else
+    /* name = */ "asv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ASV1,
+    /* priv_data_size = */ sizeof(ASV1Context),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ASUS V1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec asv2_decoder = {
+#ifndef MSC_STRUCTS
     "asv2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ASV2,
@@ -637,10 +669,32 @@ AVCodec asv2_decoder = {
     decode_frame,
     CODEC_CAP_DR1,
     .long_name= NULL_IF_CONFIG_SMALL("ASUS V2"),
+#else
+    /* name = */ "asv2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ASV2,
+    /* priv_data_size = */ sizeof(ASV1Context),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ASUS V2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+const enum PixelFormat asv1_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
 
 #if CONFIG_ASV1_ENCODER
 AVCodec asv1_encoder = {
+#ifndef MSC_STRUCTS
     "asv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ASV1,
@@ -650,11 +704,33 @@ AVCodec asv1_encoder = {
     //encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("ASUS V1"),
+#else
+    /* name = */ "asv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ASV1,
+    /* priv_data_size = */ sizeof(ASV1Context),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ //encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ asv1_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ASUS V1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif
 
+const enum PixelFormat asv2_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 #if CONFIG_ASV2_ENCODER
 AVCodec asv2_encoder = {
+#ifndef MSC_STRUCTS
     "asv2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ASV2,
@@ -664,5 +740,24 @@ AVCodec asv2_encoder = {
     //encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("ASUS V2"),
+#else
+    /* name = */ "asv2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ASV2,
+    /* priv_data_size = */ sizeof(ASV1Context),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ //encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ asv2_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("ASUS V2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 #endif

@@ -1253,7 +1253,7 @@ int MPV_encode_picture(AVCodecContext *avctx,
     if(s->new_picture.data[0]){
         s->pict_type= s->new_picture.pict_type;
 //emms_c();
-//printf("qs:%f %f %d\n", s->new_picture.quality, s->current_picture.quality, s->qscale);
+		//printf("qs:%f %f %d\n", s->new_picture.quality, s->current_picture.quality, s->qscale);
         MPV_frame_start(s, avctx);
 vbv_retry:
         if (encode_picture(s, s->picture_number) < 0)
@@ -1277,7 +1277,9 @@ vbv_retry:
             RateControlContext *rcc= &s->rc_context;
             int max_size= rcc->buffer_index * avctx->rc_max_available_vbv_use;
 
-            if(put_bits_count(&s->pb) > max_size && s->lambda < s->avctx->lmax){
+			int putb = put_bits_count(&s->pb);
+
+            if(putb > max_size && s->lambda < s->avctx->lmax){
                 s->next_lambda= FFMAX(s->lambda+1, s->lambda*(s->qscale+1) / s->qscale);
                 if(s->adaptive_quant){
                     int i;
@@ -3769,7 +3771,10 @@ int dct_quantize_c(MpegEncContext *s,
     return last_non_zero;
 }
 
+const enum PixelFormat h263_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec h263_encoder = {
+#ifndef MSC_STRUCTS
     "h263",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H263,
@@ -3779,9 +3784,29 @@ AVCodec h263_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("H.263 / H.263-1996"),
+#else
+    /* name = */ "h263",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H263,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.263 / H.263-1996"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec h263p_encoder = {
+#ifndef MSC_STRUCTS
     "h263p",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_H263P,
@@ -3791,9 +3816,29 @@ AVCodec h263p_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("H.263+ / H.263-1998 / H.263 version 2"),
+#else
+    /* name = */ "h263p",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_H263P,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("H.263+ / H.263-1998 / H.263 version 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec msmpeg4v1_encoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4v1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V1,
@@ -3803,9 +3848,29 @@ AVCodec msmpeg4v1_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 1"),
+#else
+    /* name = */ "msmpeg4v1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec msmpeg4v2_encoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4v2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V2,
@@ -3815,9 +3880,29 @@ AVCodec msmpeg4v2_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 2"),
+#else
+    /* name = */ "msmpeg4v2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V2,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec msmpeg4v3_encoder = {
+#ifndef MSC_STRUCTS
     "msmpeg4",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MSMPEG4V3,
@@ -3827,9 +3912,29 @@ AVCodec msmpeg4v3_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 3"),
+#else
+    /* name = */ "msmpeg4",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MSMPEG4V3,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("MPEG-4 part 2 Microsoft variant version 3"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec wmv1_encoder = {
+#ifndef MSC_STRUCTS
     "wmv1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_WMV1,
@@ -3839,4 +3944,23 @@ AVCodec wmv1_encoder = {
     MPV_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("Windows Media Video 7"),
+#else
+    /* name = */ "wmv1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_WMV1,
+    /* priv_data_size = */ sizeof(MpegEncContext),
+    /* init = */ MPV_encode_init,
+    /* encode = */ MPV_encode_picture,
+    /* close = */ MPV_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ h263_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Windows Media Video 7"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

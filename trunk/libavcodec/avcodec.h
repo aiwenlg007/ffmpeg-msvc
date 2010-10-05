@@ -26,6 +26,13 @@
  * external API header
  */
 
+
+#ifdef _MSC_VER
+#include "libavutil/internal.h"
+#define MSC_STRUCTS
+#define MAX_AUDIO_CHANNELS 8
+#endif
+
 #include <errno.h>
 #include "libavutil/avutil.h"
 
@@ -45,7 +52,12 @@
 
 #define AV_NOPTS_VALUE          INT64_C(0x8000000000000000)
 #define AV_TIME_BASE            1000000
+
+#ifndef _MSC_VER
 #define AV_TIME_BASE_Q          (AVRational){1, AV_TIME_BASE}
+#else
+#define AV_TIME_BASE_Q          av_create_rational(1, AV_TIME_BASE)
+#endif
 
 /**
  * Identifies the syntax and semantics of the bitstream.

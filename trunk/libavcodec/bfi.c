@@ -172,6 +172,7 @@ static av_cold int bfi_decode_close(AVCodecContext * avctx)
 }
 
 AVCodec bfi_decoder = {
+#ifndef MSC_STRUCTS
     .name = "bfi",
     .type = AVMEDIA_TYPE_VIDEO,
     .id = CODEC_ID_BFI,
@@ -182,3 +183,23 @@ AVCodec bfi_decoder = {
     .capabilities = CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Brute Force & Ignorance"),
 };
+#else
+	/* name = */ "bfi",
+	/* type = */ AVMEDIA_TYPE_VIDEO,
+	/* id = */ CODEC_ID_BFI,
+	/* priv_data_size = */ sizeof(BFIContext),
+	/* init = */ bfi_decode_init,
+	/* encode = */ 0,
+	/* close = */ bfi_decode_close,
+	/* decode = */ bfi_decode_frame,
+	/* capabilities = */ CODEC_CAP_DR1,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("Brute Force & Ignorance"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ 0,
+	/* channel_layouts = */ 0
+};
+#endif

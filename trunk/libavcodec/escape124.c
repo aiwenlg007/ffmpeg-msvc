@@ -163,7 +163,14 @@ static MacroBlock decode_macroblock(Escape124Context* s, GetBitContext* gb,
     // This condition can occur with invalid bitstreams and
     // *codebook_index == 2
     if (block_index >= s->codebooks[*codebook_index].size)
+#ifndef _MSC_VER
         return (MacroBlock) { { 0 } };
+#else
+		{
+			MacroBlock empty = {0};
+			return empty;
+		}
+#endif
 
     return s->codebooks[*codebook_index].blocks[block_index];
 }
@@ -373,6 +380,7 @@ static int escape124_decode_frame(AVCodecContext *avctx,
 
 
 AVCodec escape124_decoder = {
+#ifndef MSC_STRUCTS
     "escape124",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ESCAPE124,
@@ -383,5 +391,24 @@ AVCodec escape124_decoder = {
     escape124_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Escape 124"),
+#else
+    /* name = */ "escape124",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ESCAPE124,
+    /* priv_data_size = */ sizeof(Escape124Context),
+    /* init = */ escape124_decode_init,
+    /* encode = */ NULL,
+    /* close = */ escape124_decode_close,
+    /* decode = */ escape124_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Escape 124"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

@@ -287,6 +287,7 @@ static int decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec binkaudio_rdft_decoder = {
+#ifndef MSC_STRUCTS
     "binkaudio_rdft",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_BINKAUDIO_RDFT,
@@ -296,9 +297,29 @@ AVCodec binkaudio_rdft_decoder = {
     decode_end,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Bink Audio (RDFT)")
+#else
+    /* name = */ "binkaudio_rdft",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_BINKAUDIO_RDFT,
+    /* priv_data_size = */ sizeof(BinkAudioContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Bink Audio (RDFT)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec binkaudio_dct_decoder = {
+#ifndef MSC_STRUCTS
     "binkaudio_dct",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_BINKAUDIO_DCT,
@@ -308,4 +329,23 @@ AVCodec binkaudio_dct_decoder = {
     decode_end,
     decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Bink Audio (DCT)")
+#else
+    /* name = */ "binkaudio_dct",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_BINKAUDIO_DCT,
+    /* priv_data_size = */ sizeof(BinkAudioContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Bink Audio (DCT)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

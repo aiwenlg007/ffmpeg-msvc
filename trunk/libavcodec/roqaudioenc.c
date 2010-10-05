@@ -153,7 +153,10 @@ static av_cold int roq_dpcm_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat roq_dpcm_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec roq_dpcm_encoder = {
+#ifndef MSC_STRUCTS
     "roq_dpcm",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_ROQ_DPCM,
@@ -164,4 +167,23 @@ AVCodec roq_dpcm_encoder = {
     NULL,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("id RoQ DPCM"),
+#else
+    /* name = */ "roq_dpcm",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_ROQ_DPCM,
+    /* priv_data_size = */ sizeof(ROQDPCMContext),
+    /* init = */ roq_dpcm_encode_init,
+    /* encode = */ roq_dpcm_encode_frame,
+    /* close = */ roq_dpcm_encode_close,
+    /* decode = */ NULL,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("id RoQ DPCM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ roq_dpcm_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };

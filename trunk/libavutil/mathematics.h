@@ -26,6 +26,28 @@
 #include "attributes.h"
 #include "rational.h"
 
+#ifdef _MSC_VER
+#include <float.h>
+#endif
+
+#ifdef _MSC_VER
+static inline double gen_nan()
+{
+	double temp = 0.0;
+	return temp / temp;
+}
+static inline double gen_inf()
+{
+	double temp = 0.0;
+	return 1.0 / temp;
+}
+static inline double gen_neg_inf()
+{
+	double temp = 0.0;
+	return -1.0 / temp;
+}
+#endif
+
 #ifndef M_E
 #define M_E            2.7182818284590452354   /* e */
 #endif
@@ -48,10 +70,19 @@
 #define M_SQRT2        1.41421356237309504880  /* sqrt(2) */
 #endif
 #ifndef NAN
+#ifndef _MSC_VER
 #define NAN            (0.0/0.0)
+#else
+#define NAN            gen_nan()
+#endif
 #endif
 #ifndef INFINITY
+#ifndef _MSC_VER
 #define INFINITY       (1.0/0.0)
+#else
+#define INFINITY       gen_inf()
+#define NEG_INFINITY   gen_neg_inf()
+#endif
 #endif
 
 enum AVRounding {

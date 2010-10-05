@@ -151,6 +151,7 @@ static av_cold int avs_decode_init(AVCodecContext * avctx)
 }
 
 AVCodec avs_decoder = {
+#ifndef MSC_STRUCTS
     "avs",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_AVS,
@@ -161,4 +162,23 @@ AVCodec avs_decoder = {
     avs_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("AVS (Audio Video Standard) video"),
+#else
+    /* name = */ "avs",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_AVS,
+    /* priv_data_size = */ sizeof(AvsContext),
+    /* init = */ avs_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ avs_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("AVS (Audio Video Standard) video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

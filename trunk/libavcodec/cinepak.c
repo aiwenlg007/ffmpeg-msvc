@@ -456,6 +456,7 @@ static av_cold int cinepak_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec cinepak_decoder = {
+#ifndef MSC_STRUCTS
     "cinepak",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_CINEPAK,
@@ -466,4 +467,23 @@ AVCodec cinepak_decoder = {
     cinepak_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("Cinepak"),
+#else
+    /* name = */ "cinepak",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_CINEPAK,
+    /* priv_data_size = */ sizeof(CinepakContext),
+    /* init = */ cinepak_decode_init,
+    /* encode = */ NULL,
+    /* close = */ cinepak_decode_end,
+    /* decode = */ cinepak_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Cinepak"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

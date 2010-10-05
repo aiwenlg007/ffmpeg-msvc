@@ -179,6 +179,7 @@ static av_cold int encode_end(AVCodecContext *avctx)
 }
 
 AVCodec zlib_encoder = {
+#ifndef MSC_STRUCTS
     "zlib",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ZLIB,
@@ -187,4 +188,23 @@ AVCodec zlib_encoder = {
     encode_frame,
     encode_end,
     .long_name = NULL_IF_CONFIG_SMALL("LCL (LossLess Codec Library) ZLIB"),
+#else
+    /* name = */ "zlib",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ZLIB,
+    /* priv_data_size = */ sizeof(LclEncContext),
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("LCL (LossLess Codec Library) ZLIB"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

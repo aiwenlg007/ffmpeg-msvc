@@ -1550,7 +1550,11 @@ static int mov_write_chpl_tag(ByteIOContext *pb, AVFormatContext *s)
     for (i = 0; i < nb_chapters; i++) {
         AVChapter *c = s->chapters[i];
         AVMetadataTag *t;
+#ifndef _MSC_VER
         put_be64(pb, av_rescale_q(c->start, c->time_base, (AVRational){1,10000000}));
+#else
+        put_be64(pb, av_rescale_q(c->start, c->time_base, av_create_rational(1,10000000)));
+#endif
 
         if ((t = av_metadata_get(c->metadata, "title", NULL, 0))) {
             int len = FFMIN(strlen(t->value), 255);
@@ -1964,7 +1968,11 @@ static void mov_create_chapter_track(AVFormatContext *s, int tracknum)
 {
     MOVMuxContext *mov = s->priv_data;
     MOVTrack *track = &mov->tracks[tracknum];
+#ifndef _MSC_VER
     AVPacket pkt = { .stream_index = tracknum, .flags = AV_PKT_FLAG_KEY };
+#else
+    AVPacket pkt = { 0, 0, 0, 0, tracknum, AV_PKT_FLAG_KEY };
+#endif
     int i, len;
 
     track->mode = mov->mode;
@@ -1977,8 +1985,15 @@ static void mov_create_chapter_track(AVFormatContext *s, int tracknum)
         AVChapter *c = s->chapters[i];
         AVMetadataTag *t;
 
+#ifndef _MSC_VER
         int64_t end = av_rescale_q(c->end, c->time_base, (AVRational){1,MOV_TIMESCALE});
         pkt.pts = pkt.dts = av_rescale_q(c->start, c->time_base, (AVRational){1,MOV_TIMESCALE});
+#else
+	//MSVC
+		AVRational r = { 1,MOV_TIMESCALE };
+        int64_t end = av_rescale_q(c->end, c->time_base, r);
+        pkt.pts = pkt.dts = av_rescale_q(c->start, c->time_base, r);
+#endif
         pkt.duration = end - pkt.dts;
 
         if ((t = av_metadata_get(c->metadata, "title", NULL, 0))) {
@@ -2181,7 +2196,11 @@ static int mov_write_trailer(AVFormatContext *s)
 }
 
 #if CONFIG_MOV_MUXER
+
+AVCodecTag* mov_muxer_codec_tags[] = {codec_movvideo_tags, codec_movaudio_tags, 0};
+
 AVOutputFormat mov_muxer = {
+#ifndef MSC_STRUCTS
     "mov",
     NULL_IF_CONFIG_SMALL("MOV format"),
     NULL,
@@ -2195,9 +2214,32 @@ AVOutputFormat mov_muxer = {
     .flags = AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
     .codec_tag = (const AVCodecTag* const []){codec_movvideo_tags, codec_movaudio_tags, 0},
 };
+#else
+	"mov",
+	NULL_IF_CONFIG_SMALL("MOV format"),
+	NULL,
+	"mov",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AAC,
+	CODEC_ID_MPEG4,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ mov_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_TGP_MUXER
+AVCodecTag* tgp_muxer_codec_tags[] = {codec_3gp_tags, 0};
+
 AVOutputFormat tgp_muxer = {
+#ifndef MSC_STRUCTS
     "3gp",
     NULL_IF_CONFIG_SMALL("3GP format"),
     NULL,
@@ -2211,9 +2253,32 @@ AVOutputFormat tgp_muxer = {
     .flags = AVFMT_GLOBALHEADER,
     .codec_tag = (const AVCodecTag* const []){codec_3gp_tags, 0},
 };
+#else
+	"3gp",
+	NULL_IF_CONFIG_SMALL("3GP format"),
+	NULL,
+	"3gp",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AMR_NB,
+	CODEC_ID_H263,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ tgp_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_MP4_MUXER
+AVCodecTag* mp4_muxer_codec_tags[] = {ff_mp4_obj_type, 0};
+
 AVOutputFormat mp4_muxer = {
+#ifndef MSC_STRUCTS
     "mp4",
     NULL_IF_CONFIG_SMALL("MP4 format"),
     "application/mp4",
@@ -2227,9 +2292,33 @@ AVOutputFormat mp4_muxer = {
     .flags = AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
     .codec_tag = (const AVCodecTag* const []){ff_mp4_obj_type, 0},
 };
+#else
+	"mp4",
+	NULL_IF_CONFIG_SMALL("MP4 format"),
+	"application/mp4",
+	"mp4",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AAC,
+	CODEC_ID_MPEG4,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_VARIABLE_FPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ mp4_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_PSP_MUXER
+
+AVCodecTag* psp_muxer_codec_tags[] = {ff_mp4_obj_type, 0};
+
 AVOutputFormat psp_muxer = {
+#ifndef MSC_STRUCTS
     "psp",
     NULL_IF_CONFIG_SMALL("PSP MP4 format"),
     NULL,
@@ -2243,9 +2332,33 @@ AVOutputFormat psp_muxer = {
     .flags = AVFMT_GLOBALHEADER,
     .codec_tag = (const AVCodecTag* const []){ff_mp4_obj_type, 0},
 };
+#else
+	"psp",
+	NULL_IF_CONFIG_SMALL("PSP MP4 format"),
+	NULL,
+	"mp4,psp",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AAC,
+	CODEC_ID_MPEG4,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ psp_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_TG2_MUXER
+
+AVCodecTag* tg2_muxer_codec_tags[] = {codec_3gp_tags, 0};
+
 AVOutputFormat tg2_muxer = {
+#ifndef MSC_STRUCTS
     "3g2",
     NULL_IF_CONFIG_SMALL("3GP2 format"),
     NULL,
@@ -2259,9 +2372,33 @@ AVOutputFormat tg2_muxer = {
     .flags = AVFMT_GLOBALHEADER,
     .codec_tag = (const AVCodecTag* const []){codec_3gp_tags, 0},
 };
+#else
+	"3g2",
+	NULL_IF_CONFIG_SMALL("3GP2 format"),
+	NULL,
+	"3g2",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AMR_NB,
+	CODEC_ID_H263,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ tg2_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif
 #endif
 #if CONFIG_IPOD_MUXER
+
+AVCodecTag* ipod_muxer_codec_tags[] = {codec_ipod_tags, 0};
+
 AVOutputFormat ipod_muxer = {
+#ifndef MSC_STRUCTS
     "ipod",
     NULL_IF_CONFIG_SMALL("iPod H.264 MP4 format"),
     "application/mp4",
@@ -2274,5 +2411,24 @@ AVOutputFormat ipod_muxer = {
     mov_write_trailer,
     .flags = AVFMT_GLOBALHEADER,
     .codec_tag = (const AVCodecTag* const []){codec_ipod_tags, 0},
+#else
+	"ipod",
+	NULL_IF_CONFIG_SMALL("iPod H.264 MP4 format"),
+	"application/mp4",
+	"m4v,m4a",
+	sizeof(MOVMuxContext),
+	CODEC_ID_AAC,
+	CODEC_ID_H264,
+	mov_write_header,
+	ff_mov_write_packet,
+	mov_write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ ipod_muxer_codec_tags,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
 };
+#endif
 #endif

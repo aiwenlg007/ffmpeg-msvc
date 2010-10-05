@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_MPEG_XVMC_DECODER
+
 #include <limits.h>
 #include <X11/extensions/XvMC.h>
 
@@ -330,3 +332,5 @@ void ff_xvmc_decode_mb(MpegEncContext *s)
     if (render->filled_mv_blocks_num == render->allocated_mv_blocks)
         ff_draw_horiz_band(s, 0, 0);
 }
+
+#endif

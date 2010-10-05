@@ -18,6 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_LIBSPEEX
+
 #include "avcodec.h"
 #include <speex/speex.h>
 #include <speex/speex_header.h>
@@ -139,6 +141,7 @@ static av_cold int libspeex_decode_close(AVCodecContext *avctx)
 }
 
 AVCodec libspeex_decoder = {
+#ifndef MSC_STRUCTS
     "libspeex",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SPEEX,
@@ -148,4 +151,25 @@ AVCodec libspeex_decoder = {
     libspeex_decode_close,
     libspeex_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("libspeex Speex"),
+#else
+    /* name = */ "libspeex",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SPEEX,
+    /* priv_data_size = */ sizeof(LibSpeexContext),
+    /* init = */ libspeex_decode_init,
+    /* encode = */ NULL,
+    /* close = */ libspeex_decode_close,
+    /* decode = */ libspeex_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libspeex Speex"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

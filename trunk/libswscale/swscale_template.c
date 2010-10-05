@@ -2255,7 +2255,9 @@ static inline void RENAME(hyscale_fast)(SwsContext *c, int16_t *dst,
                                         long dstWidth, const uint8_t *src, int srcW,
                                         int xInc)
 {
-#if ARCH_X86
+
+//JRS: convert
+#if ARCH_X86 && !defined(_MSC_VER)
 #if COMPILE_TEMPLATE_MMX2
     int32_t *filterPos = c->hLumFilterPos;
     int16_t *filter    = c->hLumFilter;
@@ -2404,7 +2406,9 @@ static inline void RENAME(hcscale_fast)(SwsContext *c, int16_t *dst,
                                         long dstWidth, const uint8_t *src1,
                                         const uint8_t *src2, int srcW, int xInc)
 {
-#if ARCH_X86
+
+//JRS: convert
+#if ARCH_X86 && !defined(_MSC_VER)
 #if COMPILE_TEMPLATE_MMX2
     int32_t *filterPos = c->hChrFilterPos;
     int16_t *filter    = c->hChrFilter;

@@ -27,6 +27,8 @@
 
 // The idiosyncrasies of GSM-in-WAV are explained at http://kbs.cs.tu-berlin.de/~jutta/toast.html
 
+#if CONFIG_LIBGSM
+
 #include "avcodec.h"
 #include <gsm/gsm.h>
 
@@ -111,8 +113,10 @@ static int libgsm_encode_frame(AVCodecContext *avctx,
     return avctx->block_align;
 }
 
+const enum SampleFormat[] libgsm_encoder_samples = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
 
 AVCodec libgsm_encoder = {
+#ifndef MSC_STRUCTS
     "libgsm",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_GSM,
@@ -122,9 +126,29 @@ AVCodec libgsm_encoder = {
     libgsm_close,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("libgsm GSM"),
+#else
+    /* name = */ "libgsm",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_GSM,
+    /* priv_data_size = */ 0,
+    /* init = */ libgsm_init,
+    /* encode = */ libgsm_encode_frame,
+    /* close = */ libgsm_close,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libgsm GSM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ libgsm_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec libgsm_ms_encoder = {
+#ifndef MSC_STRUCTS
     "libgsm_ms",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_GSM_MS,
@@ -134,6 +158,25 @@ AVCodec libgsm_ms_encoder = {
     libgsm_close,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("libgsm GSM Microsoft variant"),
+#else
+    /* name = */ "libgsm_ms",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_GSM_MS,
+    /* priv_data_size = */ 0,
+    /* init = */ libgsm_init,
+    /* encode = */ libgsm_encode_frame,
+    /* close = */ libgsm_close,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libgsm GSM Microsoft variant"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ libgsm_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 static int libgsm_decode_frame(AVCodecContext *avctx,
@@ -157,6 +200,7 @@ static int libgsm_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec libgsm_decoder = {
+#ifndef MSC_STRUCTS
     "libgsm",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_GSM,
@@ -166,9 +210,29 @@ AVCodec libgsm_decoder = {
     libgsm_close,
     libgsm_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("libgsm GSM"),
+#else
+    /* name = */ "libgsm",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_GSM,
+    /* priv_data_size = */ 0,
+    /* init = */ libgsm_init,
+    /* encode = */ NULL,
+    /* close = */ libgsm_close,
+    /* decode = */ libgsm_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libgsm GSM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec libgsm_ms_decoder = {
+#ifndef MSC_STRUCTS
     "libgsm_ms",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_GSM_MS,
@@ -178,4 +242,25 @@ AVCodec libgsm_ms_decoder = {
     libgsm_close,
     libgsm_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("libgsm GSM Microsoft variant"),
+#else
+    /* name = */ "libgsm_ms",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_GSM_MS,
+    /* priv_data_size = */ 0,
+    /* init = */ libgsm_init,
+    /* encode = */ NULL,
+    /* close = */ libgsm_close,
+    /* decode = */ libgsm_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libgsm GSM Microsoft variant"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

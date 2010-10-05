@@ -151,6 +151,10 @@ static av_cold int flac_encode_init(AVCodecContext *avctx)
     int i, level;
     uint8_t *streaminfo;
 
+#ifdef _MSC_VER
+	int av_md5_size = get_av_md5_size();
+#endif
+
     s->avctx = avctx;
 
     dsputil_init(&s->dsp, avctx);
@@ -207,6 +211,7 @@ static av_cold int flac_encode_init(AVCodecContext *avctx)
         return -1;
     }
 
+#ifndef MSC_STRUCTS
     s->options.block_time_ms       = ((int[]){ 27, 27, 27,105,105,105,105,105,105,105,105,105,105})[level];
     s->options.use_lpc             = ((int[]){  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1})[level];
     s->options.min_prediction_order= ((int[]){  2,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1})[level];
@@ -218,6 +223,30 @@ static av_cold int flac_encode_init(AVCodecContext *avctx)
                                                    ORDER_METHOD_SEARCH})[level];
     s->options.min_partition_order = ((int[]){  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0})[level];
     s->options.max_partition_order = ((int[]){  2,  2,  3,  3,  3,  8,  8,  8,  8,  8,  8,  8,  8})[level];
+#else
+	{
+		const int a1[] = { 27, 27, 27,105,105,105,105,105,105,105,105,105,105};
+		const int a2[] = {  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1};
+		const int a3[] = {  2,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1};
+		const int a4[] = {  3,  4,  4,  6,  8,  8,  8,  8, 12, 12, 12, 32, 32};
+		const int a5[] = { ORDER_METHOD_EST,    ORDER_METHOD_EST,    ORDER_METHOD_EST,
+			ORDER_METHOD_EST,    ORDER_METHOD_EST,    ORDER_METHOD_EST,
+			ORDER_METHOD_4LEVEL, ORDER_METHOD_LOG,    ORDER_METHOD_4LEVEL,
+			ORDER_METHOD_LOG,    ORDER_METHOD_SEARCH, ORDER_METHOD_LOG,
+			ORDER_METHOD_SEARCH};
+
+		const int a6[] = {  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+		const int a7[] = {  2,  2,  3,  3,  3,  8,  8,  8,  8,  8,  8,  8,  8};
+
+		s->options.block_time_ms       = a1[level];
+		s->options.use_lpc             = a2[level];
+		s->options.min_prediction_order= a3[level];
+		s->options.max_prediction_order= a4[level];
+		s->options.prediction_order_method = a5[level];
+		s->options.min_partition_order = a6[level];
+		s->options.max_partition_order = a7[level];
+	}
+#endif
 
     /* set compression option overrides from AVCodecContext */
     if(avctx->use_lpc >= 0) {
@@ -787,7 +816,11 @@ static int encode_residual(FlacEncodeContext *ctx, int ch)
        omethod == ORDER_METHOD_4LEVEL ||
        omethod == ORDER_METHOD_8LEVEL) {
         int levels = 1 << omethod;
+#ifndef _MSC_VER
         uint32_t bits[levels];
+#else
+        uint32_t bits[1 << ORDER_METHOD_8LEVEL];
+#endif
         int order;
         int opt_index = levels-1;
         opt_order = max_order-1;
@@ -1251,7 +1284,10 @@ static av_cold int flac_encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum SampleFormat flac_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec flac_encoder = {
+#ifndef MSC_STRUCTS
     "flac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_FLAC,
@@ -1263,4 +1299,23 @@ AVCodec flac_encoder = {
     .capabilities = CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY,
     .sample_fmts = (const enum SampleFormat[]){SAMPLE_FMT_S16,SAMPLE_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("FLAC (Free Lossless Audio Codec)"),
+#else
+    /* name = */ "flac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_FLAC,
+    /* priv_data_size = */ sizeof(FlacEncodeContext),
+    /* init = */ flac_encode_init,
+    /* encode = */ flac_encode_frame,
+    /* close = */ flac_encode_close,
+    /* decode = */ NULL,
+    /* capabilities = */ CODEC_CAP_SMALL_LAST_FRAME | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("FLAC (Free Lossless Audio Codec)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ flac_encoder_samples,
+    /* channel_layouts = */ 0,
+#endif
 };

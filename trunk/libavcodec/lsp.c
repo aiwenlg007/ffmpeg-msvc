@@ -90,8 +90,13 @@ static void lsp2poly(int* f, const int16_t* lsp, int lp_half_order)
 void ff_acelp_lsp2lpc(int16_t* lp, const int16_t* lsp, int lp_half_order)
 {
     int i;
+#ifndef _MSC_VER
     int f1[lp_half_order+1]; // (3.22)
     int f2[lp_half_order+1]; // (3.22)
+#else
+    int *f1 = av_malloc_items(lp_half_order+1, int); // (3.22)
+    int *f2 = av_malloc_items(lp_half_order+1, int); // (3.22)
+#endif
 
     lsp2poly(f1, lsp  , lp_half_order);
     lsp2poly(f2, lsp+1, lp_half_order);
@@ -107,11 +112,20 @@ void ff_acelp_lsp2lpc(int16_t* lp, const int16_t* lsp, int lp_half_order)
         lp[i]    = (ff1 + ff2) >> 11; // divide by 2 and (3.22) -> (3.12)
         lp[(lp_half_order << 1) + 1 - i] = (ff1 - ff2) >> 11; // divide by 2 and (3.22) -> (3.12)
     }
+#ifdef _MSC_VER
+	av_free(f1);
+	av_free(f2);
+#endif
 }
 
 void ff_acelp_lp_decode(int16_t* lp_1st, int16_t* lp_2nd, const int16_t* lsp_2nd, const int16_t* lsp_prev, int lp_order)
 {
-    int16_t lsp_1st[lp_order]; // (0.15)
+#ifndef _MSC_VER
+	int16_t lsp_1st[lp_order]; // (0.15)
+#else
+	int16_t *lsp_1st = av_malloc_items(lp_order, int16_t); // (3.22)
+#endif
+
     int i;
 
     /* LSP values for first subframe (3.2.5 of G.729, Equation 24)*/
@@ -126,6 +140,10 @@ void ff_acelp_lp_decode(int16_t* lp_1st, int16_t* lp_2nd, const int16_t* lsp_2nd
 
     /* LSP values for second subframe (3.2.5 of G.729)*/
     ff_acelp_lsp2lpc(lp_2nd, lsp_2nd, lp_order >> 1);
+
+#ifdef _MSC_VER
+	av_free(lsp_1st);
+#endif
 }
 
 void ff_lsp2polyf(const double *lsp, double *f, int lp_half_order)

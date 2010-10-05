@@ -78,6 +78,7 @@ static int write_trailer(AVFormatContext *s)
 }
 
 AVOutputFormat ass_muxer = {
+#ifndef MSC_STRUCTS
     "ass",
     NULL_IF_CONFIG_SMALL("SSA/ASS format"),
     NULL,
@@ -90,3 +91,23 @@ AVOutputFormat ass_muxer = {
     write_trailer,
     .flags = AVFMT_GLOBALHEADER | AVFMT_NOTIMESTAMPS
 };
+#else
+	/*name = */ "ass",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("SSA/ASS format"),
+	/*mime_type = */ NULL,
+	/*extensions = */ "ass,ssa",
+	/*priv_data_size = */ sizeof(ASSContext),
+	/*audio_codec = */ CODEC_ID_NONE,
+	/*video_codec = */ CODEC_ID_NONE,
+	/*write_header = */ write_header,
+	/*write_packet = */ write_packet,
+	/*write_trailer = */ write_trailer,
+	/*flags = */ AVFMT_GLOBALHEADER | AVFMT_NOTIMESTAMPS,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ 0,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

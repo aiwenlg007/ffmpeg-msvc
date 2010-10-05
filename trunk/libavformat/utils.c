@@ -25,9 +25,14 @@
 #include "libavutil/avstring.h"
 #include "riff.h"
 #include "audiointerleave.h"
+#ifndef _MSC_VER
 #include <sys/time.h>
 #include <time.h>
 #include <strings.h>
+#else
+#include "os_support.h"
+#include <time.h>
+#endif
 #include <stdarg.h>
 #if CONFIG_NETWORK
 #include "network.h"
@@ -2122,8 +2127,16 @@ static void compute_chapters_end(AVFormatContext *s)
 
 #define MAX_STD_TIMEBASES (60*12+5)
 static int get_std_framerate(int i){
+#ifndef _MSC_VER
     if(i<60*12) return i*1001;
     else        return ((const int[]){24,30,60,12,15})[i-60*12]*1000*12;
+#else
+	static int a[] = {24,30,60,12,15};
+    if(i<60*12) 
+		return i*1001;
+    else
+		return a[i-60*12]*1000*12;
+#endif
 }
 
 /*
@@ -2525,7 +2538,11 @@ AVStream *av_new_stream(AVFormatContext *s, int id)
         st->pts_buffer[i]= AV_NOPTS_VALUE;
     st->reference_dts = AV_NOPTS_VALUE;
 
+#ifndef _MSC_VER
     st->sample_aspect_ratio = (AVRational){0,1};
+#else
+	st->sample_aspect_ratio = av_create_rational(0,1);
+#endif
 
     s->streams[s->nb_streams++] = st;
     return st;
@@ -3149,9 +3166,14 @@ int parse_frame_rate(int *frame_rate_num, int *frame_rate_den, const char *arg)
 
 int64_t av_gettime(void)
 {
+#ifndef _MSC_VER
     struct timeval tv;
     gettimeofday(&tv,NULL);
     return (int64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+#else
+	//JRS: hummm...
+	return GetTickCount () * 1000;
+#endif
 }
 
 uint64_t ff_ntp_time(void)

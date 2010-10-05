@@ -194,6 +194,7 @@ static int sp5x_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec sp5x_decoder = {
+#ifndef MSC_STRUCTS
     "sp5x",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SP5X,
@@ -205,9 +206,29 @@ AVCodec sp5x_decoder = {
     CODEC_CAP_DR1,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Sunplus JPEG (SP5X)"),
+#else
+    /* name = */ "sp5x",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SP5X,
+    /* priv_data_size = */ sizeof(MJpegDecodeContext),
+    /* init = */ ff_mjpeg_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_mjpeg_decode_end,
+    /* decode = */ sp5x_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sunplus JPEG (SP5X)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec amv_decoder = {
+#ifndef MSC_STRUCTS
     "amv",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_AMV,
@@ -218,4 +239,23 @@ AVCodec amv_decoder = {
     sp5x_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("AMV Video"),
+#else
+    /* name = */ "amv",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_AMV,
+    /* priv_data_size = */ sizeof(MJpegDecodeContext),
+    /* init = */ ff_mjpeg_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_mjpeg_decode_end,
+    /* decode = */ sp5x_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("AMV Video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

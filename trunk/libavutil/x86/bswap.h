@@ -31,13 +31,26 @@
 #define bswap_16 bswap_16
 static av_always_inline av_const uint16_t bswap_16(uint16_t x)
 {
-    __asm__("rorw $8, %0" : "+r"(x));
+
+#ifndef _MSC_VER
+	__asm__("rorw $8, %0" : "+r"(x));
+#else
+	__asm
+	{
+		mov ax, x
+		ror ax, 8
+		mov x, ax
+	}
+
+	//x= (x>>8) | (x<<8);
+#endif
     return x;
 }
 
 #define bswap_32 bswap_32
 static av_always_inline av_const uint32_t bswap_32(uint32_t x)
 {
+#ifndef _MSC_VER
 #if HAVE_BSWAP
     __asm__("bswap   %0" : "+r" (x));
 #else
@@ -46,6 +59,17 @@ static av_always_inline av_const uint32_t bswap_32(uint32_t x)
             "rorw    $8,  %w0"
             : "+r"(x));
 #endif
+#else
+	__asm
+	{
+		mov eax, x
+		bswap eax
+		mov x, eax
+	}
+
+	//x= ((x<<8)&0xFF00FF00) | ((x>>8)&0x00FF00FF);
+	//x= (x>>16) | (x<<16);
+#endif
     return x;
 }
 
@@ -53,8 +77,19 @@ static av_always_inline av_const uint32_t bswap_32(uint32_t x)
 #define bswap_64 bswap_64
 static inline uint64_t av_const bswap_64(uint64_t x)
 {
-    __asm__("bswap  %0": "=r" (x) : "0" (x));
-    return x;
+#ifndef _MSC_VER
+	__asm__("bswap  %0": "=r" (x) : "0" (x));
+	return x;
+#else
+	union {
+		uint64_t ll;
+		uint32_t l[2];
+	} w, r;
+	w.ll = x;
+	r.l[0] = bswap_32 (w.l[1]);
+	r.l[1] = bswap_32 (w.l[0]);
+	return r.ll;
+#endif
 }
 #endif
 

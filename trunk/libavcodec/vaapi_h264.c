@@ -20,6 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#if CONFIG_H264_VAAPI_HWACCEL
+
 #include "vaapi_internal.h"
 #include "h264.h"
 
@@ -345,3 +347,5 @@ AVHWAccel h264_vaapi_hwaccel = {
     .decode_slice   = decode_slice,
     .priv_data_size = 0,
 };
+
+#endif

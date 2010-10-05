@@ -22,7 +22,10 @@
  * parsing utils
  */
 
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
+
 #include "libavutil/avutil.h"
 #include "libavutil/random_seed.h"
 #include "parseutils.h"

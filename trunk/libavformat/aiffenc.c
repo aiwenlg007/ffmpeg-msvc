@@ -145,7 +145,13 @@ static int aiff_write_trailer(AVFormatContext *s)
     return 0;
 }
 
+AVCodecTag *aiff_muxer_ct[] = {
+	ff_codec_aiff_tags,
+	0
+};
+
 AVOutputFormat aiff_muxer = {
+#ifndef MSC_STRUCTS
     "aiff",
     NULL_IF_CONFIG_SMALL("Audio IFF"),
     "audio/aiff",
@@ -157,4 +163,24 @@ AVOutputFormat aiff_muxer = {
     aiff_write_packet,
     aiff_write_trailer,
     .codec_tag= (const AVCodecTag* const []){ff_codec_aiff_tags, 0},
+	};
+#else
+	/*name = */ "aiff",
+	/*long_name = */ NULL_IF_CONFIG_SMALL("Audio IFF"),
+	/*mime_type = */ "audio/aiff",
+	/*extensions = */ "aif,aiff,afc,aifc",
+	/*priv_data_size = */ sizeof(AIFFOutputContext),
+	/*audio_codec = */ CODEC_ID_PCM_S16BE,
+	/*video_codec = */ CODEC_ID_NONE,
+	/*write_header = */ aiff_write_header,
+	/*write_packet = */ aiff_write_packet,
+	/*write_trailer = */ aiff_write_trailer,
+	/*flags = */ 0,
+	/*set_parameters = */ 0,
+	/*interleave_packet = */ 0,
+	/*codec_tag = */ aiff_muxer_ct,
+	/*ubtitle_codec = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
 };
+#endif

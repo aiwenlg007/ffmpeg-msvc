@@ -254,6 +254,7 @@ static av_cold int idcin_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec idcin_decoder = {
+#ifndef MSC_STRUCTS
     "idcinvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_IDCIN,
@@ -264,5 +265,24 @@ AVCodec idcin_decoder = {
     idcin_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("id Quake II CIN video"),
+#else
+    /* name = */ "idcinvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_IDCIN,
+    /* priv_data_size = */ sizeof(IdcinContext),
+    /* init = */ idcin_decode_init,
+    /* encode = */ NULL,
+    /* close = */ idcin_decode_end,
+    /* decode = */ idcin_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("id Quake II CIN video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

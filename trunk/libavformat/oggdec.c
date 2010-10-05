@@ -631,6 +631,7 @@ static int ogg_probe(AVProbeData *p)
 }
 
 AVInputFormat ogg_demuxer = {
+#ifndef MSC_STRUCTS
     "ogg",
     NULL_IF_CONFIG_SMALL("Ogg"),
     sizeof (struct ogg),
@@ -644,3 +645,24 @@ AVInputFormat ogg_demuxer = {
     .metadata_conv = ff_vorbiscomment_metadata_conv,
     .flags = AVFMT_GENERIC_INDEX,
 };
+#else
+	"ogg",
+	NULL_IF_CONFIG_SMALL("Ogg"),
+	sizeof (struct ogg),
+	ogg_probe,
+	ogg_read_header,
+	ogg_read_packet,
+	ogg_read_close,
+	ogg_read_seek,
+	ogg_read_timestamp,
+	/*flags = */ AVFMT_GENERIC_INDEX,
+	/*extensions = */ "ogg",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ ff_vorbiscomment_metadata_conv,
+	/*next = */ 0
+};
+#endif

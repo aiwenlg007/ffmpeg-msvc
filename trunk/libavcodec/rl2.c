@@ -229,6 +229,7 @@ static av_cold int rl2_decode_end(AVCodecContext *avctx)
 
 
 AVCodec rl2_decoder = {
+#ifndef MSC_STRUCTS
     "rl2",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RL2,
@@ -239,5 +240,24 @@ AVCodec rl2_decoder = {
     rl2_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("RL2 video"),
+#else
+    /* name = */ "rl2",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RL2,
+    /* priv_data_size = */ sizeof(Rl2Context),
+    /* init = */ rl2_decode_init,
+    /* encode = */ NULL,
+    /* close = */ rl2_decode_end,
+    /* decode = */ rl2_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RL2 video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

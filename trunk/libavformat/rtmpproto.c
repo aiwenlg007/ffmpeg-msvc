@@ -377,6 +377,9 @@ static void rtmp_calc_digest(const uint8_t *src, int len, int gap,
     struct AVSHA *sha;
     uint8_t hmac_buf[64+32] = {0};
     int i;
+#ifdef _MSC_VER
+	int av_sha_size = get_av_sha_size();
+#endif
 
     sha = av_mallocz(av_sha_size);
 

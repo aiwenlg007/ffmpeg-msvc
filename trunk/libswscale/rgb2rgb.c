@@ -159,6 +159,8 @@ DECLARE_ASM_CONST(8, uint64_t, blue_15mask)  = 0x0000001f0000001fULL;
 #define RENAME(a) a ## _C
 #include "rgb2rgb_template.c"
 
+//JRS: convert
+#ifndef _MSC_VER
 #if ARCH_X86
 
 //MMX versions
@@ -185,7 +187,7 @@ DECLARE_ASM_CONST(8, uint64_t, blue_15mask)  = 0x0000001f0000001fULL;
 #include "rgb2rgb_template.c"
 
 #endif //ARCH_X86 || ARCH_X86_64
-
+#endif
 /*
  RGB15->RGB16 original by Strepto/Astral
  ported to gcc & bugfixed : A'rpi

@@ -51,7 +51,11 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
     }
 
     if(aspect->aspect.den == 0)
+#ifndef _MSC_VER
         aspect->aspect = (AVRational) {0, 1};
+#else
+        aspect->aspect = av_create_rational(0, 1);
+#endif
 
     return 0;
 }
@@ -77,7 +81,43 @@ static int frameaspect_config_props(AVFilterLink *inlink)
     return 0;
 }
 
+
+AVFilterPad avfilter_vf_aspect_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ frameaspect_config_props
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_aspect_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_aspect = {
+#ifndef MSC_STRUCTS
     .name      = "aspect",
     .description = NULL_IF_CONFIG_SMALL("Set the frame aspect ratio."),
 
@@ -97,10 +137,56 @@ AVFilter avfilter_vf_aspect = {
                                     .type             = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "aspect",
+	/*priv_size*/ sizeof(AspectContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vf_aspect_inputs,
+	/*outputs*/ avfilter_vf_aspect_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Set the frame aspect ratio."),
+};
+#endif
 #endif /* CONFIG_ASPECT_FILTER */
 
 #if CONFIG_PIXELASPECT_FILTER
+AVFilterPad avfilter_vf_pixelaspect_inputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ start_frame,
+		/*get_video_buffer*/ avfilter_null_get_video_buffer,
+		/*end_frame*/ avfilter_null_end_frame,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
+AVFilterPad avfilter_vf_pixelaspect_outputs[] = {
+	{
+		/*name*/ "default",
+		/*type*/ AVMEDIA_TYPE_VIDEO,
+		/*min_perms*/ 0,
+		/*rej_perms*/ 0,
+		/*start_frame*/ 0,
+		/*get_video_buffer*/ 0,
+		/*end_frame*/ 0,
+		/*draw_slice*/ 0,
+		/*poll_frame*/ 0,
+		/*request_frame*/ 0,
+		/*config_props*/ 0
+	},
+	{0}
+};
+
 AVFilter avfilter_vf_pixelaspect = {
+#ifndef MSC_STRUCTS
     .name      = "pixelaspect",
     .description = NULL_IF_CONFIG_SMALL("Set the pixel aspect ratio."),
 
@@ -119,5 +205,16 @@ AVFilter avfilter_vf_pixelaspect = {
                                     .type             = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };
+#else
+	/*name*/ "pixelaspect",
+	/*priv_size*/ sizeof(AspectContext),
+	/*init*/ init,
+	/*uninit*/ 0,
+	/*query_formats*/ 0,
+	/*inputs*/ avfilter_vf_pixelaspect_inputs,
+	/*outputs*/ avfilter_vf_pixelaspect_outputs,
+	/*description*/ NULL_IF_CONFIG_SMALL("Set the pixel aspect ratio."),
+};
+#endif
 #endif /* CONFIG_PIXELASPECT_FILTER */
 

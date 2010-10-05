@@ -712,7 +712,11 @@ static int avi_read_packet(AVFormatContext *s, AVPacket *pkt)
             if(!ast->remaining && ts > last_ts)
                 continue;
 
+#ifndef _MSC_VER
             ts = av_rescale_q(ts, st->time_base, (AVRational){FFMAX(1, ast->sample_size), AV_TIME_BASE});
+#else
+            ts = av_rescale_q(ts, st->time_base, av_create_rational(FFMAX(1, ast->sample_size), AV_TIME_BASE));
+#endif
 
 //            av_log(s, AV_LOG_DEBUG, "%"PRId64" %d/%d %"PRId64"\n", ts, st->time_base.num, st->time_base.den, ast->frame_offset);
             if(ts < best_ts){
@@ -725,7 +729,11 @@ static int avi_read_packet(AVFormatContext *s, AVPacket *pkt)
             return -1;
 
         best_ast = best_st->priv_data;
+#ifndef _MSC_VER
         best_ts = av_rescale_q(best_ts, (AVRational){FFMAX(1, best_ast->sample_size), AV_TIME_BASE}, best_st->time_base);
+#else
+		best_ts = av_rescale_q(best_ts, av_create_rational(FFMAX(1, best_ast->sample_size), AV_TIME_BASE), best_st->time_base);
+#endif
         if(best_ast->remaining)
             i= av_index_search_timestamp(best_st, best_ts, AVSEEK_FLAG_ANY | AVSEEK_FLAG_BACKWARD);
         else{
@@ -1186,6 +1194,7 @@ static int avi_probe(AVProbeData *p)
 }
 
 AVInputFormat avi_demuxer = {
+#ifndef MSC_STRUCTS
     "avi",
     NULL_IF_CONFIG_SMALL("AVI format"),
     sizeof(AVIContext),
@@ -1196,3 +1205,24 @@ AVInputFormat avi_demuxer = {
     avi_read_seek,
     .metadata_conv = ff_avi_metadata_conv,
 };
+#else
+	"avi",
+	NULL_IF_CONFIG_SMALL("AVI format"),
+	sizeof(AVIContext),
+	avi_probe,
+	avi_read_header,
+	avi_read_packet,
+	avi_read_close,
+	avi_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */ 0,
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ ff_avi_metadata_conv,
+	/*next = */ 0
+};
+#endif

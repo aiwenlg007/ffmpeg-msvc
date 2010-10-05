@@ -604,6 +604,10 @@ static int decode_seq_header(AVSContext *h) {
     MpegEncContext *s = &h->s;
     int frame_rate_code;
 
+#ifdef _MSC_VER
+	AVRational *ff_frame_rate_tab = get_ff_frame_rate_tab();
+#endif
+
     h->profile =         get_bits(&s->gb,8);
     h->level =           get_bits(&s->gb,8);
     skip_bits1(&s->gb); //progressive sequence
@@ -710,6 +714,7 @@ static int cavs_decode_frame(AVCodecContext * avctx,void *data, int *data_size,
 }
 
 AVCodec cavs_decoder = {
+#ifndef MSC_STRUCTS
     "cavs",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_CAVS,
@@ -721,4 +726,23 @@ AVCodec cavs_decoder = {
     CODEC_CAP_DR1 | CODEC_CAP_DELAY,
     .flush= cavs_flush,
     .long_name= NULL_IF_CONFIG_SMALL("Chinese AVS video (AVS1-P2, JiZhun profile)"),
+#else
+    /* name = */ "cavs",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_CAVS,
+    /* priv_data_size = */ sizeof(AVSContext),
+    /* init = */ ff_cavs_init,
+    /* encode = */ NULL,
+    /* close = */ ff_cavs_end,
+    /* decode = */ cavs_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1 | CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ cavs_flush,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Chinese AVS video (AVS1-P2, JiZhun profile)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

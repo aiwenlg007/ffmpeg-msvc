@@ -64,6 +64,7 @@ typedef struct {
     uint8_t gc_index_bits;     ///< size in bits of the gain  codebook indexes
 } SiprModeParam;
 
+#ifndef MSC_STRUCTS
 static const SiprModeParam modes[MODE_COUNT] = {
     [MODE_16k] = {
         .mode_name          = "16k",
@@ -129,6 +130,75 @@ static const SiprModeParam modes[MODE_COUNT] = {
         .gc_index_bits        = 7
     }
 };
+#else
+	//MSVC
+
+static const SiprModeParam modes[MODE_COUNT] = {
+    {
+        "16k",
+        160,
+        SUBFRAME_COUNT_16k,
+        1,
+        0.00,
+
+        10,
+        1,
+        {7, 8, 7, 7, 7},
+        {9, 6},
+        4,
+        {4, 5, 4, 5, 4, 5, 4, 5, 4, 5},
+        5
+    },
+
+    {
+        "8k5",
+        152,
+        3,
+        1,
+        0.8,
+
+        3,
+        0,
+        {6, 7, 7, 7, 5},
+        {8, 5, 5},
+        0,
+        {9, 9, 9},
+        7
+    },
+
+    {
+        "6k5",
+        232,
+        3,
+        2,
+        0.8,
+
+        3,
+        0,
+        {6, 7, 7, 7, 5},
+        {8, 5, 5},
+        0,
+        {5, 5, 5},
+        7
+    },
+
+    {
+        "5k0",
+        296,
+        5,
+        2,
+        0.85,
+
+        1,
+        0,
+        {6, 7, 7, 7, 5},
+        {8, 5, 8, 5, 5},
+        0,
+        {10},
+        7
+    }
+};
+#endif
 
 const float ff_pow_0_5[] = {
     1.0/(1 <<  1), 1.0/(1 <<  2), 1.0/(1 <<  3), 1.0/(1 <<  4),
@@ -490,12 +560,25 @@ static void decode_frame(SiprContext *ctx, SiprParameters *params,
     memcpy(ctx->excitation, excitation - PITCH_DELAY_MAX - L_INTERPOL,
            (PITCH_DELAY_MAX + L_INTERPOL) * sizeof(float));
 
+#ifndef _MSC_VER
     ff_acelp_apply_order_2_transfer_function(out_data, synth,
                                              (const float[2]) {-1.99997   , 1.000000000},
                                              (const float[2]) {-1.93307352, 0.935891986},
                                              0.939805806,
                                              ctx->highpass_filt_mem,
                                              frame_size);
+#else
+	{
+	const float a1[2] = {-1.99997   , 1.000000000};
+	const float a2[2] = {-1.93307352, 0.935891986};
+    ff_acelp_apply_order_2_transfer_function(out_data, synth,
+		                                     a1, a2,
+                                             0.939805806,
+                                             ctx->highpass_filt_mem,
+											 frame_size);
+
+	}
+#endif
 }
 
 static av_cold int sipr_decoder_init(AVCodecContext * avctx)
@@ -576,6 +659,7 @@ static int sipr_decode_frame(AVCodecContext *avctx, void *datap,
 };
 
 AVCodec sipr_decoder = {
+#ifndef MSC_STRUCTS
     "sipr",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_SIPR,
@@ -584,5 +668,24 @@ AVCodec sipr_decoder = {
     NULL,
     NULL,
     sipr_decode_frame,
-    .long_name = NULL_IF_CONFIG_SMALL("RealAudio SIPR / ACELP.NET"),
+    NULL_IF_CONFIG_SMALL("RealAudio SIPR / ACELP.NET"),
+#else
+    /* name = */ "sipr",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_SIPR,
+    /* priv_data_size = */ sizeof(SiprContext),
+    /* init = */ sipr_decoder_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ sipr_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("RealAudio SIPR / ACELP.NET"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

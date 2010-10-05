@@ -23,6 +23,8 @@
  * VP8 encoder support via libvpx
  */
 
+#if CONFIG_LIBVPX
+
 #define VPX_DISABLE_CTRL_TYPECHECKS 1
 #define VPX_CODEC_DISABLE_COMPAT    1
 #include <vpx/vpx_encoder.h>
@@ -474,7 +476,10 @@ static int vp8_encode(AVCodecContext *avctx, uint8_t *buf, int buf_size,
     return coded_size;
 }
 
+const enum PixelFormat libvpx_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_NONE};
+
 AVCodec libvpx_encoder = {
+#ifndef MSC_STRUCTS
     "libvpx",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP8,
@@ -486,4 +491,25 @@ AVCodec libvpx_encoder = {
     CODEC_CAP_DELAY,
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("libvpx VP8"),
+#else
+    /* name = */ "libvpx",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP8,
+    /* priv_data_size = */ sizeof(VP8Context),
+    /* init = */ vp8_init,
+    /* encode = */ vp8_encode,
+    /* close = */ vp8_free,
+    /* decode = */ NULL,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libvpx_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libvpx VP8"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+
+#endif

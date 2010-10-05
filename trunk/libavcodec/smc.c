@@ -472,6 +472,7 @@ static av_cold int smc_decode_end(AVCodecContext *avctx)
 }
 
 AVCodec smc_decoder = {
+#ifndef MSC_STRUCTS
     "smc",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SMC,
@@ -482,4 +483,23 @@ AVCodec smc_decoder = {
     smc_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("QuickTime Graphics (SMC)"),
+#else
+    /* name = */ "smc",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SMC,
+    /* priv_data_size = */ sizeof(SmcContext),
+    /* init = */ smc_decode_init,
+    /* encode = */ NULL,
+    /* close = */ smc_decode_end,
+    /* decode = */ smc_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("QuickTime Graphics (SMC)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

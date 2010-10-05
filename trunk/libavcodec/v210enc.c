@@ -117,7 +117,10 @@ static av_cold int encode_close(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat v210_encoder_format[] = {PIX_FMT_YUV422P16, PIX_FMT_NONE};
+
 AVCodec v210_encoder = {
+#ifndef MSC_STRUCTS
     "v210",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_V210,
@@ -127,4 +130,23 @@ AVCodec v210_encoder = {
     encode_close,
     .pix_fmts = (const enum PixelFormat[]){PIX_FMT_YUV422P16, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("Uncompressed 4:2:2 10-bit"),
+#else
+    /* name = */ "v210",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_V210,
+    /* priv_data_size = */ 0,
+    /* init = */ encode_init,
+    /* encode = */ encode_frame,
+    /* close = */ encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ v210_encoder_format,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Uncompressed 4:2:2 10-bit"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

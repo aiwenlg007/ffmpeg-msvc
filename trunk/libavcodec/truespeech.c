@@ -377,6 +377,7 @@ static int truespeech_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec truespeech_decoder = {
+#ifndef MSC_STRUCTS
     "truespeech",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_TRUESPEECH,
@@ -386,4 +387,23 @@ AVCodec truespeech_decoder = {
     NULL,
     truespeech_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("DSP Group TrueSpeech"),
+#else
+    /* name = */ "truespeech",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_TRUESPEECH,
+    /* priv_data_size = */ sizeof(TSContext),
+    /* init = */ truespeech_decode_init,
+    /* encode = */ NULL,
+    /* close = */ NULL,
+    /* decode = */ truespeech_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("DSP Group TrueSpeech"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

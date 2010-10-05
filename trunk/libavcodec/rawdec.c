@@ -186,6 +186,7 @@ static av_cold int raw_close_decoder(AVCodecContext *avctx)
 }
 
 AVCodec rawvideo_decoder = {
+#ifndef MSC_STRUCTS
     "rawvideo",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_RAWVIDEO,
@@ -195,4 +196,23 @@ AVCodec rawvideo_decoder = {
     raw_close_decoder,
     raw_decode,
     .long_name = NULL_IF_CONFIG_SMALL("raw video"),
+#else
+    /* name = */ "rawvideo",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_RAWVIDEO,
+    /* priv_data_size = */ sizeof(RawVideoContext),
+    /* init = */ raw_init_decoder,
+    /* encode = */ NULL,
+    /* close = */ raw_close_decoder,
+    /* decode = */ raw_decode,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("raw video"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

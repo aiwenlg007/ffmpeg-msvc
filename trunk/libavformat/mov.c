@@ -78,7 +78,11 @@ typedef struct MOVParseTableEntry {
     int (*parse)(MOVContext *ctx, ByteIOContext *pb, MOVAtom atom);
 } MOVParseTableEntry;
 
+#ifndef _MSC_VER
 static const MOVParseTableEntry mov_default_parse_table[];
+#else
+extern const MOVParseTableEntry mov_default_parse_table[];
+#endif
 
 static int mov_metadata_trkn(MOVContext *c, ByteIOContext *pb, unsigned len)
 {
@@ -244,7 +248,11 @@ static int mov_read_chpl(MOVContext *c, ByteIOContext *pb, MOVAtom atom)
 
         get_buffer(pb, str, str_len);
         str[str_len] = 0;
+#ifndef _MSC_VER
         ff_new_chapter(c->fc, i, (AVRational){1,10000000}, start, AV_NOPTS_VALUE, str);
+#else
+		ff_new_chapter(c->fc, i, av_create_rational(1,10000000), start, AV_NOPTS_VALUE, str);
+#endif
     }
     return 0;
 }
@@ -1198,7 +1206,11 @@ static int mov_read_stsd(MOVContext *c, ByteIOContext *pb, MOVAtom atom)
         } else if(st->codec->codec_type==AVMEDIA_TYPE_SUBTITLE){
             // ttxt stsd contains display flags, justification, background
             // color, fonts, and default styles, so fake an atom to read it
-            MOVAtom fake_atom = { .size = size - (url_ftell(pb) - start_pos) };
+            #ifndef _MSC_VER
+			MOVAtom fake_atom = { .size = size - (url_ftell(pb) - start_pos) };
+			#else
+			MOVAtom fake_atom = { 0, size - (url_ftell(pb) - start_pos) };
+			#endif
             if (format != AV_RL32("mp4s")) // mp4s contains a regular esds atom
                 mov_read_glbl(c, pb, fake_atom);
             st->codec->codec_id= id;
@@ -2429,10 +2441,20 @@ static int mov_read_packet(AVFormatContext *s, AVPacket *pkt)
     sample = mov_find_next_sample(s, &st);
     if (!sample) {
         mov->found_mdat = 0;
+#ifndef _MSC_VER
         if (!url_is_streamed(s->pb) ||
             mov_read_default(mov, s->pb, (MOVAtom){ 0, INT64_MAX }) < 0 ||
             url_feof(s->pb))
             return AVERROR_EOF;
+#else
+		{
+			MOVAtom m = { 0, INT64_MAX };
+			if (!url_is_streamed(s->pb) ||
+				mov_read_default(mov, s->pb, m) < 0 ||
+				url_feof(s->pb))
+				return AVERROR_EOF;
+		}
+#endif
         dprintf(s, "read fragments, offset 0x%llx\n", url_ftell(s->pb));
         goto retry;
     }

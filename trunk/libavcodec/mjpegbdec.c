@@ -146,6 +146,7 @@ read_header:
 }
 
 AVCodec mjpegb_decoder = {
+#ifndef MSC_STRUCTS
     "mjpegb",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_MJPEGB,
@@ -157,4 +158,23 @@ AVCodec mjpegb_decoder = {
     CODEC_CAP_DR1,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("Apple MJPEG-B"),
+#else
+    /* name = */ "mjpegb",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_MJPEGB,
+    /* priv_data_size = */ sizeof(MJpegDecodeContext),
+    /* init = */ ff_mjpeg_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ff_mjpeg_decode_end,
+    /* decode = */ mjpegb_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Apple MJPEG-B"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

@@ -28,6 +28,8 @@
 * (http://dirac.sourceforge.net/specification.html).
 */
 
+#if CONFIG_LIBDIRAC
+
 #include "libdirac_libschro.h"
 #include "libdirac.h"
 
@@ -390,8 +392,10 @@ static av_cold int libdirac_encode_close(AVCodecContext *avccontext)
     return 0;
 }
 
+const enum PixelFormat libdirac_encoder_formats[] = {PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE};
 
 AVCodec libdirac_encoder = {
+#ifndef MSC_STRUCTS
     "libdirac",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_DIRAC,
@@ -402,4 +406,24 @@ AVCodec libdirac_encoder = {
    .capabilities = CODEC_CAP_DELAY,
    .pix_fmts = (const enum PixelFormat[]){PIX_FMT_YUV420P, PIX_FMT_YUV422P, PIX_FMT_YUV444P, PIX_FMT_NONE},
    .long_name = NULL_IF_CONFIG_SMALL("libdirac Dirac 2.2"),
+#else
+    /* name = */ "libdirac",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_DIRAC,
+    /* priv_data_size = */ sizeof(FfmpegDiracEncoderParams),
+    /* init = */ libdirac_encode_init,
+    /* encode = */ libdirac_encode_frame,
+    /* close = */ libdirac_encode_close,
+    /* decode = */ 0,
+    /* capabilities = */ CODEC_CAP_DELAY,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ libdirac_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("libdirac Dirac 2.2"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
+#endif

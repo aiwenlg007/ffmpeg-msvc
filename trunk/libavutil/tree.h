@@ -30,7 +30,12 @@
 #define AVUTIL_TREE_H
 
 struct AVTreeNode;
+
+#ifndef _MSC_VER
 extern const int av_tree_node_size;
+#else
+extern int get_av_tree_node_size();
+#endif
 
 /**
  * Finds an element.

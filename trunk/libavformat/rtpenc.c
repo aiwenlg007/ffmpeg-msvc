@@ -24,7 +24,10 @@
 #include "internal.h"
 #include "libavutil/random_seed.h"
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#else
+#endif
 
 #include "rtpenc.h"
 
@@ -111,7 +114,11 @@ static int rtp_write_header(AVFormatContext *s1)
         }
         if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
             /* FIXME: We should round down here... */
+#ifndef _MSC_VER
             s->max_frames_per_packet = av_rescale_q(s1->max_delay, (AVRational){1, 1000000}, st->codec->time_base);
+#else
+            s->max_frames_per_packet = av_rescale_q(s1->max_delay, av_create_rational(1, 1000000), st->codec->time_base);
+#endif
         }
     }
 
@@ -170,8 +177,13 @@ static void rtcp_send_sr(AVFormatContext *s1, int64_t ntp_time)
     dprintf(s1, "RTCP: %02x %"PRIx64" %x\n", s->payload_type, ntp_time, s->timestamp);
 
     s->last_rtcp_ntp_time = ntp_time;
+#ifndef _MSC_VER
     rtp_ts = av_rescale_q(ntp_time - s->first_rtcp_ntp_time, (AVRational){1, 1000000},
-                          s1->streams[0]->time_base) + s->base_timestamp;
+#else
+	rtp_ts = av_rescale_q(ntp_time - s->first_rtcp_ntp_time, av_create_rational(1, 1000000),
+#endif
+						  s1->streams[0]->time_base) + s->base_timestamp;
+
     put_byte(s1->pb, (RTP_VERSION << 6));
     put_byte(s1->pb, 200);
     put_be16(s1->pb, 6); /* length in words - 1 */

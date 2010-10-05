@@ -929,7 +929,11 @@ static inline float *VMUL4S(float *dst, const float *v, unsigned idx,
                             unsigned sign, const float *scale)
 {
     unsigned nz = idx >> 12;
+#ifndef _MSC_VER
     union float754 s = { .f = *scale };
+#else
+    union float754 s = { *scale };
+#endif
     union float754 t;
 
     t.i = s.i ^ (sign & 1<<31);
@@ -2091,7 +2095,10 @@ static av_cold int aac_decode_close(AVCodecContext *avccontext)
     return 0;
 }
 
+const enum SampleFormat aac_decoder_formats[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+
 AVCodec aac_decoder = {
+#ifndef MSC_STRUCTS
     "aac",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_AAC,
@@ -2101,8 +2108,27 @@ AVCodec aac_decoder = {
     aac_decode_close,
     aac_decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Advanced Audio Coding"),
-    .sample_fmts = (const enum SampleFormat[]) {
-        SAMPLE_FMT_S16,SAMPLE_FMT_NONE
-    },
+	.sample_fmts = (const enum SampleFormat[]) {
+		SAMPLE_FMT_S16,SAMPLE_FMT_NONE
+	},
     .channel_layouts = aac_channel_layout,
+#else
+    /* name = */ "aac",
+    /* type = */ AVMEDIA_TYPE_AUDIO,
+    /* id = */ CODEC_ID_AAC,
+    /* priv_data_size = */ sizeof(AACContext),
+    /* init = */ aac_decode_init,
+    /* encode = */ NULL,
+    /* close = */ aac_decode_close,
+    /* decode = */ aac_decode_frame,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Advanced Audio Coding"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ aac_decoder_formats,
+    /* channel_layouts = */ aac_channel_layout,
+#endif
 };

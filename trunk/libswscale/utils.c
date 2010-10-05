@@ -151,6 +151,10 @@ extern const int32_t ff_yuv2rgb_coeffs[8][4];
 
 const char *sws_format_name(enum PixelFormat format)
 {
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
     if ((unsigned)format < PIX_FMT_NB && av_pix_fmt_descriptors[format].name)
         return av_pix_fmt_descriptors[format].name;
     else
@@ -180,9 +184,13 @@ static int initFilter(int16_t **outFilter, int16_t **filterPos, int *outFilterSi
     int64_t *filter2=NULL;
     const int64_t fone= 1LL<<54;
     int ret= -1;
-#if ARCH_X86
-    if (flags & SWS_CPU_CAPS_MMX)
+#if ARCH_X86 && !defined(_MSC_VER)
+	if (flags & SWS_CPU_CAPS_MMX)
+#ifndef _MSC_VER
         __asm__ volatile("emms\n\t"::: "memory"); //FIXME this should not be required but it IS (even for non-MMX versions)
+#else
+		__asm emms;
+#endif
 #endif
 
     // NOTE: the +1 is for the MMX scaler which reads over the end
@@ -667,6 +675,9 @@ static int initMMX2HScaler(int dstW, int xInc, uint8_t *filterCode, int16_t *fil
 
 static void getSubSampleFactors(int *h, int *v, enum PixelFormat format)
 {
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
     *h = av_pix_fmt_descriptors[format].log2_chroma_w;
     *v = av_pix_fmt_descriptors[format].log2_chroma_h;
 }
@@ -788,9 +799,17 @@ SwsContext *sws_getContext(int srcW, int srcH, enum PixelFormat srcFormat,
     int unscaled;
     int srcRange, dstRange;
     SwsFilter dummyFilter= {NULL, NULL, NULL, NULL};
+#ifdef _MSC_VER
+	AVPixFmtDescriptor *av_pix_fmt_descriptors = get_av_pix_fmt_descriptors();
+#endif
+
 #if ARCH_X86
     if (flags & SWS_CPU_CAPS_MMX)
+#ifndef _MSC_VER
         __asm__ volatile("emms\n\t"::: "memory");
+#else
+		__asm emms;
+#endif
 #endif
 
 #if !CONFIG_RUNTIME_CPUDETECT //ensure that the flags match the compiled variant if cpudetect is off

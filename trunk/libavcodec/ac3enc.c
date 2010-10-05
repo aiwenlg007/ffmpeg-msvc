@@ -134,6 +134,10 @@ static void fft(IComplex *z, int ln)
     register IComplex *p,*q;
     int tmp_re, tmp_im;
 
+#ifdef _MSC_VER
+	uint8_t *av_reverse = get_av_reverse();
+#endif
+
     np = 1 << ln;
 
     /* reverse */
@@ -1391,7 +1395,30 @@ void test_ac3(void)
 }
 #endif
 
+const enum SampleFormat ac3_encoder_samples[] = {SAMPLE_FMT_S16,SAMPLE_FMT_NONE};
+const int64_t ac3_encoder_channels[] = {
+	CH_LAYOUT_MONO,
+	CH_LAYOUT_STEREO,
+	CH_LAYOUT_2_1,
+	CH_LAYOUT_SURROUND,
+	CH_LAYOUT_2_2,
+	CH_LAYOUT_QUAD,
+	CH_LAYOUT_4POINT0,
+	CH_LAYOUT_5POINT0,
+	CH_LAYOUT_5POINT0_BACK,
+	(CH_LAYOUT_MONO     | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_STEREO   | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_2_1      | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_SURROUND | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_2_2      | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_QUAD     | CH_LOW_FREQUENCY),
+	(CH_LAYOUT_4POINT0  | CH_LOW_FREQUENCY),
+	CH_LAYOUT_5POINT1,
+	CH_LAYOUT_5POINT1_BACK,
+	0 };
+
 AVCodec ac3_encoder = {
+#ifndef MSC_STRUCTS
     "ac3",
     AVMEDIA_TYPE_AUDIO,
     CODEC_ID_AC3,
@@ -1423,3 +1450,23 @@ AVCodec ac3_encoder = {
         CH_LAYOUT_5POINT1_BACK,
         0 },
 };
+#else
+	"ac3",
+	AVMEDIA_TYPE_AUDIO,
+	CODEC_ID_AC3,
+	sizeof(AC3EncodeContext),
+	AC3_encode_init,
+	AC3_encode_frame,
+	AC3_encode_close,
+	/* decode = */ 0,
+	/* capabilities = */ 0,
+	/* next = */ 0,
+	/* flush = */ 0,
+	/* supported_framerates = */ 0,
+	/* pix_fmts = */ 0,
+	/* long_name = */ NULL_IF_CONFIG_SMALL("ATSC A/52A (AC-3)"),
+	/* supported_samplerates = */ 0,
+	/* sample_fmts = */ ac3_encoder_samples,
+	/* channel_layouts = */ ac3_encoder_channels
+};
+#endif

@@ -107,8 +107,10 @@ static int pam_encode_frame(AVCodecContext *avctx, unsigned char *outbuf,
     return s->bytestream - s->bytestream_start;
 }
 
+const enum PixelFormat pam_encoder_formats[] = {PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_GRAY8, PIX_FMT_MONOWHITE, PIX_FMT_NONE};
 
 AVCodec pam_encoder = {
+#ifndef MSC_STRUCTS
     "pam",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_PAM,
@@ -117,4 +119,23 @@ AVCodec pam_encoder = {
     pam_encode_frame,
     .pix_fmts  = (const enum PixelFormat[]){PIX_FMT_RGB24, PIX_FMT_RGB32, PIX_FMT_GRAY8, PIX_FMT_MONOWHITE, PIX_FMT_NONE},
     .long_name = NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
+#else
+    /* name = */ "pam",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_PAM,
+    /* priv_data_size = */ sizeof(PNMContext),
+    /* init = */ ff_pnm_init,
+    /* encode = */ pam_encode_frame,
+    /* close = */ 0,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ pam_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("PAM (Portable AnyMap) image"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

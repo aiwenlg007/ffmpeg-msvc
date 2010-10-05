@@ -405,6 +405,7 @@ static int ulti_decode_frame(AVCodecContext *avctx,
 }
 
 AVCodec ulti_decoder = {
+#ifndef MSC_STRUCTS
     "ultimotion",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_ULTI,
@@ -416,5 +417,24 @@ AVCodec ulti_decoder = {
     CODEC_CAP_DR1,
     NULL,
     .long_name = NULL_IF_CONFIG_SMALL("IBM UltiMotion"),
+#else
+    /* name = */ "ultimotion",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_ULTI,
+    /* priv_data_size = */ sizeof(UltimotionDecodeContext),
+    /* init = */ ulti_decode_init,
+    /* encode = */ NULL,
+    /* close = */ ulti_decode_end,
+    /* decode = */ ulti_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("IBM UltiMotion"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 

@@ -25,9 +25,13 @@
 #if HAVE_SETMODE
 #include <io.h>
 #endif
+
+#ifndef _MSC_VER
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/time.h>
+#endif
+
+#include <sys/stat.h>
 #include <stdlib.h>
 #include "os_support.h"
 
@@ -94,6 +98,7 @@ static int file_get_handle(URLContext *h)
 }
 
 URLProtocol file_protocol = {
+#ifndef MSC_STRUCTS
     "file",
     file_open,
     file_read,
@@ -102,6 +107,19 @@ URLProtocol file_protocol = {
     file_close,
     .url_get_file_handle = file_get_handle,
 };
+#else
+	"file",
+	file_open,
+	file_read,
+	file_write,
+	file_seek,
+	file_close,
+	/*next = */ 0,
+	/*url_read_pause = */ 0,
+	/*url_read_seek = */ 0,
+	/*url_get_file_handle = */ file_get_handle
+};
+#endif
 
 /* pipe protocol */
 
@@ -128,9 +146,23 @@ static int pipe_open(URLContext *h, const char *filename, int flags)
 }
 
 URLProtocol pipe_protocol = {
+#ifndef MSC_STRUCTS
     "pipe",
     pipe_open,
     file_read,
     file_write,
     .url_get_file_handle = file_get_handle,
 };
+#else
+	"pipe",
+	pipe_open,
+	file_read,
+	file_write,
+	/*url_seek = */ 0,
+	/*url_close = */ 0,
+	/*next = */ 0,
+	/*url_read_pause = */ 0,
+	/*url_read_seek = */ 0,
+	/*url_get_file_handle = */ file_get_handle
+};
+#endif

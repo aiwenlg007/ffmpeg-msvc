@@ -571,8 +571,10 @@ static av_cold int svq1_encode_end(AVCodecContext *avctx)
     return 0;
 }
 
+const enum PixelFormat svq1_encoder_formats[] = {PIX_FMT_YUV410P, PIX_FMT_NONE};
 
 AVCodec svq1_encoder = {
+#ifndef MSC_STRUCTS
     "svq1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_SVQ1,
@@ -582,4 +584,23 @@ AVCodec svq1_encoder = {
     svq1_encode_end,
     .pix_fmts= (const enum PixelFormat[]){PIX_FMT_YUV410P, PIX_FMT_NONE},
     .long_name= NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1"),
+#else
+    /* name = */ "svq1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_SVQ1,
+    /* priv_data_size = */ sizeof(SVQ1Context),
+    /* init = */ svq1_encode_init,
+    /* encode = */ svq1_encode_frame,
+    /* close = */ svq1_encode_end,
+    /* decode = */ 0,
+    /* capabilities = */ 0,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ svq1_encoder_formats,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

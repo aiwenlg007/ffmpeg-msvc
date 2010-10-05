@@ -264,6 +264,7 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec iff_ilbm_decoder = {
+#ifndef MSC_STRUCTS
     "iff_ilbm",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_IFF_ILBM,
@@ -274,9 +275,29 @@ AVCodec iff_ilbm_decoder = {
     decode_frame_ilbm,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("IFF ILBM"),
+#else
+    /* name = */ "iff_ilbm",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_IFF_ILBM,
+    /* priv_data_size = */ sizeof(IffContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame_ilbm,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("IFF ILBM"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 AVCodec iff_byterun1_decoder = {
+#ifndef MSC_STRUCTS
     "iff_byterun1",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_IFF_BYTERUN1,
@@ -287,4 +308,23 @@ AVCodec iff_byterun1_decoder = {
     decode_frame_byterun1,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("IFF ByteRun1"),
+#else
+    /* name = */ "iff_byterun1",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_IFF_BYTERUN1,
+    /* priv_data_size = */ sizeof(IffContext),
+    /* init = */ decode_init,
+    /* encode = */ NULL,
+    /* close = */ decode_end,
+    /* decode = */ decode_frame_byterun1,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("IFF ByteRun1"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

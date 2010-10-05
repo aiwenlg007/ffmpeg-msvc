@@ -237,6 +237,7 @@ static int mpc_read_seek(AVFormatContext *s, int stream_index, int64_t timestamp
 
 
 AVInputFormat mpc_demuxer = {
+#ifndef MSC_STRUCTS
     "mpc",
     NULL_IF_CONFIG_SMALL("Musepack"),
     sizeof(MPCContext),
@@ -247,3 +248,24 @@ AVInputFormat mpc_demuxer = {
     mpc_read_seek,
     .extensions = "mpc",
 };
+#else
+	"mpc",
+	NULL_IF_CONFIG_SMALL("Musepack"),
+	sizeof(MPCContext),
+	mpc_probe,
+	mpc_read_header,
+	mpc_read_packet,
+	mpc_read_close,
+	mpc_read_seek,
+	/*read_timestamp = */ 0,
+	/*flags = */ 0,
+	/*extensions = */  "mpc",
+	/*value = */ 0,
+	/*read_play = */ 0,
+	/*read_pause = */ 0,
+	/*codec_tag = */ 0,
+	/*read_seek2 = */ 0,
+	/*metadata_conv = */ 0,
+	/*next = */ 0
+};
+#endif

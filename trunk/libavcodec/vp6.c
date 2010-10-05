@@ -215,8 +215,14 @@ static int vp6_huff_cmp(const void *va, const void *vb)
 static void vp6_build_huff_tree(VP56Context *s, uint8_t coeff_model[],
                                 const uint8_t *map, unsigned size, VLC *vlc)
 {
+#ifndef _MSC_VER
     Node nodes[2*size], *tmp = &nodes[size];
     int a, b, i;
+#else
+    Node nodes[24], *tmp = &nodes[size];
+    int a, b, i;
+	assert(size <= 24);
+#endif
 
     /* first compute probabilities from model */
     tmp[0].count = 256;
@@ -304,7 +310,11 @@ static void vp6_parse_vector_adjustment(VP56Context *s, VP56mv *vect)
     VP56Model *model = s->modelp;
     int comp;
 
+#ifndef _MSC_VER
     *vect = (VP56mv) {0,0};
+#else
+    vect->x = vect->y = 0;
+#endif
     if (s->vector_candidate_pos < 2)
         *vect = s->vector_candidate[0];
 
@@ -606,6 +616,7 @@ static av_cold int vp6_decode_free(AVCodecContext *avctx)
 }
 
 AVCodec vp6_decoder = {
+#ifndef MSC_STRUCTS
     "vp6",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP6,
@@ -616,10 +627,30 @@ AVCodec vp6_decoder = {
     vp56_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("On2 VP6"),
+#else
+    /* name = */ "vp6",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP6,
+    /* priv_data_size = */ sizeof(VP56Context),
+    /* init = */ vp6_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vp6_decode_free,
+    /* decode = */ vp56_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("On2 VP6"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 /* flash version, not flipped upside-down */
 AVCodec vp6f_decoder = {
+#ifndef MSC_STRUCTS
     "vp6f",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP6F,
@@ -630,10 +661,30 @@ AVCodec vp6f_decoder = {
     vp56_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("On2 VP6 (Flash version)"),
+#else
+    /* name = */ "vp6f",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP6F,
+    /* priv_data_size = */ sizeof(VP56Context),
+    /* init = */ vp6_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vp6_decode_free,
+    /* decode = */ vp56_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("On2 VP6 (Flash version)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };
 
 /* flash version, not flipped upside-down, with alpha channel */
 AVCodec vp6a_decoder = {
+#ifndef MSC_STRUCTS
     "vp6a",
     AVMEDIA_TYPE_VIDEO,
     CODEC_ID_VP6A,
@@ -644,4 +695,23 @@ AVCodec vp6a_decoder = {
     vp56_decode_frame,
     CODEC_CAP_DR1,
     .long_name = NULL_IF_CONFIG_SMALL("On2 VP6 (Flash version, with alpha channel)"),
+#else
+    /* name = */ "vp6a",
+    /* type = */ AVMEDIA_TYPE_VIDEO,
+    /* id = */ CODEC_ID_VP6A,
+    /* priv_data_size = */ sizeof(VP56Context),
+    /* init = */ vp6_decode_init,
+    /* encode = */ NULL,
+    /* close = */ vp6_decode_free,
+    /* decode = */ vp56_decode_frame,
+    /* capabilities = */ CODEC_CAP_DR1,
+    /* next = */ 0,
+    /* flush = */ 0,
+    /* supported_framerates = */ 0,
+    /* pix_fmts = */ 0,
+    /* long_name = */ NULL_IF_CONFIG_SMALL("On2 VP6 (Flash version, with alpha channel)"),
+    /* supported_samplerates = */ 0,
+    /* sample_fmts = */ 0,
+    /* channel_layouts = */ 0,
+#endif
 };

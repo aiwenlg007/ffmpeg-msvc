@@ -184,8 +184,11 @@ static int avs_read_packet(AVFormatContext * s, AVPacket * pkt)
                     avs->st_video->codec->height = avs->height;
                     avs->st_video->codec->bits_per_coded_sample=avs->bits_per_sample;
                     avs->st_video->nb_frames = avs->nb_frames;
-                    avs->st_video->codec->time_base = (AVRational) {
-                    1, avs->fps};
+#ifndef _MSC_VER
+                    avs->st_video->codec->time_base = (AVRational) { 1, avs->fps};
+#else
+					avs->st_video->codec->time_base = av_create_rational(1, avs->fps);
+#endif
                 }
                 return avs_read_video_packet(s, pkt, type, sub_type, size,
                                              palette, palette_size);
