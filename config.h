@@ -7,7 +7,7 @@
 #define MSC_STRUCTS
 #endif
 
-#define FFMPEG_CONFIGURATION "--enable-memalign-hack --enable-w32threads --arch=x86
+#define FFMPEG_CONFIGURATION "--enable-memalign-hack --enable-w32threads --arch=x86"
 #define FFMPEG_LICENSE "LGPL version 2.1 or later"
 #define FFMPEG_DATADIR "/usr/local/share/ffmpeg"
 #define CC_TYPE "gcc"
